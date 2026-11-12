@@ -168,6 +168,59 @@ label.f b{color:var(--danger);font-weight:400}
 .save-state[data-s=saving]{color:#a07a20}
 .save-state[data-s=error]{color:#c0392b;border-color:#f0b4ae}
 .ro-badge .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;box-shadow:0 0 0 3px #22c55e33}
+.invbtn{margin-left:8px}
+.invbtn svg{width:16px;height:16px}
+.inv{margin-bottom:16px}.inv-h{display:flex;gap:10px;align-items:baseline;margin-bottom:6px}.inv-h b{font-size:15px}.inv-h span{font-size:12px}
+.inv-row{display:flex;gap:8px}.inv-row input{flex:1;font-size:13px;color:#cfd1dc}
+.invbanner{display:flex;flex-direction:column;gap:2px;border:1px solid color-mix(in srgb,var(--acc) 50%,transparent);background:color-mix(in srgb,var(--acc) 10%,transparent);border-radius:12px;padding:12px 14px;margin-bottom:18px}
+.invbanner span{font-size:12px;color:var(--muted)}.invbanner b{font-family:var(--serif);font-size:22px;color:#f1ead8}.invbanner small{color:var(--muted)}
+.mbox{position:fixed;left:-9999px;top:0;width:200px;height:113px;opacity:0;pointer-events:none}
+.mbox iframe{width:200px;height:113px;border:0}
+.mdock{display:flex;align-items:center;gap:6px;margin-left:auto;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px 3px 10px;max-width:340px;height:34px}
+.mdock+.invbtn{margin-left:8px}.tabs+.invbtn{margin-left:auto}
+.mdock button{border:0;background:transparent;color:var(--text);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:6px}
+.mdock button:hover{background:var(--line)}
+.mdock .unlock{background:var(--acc)!important;color:#191306;font-weight:700;padding:3px 10px}
+.mdock .mt{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;color:#cfd1dc;cursor:pointer}
+.mdock input[type=range]{width:64px;height:auto;padding:0;accent-color:var(--acc)}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px;width:14px}
+.eq i{width:3px;height:4px;background:var(--acc);border-radius:1px}
+.eq.on i{animation:eq .9s ease-in-out infinite}.eq.on i:nth-child(2){animation-delay:.2s}.eq.on i:nth-child(3){animation-delay:.45s}
+@keyframes eq{0%,100%{height:4px}50%{height:14px}}
+.music{flex:1;overflow:auto;padding:28px 40px;display:flex;flex-direction:column;gap:18px;max-width:1100px}
+.np{background:linear-gradient(135deg,#1c2036,#151827);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;gap:18px;align-items:center;min-height:120px}
+.np-art{width:96px;height:96px;flex:none;border-radius:12px;background:#262c44 center/cover;display:grid;place-items:center;font-size:34px;color:var(--acc)}
+.np-main{flex:1;min-width:0}
+.np-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.np-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#f1ead8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0 10px}
+.np-bar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.np-bar input{flex:1;height:auto;padding:0;accent-color:var(--acc)}
+.np-ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end;max-width:340px}
+.np-ctl button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer;font-size:14px}
+.np-ctl button.big{width:50px;height:50px;background:var(--acc);color:#191306;border:0;font-size:18px}
+.np-ctl button.on{border-color:var(--acc);color:var(--acc)}
+.np-ctl .btn.sm{width:auto;border-radius:8px}
+.vol{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}.vol input{width:80px;height:auto;padding:0;accent-color:var(--acc)}
+.np-empty{color:var(--muted);padding:18px;text-align:center;flex:1}
+.mlink{display:flex;gap:8px}.mlink input{flex:1}.mlink select{width:150px}
+.drop{margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px dashed var(--line);border-radius:12px;padding:20px;cursor:pointer;transition:border-color 160ms var(--ease),background 160ms var(--ease)}
+.drop:hover,.drop.over{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 6%,transparent)}
+.drop span{font-size:12px;color:var(--muted)}
+.hintline{font-size:12px;margin:10px 0 0}
+.libhead{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}.libhead h2{margin:0}
+.cats{display:flex;gap:4px;background:#10141f;border:1px solid var(--line);border-radius:10px;padding:3px}
+.cats button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:600;padding:5px 12px;border-radius:7px;cursor:pointer}
+.cats button.on{background:var(--panel2);color:var(--text)}
+.msearch{width:200px;margin-left:auto;height:36px}
+.tl{display:flex;flex-direction:column;gap:6px}
+.tr{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:10px;border:1px solid transparent;transition:background 140ms var(--ease)}
+.tr:hover{background:#1b2033}.tr.cur{border-color:color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.tplay{width:34px;height:34px;flex:none;border-radius:50%;border:0;background:var(--panel2);color:var(--text);cursor:pointer}
+.tr.cur .tplay,.tplay:hover:not(:disabled){background:var(--acc);color:#191306}
+.tthumb{width:44px;height:44px;flex:none;border-radius:8px;background:#262c44 center/cover;display:grid;place-items:center;color:var(--acc)}
+.tinfo{flex:1;min-width:0}.ttitle{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tmeta{font-size:12px;color:var(--muted)}
+.tr select{width:130px;height:32px;font-size:12px;padding:0 8px}
+.tic{width:32px;height:32px;border:0;background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;display:grid;place-items:center}.tic:hover{background:var(--panel2);color:var(--text)}.tic svg{width:16px;height:16px}
 .fatal{margin:auto;max-width:520px;text-align:center;padding:40px;line-height:1.6}
 
 /* ================= BOARD ================= */
@@ -309,6 +362,7 @@ const ICON={
  ls_elbow:sv('<path d="M4 19h8V5h8"/>'),
  ls_curve:sv('<path d="M4 19C12 19 12 5 20 5"/>'),
  edit:sv('<path d="M4 20h4L19 9l-4-4L4 16z"/>'),
+ invite:sv('<circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0112 0M18 8v6M15 11h6"/>'),
  export:sv('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),
 };
 const SHAPES={rect:'Прямоугольник',round:'Скруглённый',ellipse:'Эллипс',diamond:'Ромб',triangle:'Треугольник',hexagon:'Шестиугольник',parallelogram:'Параллелограмм',star:'Звезда'};
@@ -397,6 +451,7 @@ const root=()=>$('#app');
 function destroyBoard(){if(App.board){App.board.destroy();App.board=null}if(App.unsub){App.unsub();App.unsub=null}}
 async function go(view,...args){
   destroyBoard();
+  if(App.music&&!(view==='project'&&args[0]===App.music.pid)){App.music.destroy();App.music=null}
   document.body.className=App.user?.role?'role-'+App.user.role:'';
   try{
     if(view==='auth')return renderAuth();
@@ -407,6 +462,35 @@ async function go(view,...args){
 }
 function loading(text='Загрузка…'){root().innerHTML=(App.user?headerHTML():'')+`<div class="loading"><div class="spin"></div>${esc(text)}</div>`;if(App.user)bindHeader()}
 const GOOGLE_ICON='<svg viewBox="0 0 48 48" width="18" height="18"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+
+/* ---------- приглашения ---------- */
+const APP_URL=location.origin+location.pathname;
+const inviteLink=code=>`${APP_URL}?invite=${code}`;
+function parseInvite(text){const t=(text||'').trim();const m=t.match(/[?&]invite=([A-Za-z0-9]{6})/);if(m)return m[1].toUpperCase();if(/^[A-Za-z0-9]{6}$/.test(t))return t.toUpperCase();return null}
+async function inviteInfo(code){try{const {data}=await sb.rpc('invite_info',{c:code});return data||null}catch(_){return null}}
+/** применяет отложенное приглашение после входа; true — если ушли в проект */
+async function consumeInvite(){
+  const code=LS.get('rpa_invite');if(!code||!App.user?.role)return false;
+  LS.set('rpa_invite',null);
+  try{const pid=await API.join(code);if(!pid){toast('Приглашение устарело — попросите у мастера новую ссылку','err');return false}toast('Вы присоединились к игре');go('project',pid,'board');return true}
+  catch(ex){if(/COMASTER_NEEDS_MASTER/.test(ex.message))toast('Это приглашение для сомастера — войдите аккаунтом мастера','err');else fail(ex);return false}
+}
+function inviteModal(p){
+  const {el,close}=openModal(`<h3>Пригласить в «${esc(p.title)}»</h3>
+    <div class="inv"><div class="inv-h"><b>Игроки</b><span class="muted">видят доску и слышат музыку</span></div><div class="inv-row"><input readonly value="${esc(inviteLink(p.code))}"><button class="btn primary" data-cp="${esc(inviteLink(p.code))}">Копировать</button></div></div>
+    <div class="inv"><div class="inv-h"><b>Сомастера</b><span class="muted">редактируют доску и музыку вместе с вами</span></div><div class="inv-row"><input readonly value="${esc(inviteLink(p.comaster_code))}"><button class="btn" data-cp="${esc(inviteLink(p.comaster_code))}">Копировать</button></div></div>
+    <p class="muted" style="font-size:12px;margin:4px 0 16px">Отправьте ссылку в мессенджер. Человек откроет её, войдёт или зарегистрируется — и сразу окажется в игре. Если ссылка утекла, создайте новую в «Настройках» проекта.</p>
+    <div class="modal-actions"><button class="btn" data-close>Готово</button></div>`);
+  el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+  el.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>{const v=b.dataset.cp;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>{toast('Ссылка скопирована');b.textContent='Скопировано'},()=>{b.previousElementSibling.select();document.execCommand('copy');toast('Ссылка скопирована')})});
+  el.querySelectorAll('.inv input').forEach(i=>i.onclick=()=>i.select());
+}
+function joinModal(){
+  const {el,close}=openModal(`<h3>Присоединиться по приглашению</h3><form><label class="f">Вставьте ссылку-приглашение от мастера<input name="l" required placeholder="${esc(APP_URL)}?invite=…" autocomplete="off"></label><div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Присоединиться</button></div></form>`);
+  el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+  const f=el.querySelector('form');f.l.focus();
+  f.onsubmit=async e=>{e.preventDefault();const code=parseInvite(f.l.value);if(!code)return toast('Это не похоже на ссылку-приглашение','err');close();LS.set('rpa_invite',code);consumeInvite()};
+}
 
 /* ---------- auth ---------- */
 function skyArt(){
@@ -426,11 +510,14 @@ function heroHTML(){return `<div class="auth-hero">
   <svg class="deco" viewBox="0 0 100 100" fill="none" stroke="#e3b75b" stroke-width="1.2"><polygon points="50,4 92,28 92,72 50,96 8,72 8,28"/><polygon points="50,4 92,72 8,72"/><polygon points="50,96 8,28 92,28"/><line x1="50" y1="4" x2="50" y2="96"/></svg>
 </div>`}
 function renderAuth(){
-  let role=LS.get('rpa_role')||'master',mode='login';
+  let role=LS.get('rpa_role')||'master',mode='login',inv=null;
+  const code=LS.get('rpa_invite');
+  if(code)inviteInfo(code).then(i=>{if(!i)return;inv=i;role=i.kind==='comaster'?'master':'player';LS.set('rpa_role',role);mode='register';draw()});
   const draw=()=>{
     document.body.className='role-'+role;
     root().innerHTML=`<div class="auth">${heroHTML()}
       <div class="auth-side"><div class="auth-card">
+        ${inv?`<div class="invbanner"><span>Вас пригласили ${inv.kind==='comaster'?'сомастером':'в игру'}</span><b>${esc(inv.title)}</b><small>${esc(inv.system||'')} · мастер ${esc(inv.owner||'')}</small></div>`:''}
         <div class="role-switch"><button data-role="master" class="${role==='master'?'on':''}">Мастер игры</button><button data-role="player" class="${role==='player'?'on':''}">Игрок</button></div>
         <h2>${mode==='login'?'Вход':'Регистрация'} ${role==='master'?'мастера':'игрока'}</h2>
         <p class="sub">${role==='master'?'Создавайте игры, ведите доску и приглашайте игроков.':'Присоединяйтесь к играм своих мастеров по коду.'}</p>
@@ -479,12 +566,14 @@ function renderAuth(){
 async function enter(p){
   App.user=p;
   if(!p||!p.role)return go('onboard');
+  if(await consumeInvite())return;
   const nav=LS.get('rpa_nav');
   if(nav){try{const [pid,tab]=JSON.parse(nav);if(pid)return go('project',pid,tab)}catch(_){}}
   go('home');
 }
 function renderOnboard(){
   let role=LS.get('rpa_role')||'master';
+  const code=LS.get('rpa_invite');if(code)inviteInfo(code).then(i=>{if(i){role=i.kind==='comaster'?'master':'player';draw()}});
   const u=App.user||{};
   const draw=()=>{
     document.body.className='role-'+role;
@@ -504,7 +593,7 @@ function renderOnboard(){
   };
   draw();
 }
-async function logout(){destroyBoard();await sb.auth.signOut();App.user=null;LS.set('rpa_nav',null);go('auth')}
+async function logout(){destroyBoard();if(App.music){App.music.destroy();App.music=null}await sb.auth.signOut();App.user=null;LS.set('rpa_nav',null);go('auth')}
 
 function headerHTML(mid=''){
   const u=App.user;
@@ -530,25 +619,25 @@ async function renderHome(){
   const card=p=>`<div class="card" data-open="${p.id}">
     <div class="cover" style="--c:${esc(p.color||'#7c5cff')}"><span class="sys">${esc(sysName(p))}</span></div>
     <div class="card-body"><h3>${esc(p.title)}</h3><p>${esc(p.description||'Без описания')}</p>
-    <div class="meta">${p.myRole==='owner'?`<span>Код: <b>${p.code}</b></span><span>Игроков: ${p.members}</span>${p.comasters?`<span>Сомастеров: ${p.comasters}</span>`:''}`:`${p.myRole==='comaster'?'<span class="co">Сомастер</span>':''}<span>Мастер: ${esc(p.owner?.name||'—')}</span>`}</div></div>
-    ${p.myRole==='owner'?`<div class="card-menu"><button data-edit="${p.id}" title="Изменить">${ICON.edit}</button><button data-export="${p.id}" title="Экспорт в файл">${ICON.export}</button><button data-del="${p.id}" title="Удалить">${ICON.trash}</button></div>`:''}
+    <div class="meta">${p.myRole==='owner'?`<span>Игроков: ${p.members}</span>${p.comasters?`<span>Сомастеров: ${p.comasters}</span>`:''}`:`${p.myRole==='comaster'?'<span class="co">Сомастер</span>':''}<span>Мастер: ${esc(p.owner?.name||'—')}</span>`}</div></div>
+    ${p.myRole==='owner'?`<div class="card-menu"><button data-inv="${p.id}" title="Пригласить">${ICON.invite}</button><button data-edit="${p.id}" title="Изменить">${ICON.edit}</button><button data-export="${p.id}" title="Экспорт в файл">${ICON.export}</button><button data-del="${p.id}" title="Удалить">${ICON.trash}</button></div>`:''}
   </div>`;
   root().innerHTML=headerHTML()+`<main class="home">
     <div class="home-head"><div><h1>${isM?'Мои проекты':'Мои игры'}</h1><p class="muted" style="margin:0">${isM?'Каждый проект — отдельная игра или кампания со своей системой, доской и игроками.':'Игры, в которых вы участвуете. Код приглашения выдаёт мастер.'}</p></div>
     <div class="home-actions">
-      ${isM?'<form class="join" data-join title="Код сомастера выдаёт владелец проекта в его настройках"><input name="code" placeholder="КОД СОМАСТЕРА" maxlength="6" required><button class="btn">Стать сомастером</button></form><button class="btn primary" data-new>+ Новый проект</button><label class="btn" title="Загрузить проект из файла .rpa.json">Импорт<input type="file" accept=".json,application/json" hidden data-import></label>':'<form class="join" data-join><input name="code" placeholder="КОД ИГРЫ" maxlength="6" required><button class="btn primary">Присоединиться</button></form>'}
+      ${isM?'<button class="btn" data-joinlink title="Если вас позвали сомастером">У меня есть приглашение</button><label class="btn" title="Загрузить проект из файла .rpa.json">Импорт<input type="file" accept=".json,application/json" hidden data-import></label><button class="btn primary" data-new>+ Новый проект</button>':'<button class="btn primary" data-joinlink>У меня есть приглашение</button>'}
     </div></div>
-    ${list.length||isM?`<div class="grid">${list.map(card).join('')}${isM?'<button class="card new" data-new><span>+</span>Создать проект</button>':''}</div>`:'<div class="empty">Пока вы не участвуете ни в одной игре.<br>Введите код приглашения от мастера.</div>'}
+    ${list.length||isM?`<div class="grid">${list.map(card).join('')}${isM?'<button class="card new" data-new><span>+</span>Создать проект</button>':''}</div>`:'<div class="empty">Пока вы не участвуете ни в одной игре.<br><span class="muted" style="font-family:Manrope,sans-serif;font-size:14px">Попросите мастера прислать ссылку-приглашение и просто откройте её — или вставьте сюда.</span><br><button class="btn primary" data-joinlink style="margin-top:16px">Вставить ссылку-приглашение</button></div>'}
   </main>`;
   bindHeader();
   const byId=id=>list.find(p=>p.id===id);
   $$('[data-new]').forEach(b=>b.onclick=()=>projectModal());
   $$('[data-open]').forEach(c=>c.onclick=e=>{if(e.target.closest('.card-menu'))return;go('project',c.dataset.open,'board')});
   $$('[data-edit]').forEach(b=>b.onclick=()=>projectModal(byId(b.dataset.edit)));
+  $$('[data-inv]').forEach(b=>b.onclick=()=>inviteModal(byId(b.dataset.inv)));
   $$('[data-export]').forEach(b=>b.onclick=()=>exportProject(b.dataset.export));
   $$('[data-del]').forEach(b=>b.onclick=async()=>{const p=byId(b.dataset.del);if(await confirmBox(`Удалить проект «${p.title}» вместе с доской? Игроки потеряют к нему доступ.`)){try{await API.deleteProject(p.id);toast('Проект удалён');renderHome()}catch(e){fail(e)}}});
-  const jf=$('[data-join]');
-  if(jf)jf.onsubmit=async e=>{e.preventDefault();try{const pid=await API.join(jf.code.value);if(!pid)return toast('Проект с таким кодом не найден — проверьте код','err');toast(isM?'Вы присоединились к проекту':'Вы присоединились к игре');go('project',pid,'board')}catch(ex){if(/COMASTER_NEEDS_MASTER/.test(ex.message))return toast('Это код сомастера — войдите аккаунтом мастера','err');fail(ex)}};
+  $$('[data-joinlink]').forEach(b=>b.onclick=joinModal);
   const im=$('[data-import]');if(im)im.onchange=e=>importProject(e.target.files[0]);
 }
 
@@ -626,10 +715,13 @@ async function renderProject(pid,tab='board'){
   const isOwner=p.owner_id===App.user.id;
   const myRole=isOwner?'owner':await API.myRole(pid);
   const isM=isOwner||myRole==='comaster';
-  const tabs=isOwner?[['board','Доска'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['settings','Настройки']]
-    :isM?[['board','Доска'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['info','Об игре']]:[['board','Доска'],['info','Об игре']];
+  const tabs=isOwner?[['board','Доска'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['settings','Настройки']]
+    :isM?[['board','Доска'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['info','Об игре']]:[['board','Доска'],['music','Музыка'],['info','Об игре']];
+  if(!App.music||App.music.pid!==pid){if(App.music)App.music.destroy();App.music=new MusicEngine(pid,isM);App.music.init().catch(e=>console.error(e))}
   root().innerHTML=headerHTML(`<div class="crumb"><button class="btn ghost sm" data-back>← Проекты</button><span class="pt" title="${esc(p.title)}">${esc(p.title)}</span><span class="sys">${esc(sysName(p))}</span></div>
-    <nav class="tabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav>`)+'<main class="pmain"></main>';
+    <nav class="tabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><div class="mdock" hidden></div>${isOwner?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+'<main class="pmain"></main>';
+  if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,tab!=='music'?()=>go('project',pid,'music'):null);
+  if(isOwner)$('[data-invite]').onclick=()=>inviteModal(p);
   bindHeader();
   $('[data-back]').onclick=()=>{LS.set('rpa_nav',null);go('home')};
   $$('[data-tab]').forEach(b=>b.onclick=()=>go('project',pid,b.dataset.tab));
@@ -669,6 +761,7 @@ async function renderProject(pid,tab='board'){
     App.unsub=()=>{try{ch.send({type:'broadcast',event:'cursor',payload:{id:me.id,x:null}})}catch(_){}sb.removeChannel(ch)};
     return;
   }
+  if(tab==='music'){renderMusicTab(main,App.music,isM);return}
   const SOON={
     chars:['🧙','Персонажи','Листы персонажей игроков и NPC с характеристиками по правилам выбранной системы.'],
     sessions:['📅','Сессии','Планирование встреч, журнал прошедших сессий и заметки по итогам.'],
@@ -686,19 +779,19 @@ async function renderProject(pid,tab='board'){
     const mem=await API.members(pid);
     main.innerHTML=`<div class="page">
       <section class="panel"><h2>Игра</h2><div class="kv" style="margin-bottom:14px"><div>Название</div><div>${esc(p.title)}</div><div>Игровая система</div><div>${esc(sysName(p))}</div><div>Правила системы</div><div class="muted">будут подключены позже</div></div><button class="btn" data-edit>Изменить название, систему, описание</button></section>
-      <section class="panel"><h2>Приглашение игроков</h2><div class="row-g" style="margin-bottom:10px"><span class="code">${p.code}</span><button class="btn sm" data-copy>Копировать</button><button class="btn sm ghost" data-regen>Новый код</button></div>
-        <p class="muted" style="margin:0;font-size:13px">Игрок входит в RPAssistant со своего устройства и вводит этот код на главной странице. Новый код отменяет старый.</p></section>
-      <section class="panel"><h2>Сомастера</h2><div class="row-g" style="margin-bottom:10px"><span class="code">${p.comaster_code||'—'}</span><button class="btn sm" data-copy2>Копировать</button><button class="btn sm ghost" data-regen2>Новый код</button></div>
-        <p class="muted" style="margin:0;font-size:13px">Сомастер входит аккаунтом <b>мастера</b> и вводит этот код на главной в поле «Код сомастера». Он редактирует доску вместе с вами в реальном времени, но не может менять настройки и удалять проект.</p></section>
+      <section class="panel"><h2>Ссылка для игроков</h2><div class="inv-row" style="margin-bottom:10px"><input readonly value="${esc(inviteLink(p.code))}"><button class="btn primary" data-copy>Копировать</button><button class="btn ghost" data-regen title="Старая ссылка перестанет работать">Новая ссылка</button></div>
+        <p class="muted" style="margin:0;font-size:13px">Отправьте ссылку игроку. Он откроет её, войдёт или зарегистрируется — и сразу окажется в игре.</p></section>
+      <section class="panel"><h2>Ссылка для сомастеров</h2><div class="inv-row" style="margin-bottom:10px"><input readonly value="${esc(inviteLink(p.comaster_code))}"><button class="btn" data-copy2>Копировать</button><button class="btn ghost" data-regen2 title="Старая ссылка перестанет работать">Новая ссылка</button></div>
+        <p class="muted" style="margin:0;font-size:13px">Сомастер входит аккаунтом мастера и редактирует доску и музыку вместе с вами в реальном времени, но не может менять настройки и удалять проект.</p></section>
       <section class="panel"><h2>Доступ игроков к доске</h2><select data-access style="max-width:320px"><option value="view" ${p.board_access!=='none'?'selected':''}>Видят в реальном времени (только просмотр)</option><option value="none" ${p.board_access==='none'?'selected':''}>Скрыта от игроков</option></select></section>
       <section class="panel"><h2>Участники (${mem.length})</h2>${mem.length?`<ul class="plist">${mem.sort((a,b)=>a.role===b.role?0:a.role==='comaster'?-1:1).map(m=>`<li><span class="pl">${m.profile?.avatar_url?`<img class="ava" src="${esc(m.profile.avatar_url)}" referrerpolicy="no-referrer" alt="">`:''}${esc(m.profile?.name||'Участник')}<span class="badge ${m.role==='comaster'?'master':'player'}">${m.role==='comaster'?'Сомастер':'Игрок'}</span></span><button class="btn sm ghost" data-kick="${m.user_id}">Убрать</button></li>`).join('')}</ul>`:'<p class="muted" style="margin:0">Пока никто не присоединился.</p>'}</section>
       <section class="panel"><h2>Проект</h2><div class="row-g"><button class="btn" data-export>${ICON.export} Экспорт в файл</button><button class="btn danger" data-del>${ICON.trash} Удалить проект</button></div></section>
     </div>`;
     $('[data-edit]').onclick=()=>projectModal(p);
-    $('[data-copy]').onclick=()=>{navigator.clipboard?.writeText(p.code).then(()=>toast('Код скопирован'),()=>toast(p.code))};
+    $('[data-copy]').onclick=()=>{navigator.clipboard?.writeText(inviteLink(p.code)).then(()=>toast('Ссылка скопирована'),()=>toast(inviteLink(p.code)))};
     const regen=field=>async()=>{for(let i=0;i<5;i++){const {error}=await sb.from('projects').update({[field]:genCode()}).eq('id',pid);if(!error)break;if(error.code!=='23505')return fail(error)}go('project',pid,'settings')};
     $('[data-regen]').onclick=regen('code');$('[data-regen2]').onclick=regen('comaster_code');
-    $('[data-copy2]').onclick=()=>{navigator.clipboard?.writeText(p.comaster_code).then(()=>toast('Код сомастера скопирован'),()=>toast(p.comaster_code))};
+    $('[data-copy2]').onclick=()=>{navigator.clipboard?.writeText(inviteLink(p.comaster_code)).then(()=>toast('Ссылка скопирована'),()=>toast(inviteLink(p.comaster_code)))};
     $('[data-access]').onchange=async e=>{const {error}=await sb.from('projects').update({board_access:e.target.value}).eq('id',pid);if(!fail(error))toast('Доступ обновлён')};
     $$('[data-kick]').forEach(b=>b.onclick=async()=>{try{await API.kick(pid,b.dataset.kick);go('project',pid,'settings')}catch(e){fail(e)}});
     $('[data-export]').onclick=()=>exportProject(pid);
@@ -1373,10 +1466,293 @@ class Board{
   }
 }
 
+/* ================================================================
+   MUSIC — библиотека треков и синхронное воспроизведение
+================================================================ */
+const CATS={music:'Музыка',ambient:'Атмосфера',sfx:'Эффекты'};
+const KIND_LABEL={file:'Файл',url:'Ссылка',youtube:'YouTube',soundcloud:'SoundCloud',yadisk:'Яндекс Диск'};
+const fmtTime=s=>{if(!isFinite(s)||s<0)s=0;s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),c=String(s%60).padStart(2,'0');return h?`${h}:${String(m).padStart(2,'0')}:${c}`:`${m}:${c}`};
+const loadScript=(src,test)=>new Promise((res,rej)=>{if(test())return res();let el=document.querySelector(`script[src="${src}"]`);if(!el){el=document.createElement('script');el.src=src;el.async=true;document.head.appendChild(el)}const t0=Date.now();const iv=setInterval(()=>{if(test()){clearInterval(iv);res()}else if(Date.now()-t0>15000){clearInterval(iv);rej(new Error('script timeout'))}},100)});
+const ytReady=()=>loadScript('https://www.youtube.com/iframe_api',()=>window.YT&&YT.Player);
+const scReady=()=>loadScript('https://w.soundcloud.com/player/api.js',()=>window.SC&&SC.Widget);
+const ytId=u=>{try{const x=new URL(u);if(x.hostname==='youtu.be')return x.pathname.slice(1).split('/')[0];if(/(^|\.)youtube\.com$/.test(x.hostname)){if(x.searchParams.get('v'))return x.searchParams.get('v');const m=x.pathname.match(/\/(shorts|embed|live)\/([\w-]{6,})/);if(m)return m[2]}}catch(_){}return null};
+
+/** Определяет источник по ссылке и подтягивает название/обложку. */
+async function resolveLink(raw){
+  let url=raw.trim();if(!/^https?:\/\//i.test(url))url='https://'+url;
+  let u;try{u=new URL(url)}catch(_){throw new Error('Это не похоже на ссылку')}
+  const host=u.hostname.replace(/^www\.|^m\./,'');
+  const oembed=async()=>{try{const r=await fetch('https://noembed.com/embed?url='+encodeURIComponent(url));const j=await r.json();return j.error?{}:j}catch(_){return {}}};
+  const id=ytId(url);
+  if(id){const m=await oembed();return {kind:'youtube',src:id,title:m.title||'YouTube '+id,thumb:`https://i.ytimg.com/vi/${id}/mqdefault.jpg`}}
+  if(/(^|\.)soundcloud\.com$/.test(host)||host==='on.soundcloud.com'){const m=await oembed();return {kind:'soundcloud',src:url,title:m.title||decodeURIComponent(u.pathname.split('/').filter(Boolean).join(' — ')),thumb:m.thumbnail_url||null}}
+  if(host==='drive.google.com'||host==='docs.google.com'){
+    const fid=(u.pathname.match(/\/d\/([\w-]+)/)||[])[1]||u.searchParams.get('id');
+    if(!fid)throw new Error('Не удалось найти ID файла в ссылке Google Диска');
+    return {kind:'url',src:`https://drive.google.com/uc?export=download&id=${fid}`,title:'Google Диск · '+fid.slice(0,8),thumb:null,needsProbe:true};
+  }
+  if(host.endsWith('dropbox.com')){u.searchParams.delete('dl');u.searchParams.set('raw','1');return {kind:'url',src:u.toString(),title:decodeURIComponent(u.pathname.split('/').pop()||'Dropbox'),thumb:null,needsProbe:true}}
+  if(/^(disk\.yandex\.\w+|yadi\.sk|disk\.360\.yandex\.\w+)$/.test(host)){
+    let title='Яндекс Диск';
+    try{const r=await fetch('https://cloud-api.yandex.net/v1/disk/public/resources?public_key='+encodeURIComponent(url));const j=await r.json();if(j.name)title=j.name.replace(/\.[^.]+$/,'');if(j.type==='dir')throw new Error('Это папка — нужна ссылка на один файл')}catch(e){if(/папка/.test(e.message))throw e}
+    return {kind:'yadisk',src:url,title,thumb:null};
+  }
+  if(/(^|\.)(music\.yandex\.\w+|open\.spotify\.com|spotify\.com|vk\.com|vk\.ru|music\.apple\.com|deezer\.com|zvuk\.com)$/.test(host))
+    throw new Error('Этот сервис не разрешает встраивать музыку в другие сайты. Загрузите файл, либо дайте ссылку на YouTube, SoundCloud, Google Диск, Dropbox или Яндекс Диск.');
+  const name=decodeURIComponent(u.pathname.split('/').pop()||host);
+  return {kind:'url',src:url,title:name.replace(/\.(mp3|ogg|oga|wav|m4a|aac|flac|opus|webm)$/i,'')||host,thumb:null,needsProbe:true};
+}
+const probeAudio=src=>new Promise(res=>{const a=new Audio();let done=false;const fin=v=>{if(!done){done=true;a.src='';res(v)}};a.preload='metadata';a.onloadedmetadata=()=>fin(isFinite(a.duration)?a.duration:0);a.onerror=()=>fin(null);setTimeout(()=>fin(0),12000);a.src=src});
+
+class MusicEngine{
+  constructor(pid,canEdit){
+    this.pid=pid;this.canEdit=canEdit;this.tracks=[];this.state=null;this.offset=0;this.listeners=new Set();
+    this.local={vol:+(LS.get('rpa_myvol')??1),muted:LS.get('rpa_mute')==='1'};
+    this.unlocked=false;this.cur=null;this.box=document.createElement('div');this.box.className='mbox';document.body.appendChild(this.box);
+    this.audio=new Audio();this.audio.preload='auto';this.audio.onended=()=>this.onEnded();
+    this.unlock=()=>{this.unlocked=true;this.blocked=false;this.sync(true);this.emit()};
+    document.addEventListener('pointerdown',this.unlock,{once:true,capture:true});
+    this.timer=setInterval(()=>this.tick(),1000);
+  }
+  async init(){
+    try{const t0=Date.now();const {data}=await sb.rpc('server_now');const t1=Date.now();if(data)this.offset=new Date(data).getTime()-(t0+t1)/2}catch(_){}
+    await this.reloadTracks();
+    const {data:st}=await sb.from('music_state').select('*').eq('project_id',this.pid).maybeSingle();this.state=st;
+    this.ch=sb.channel('music:'+this.pid)
+      .on('postgres_changes',{event:'*',schema:'public',table:'music_state',filter:`project_id=eq.${this.pid}`},pl=>{if(pl.new&&pl.new.project_id){if(pl.new.client===CLIENT_ID)return;this.state=pl.new;this.sync()}})
+      .on('postgres_changes',{event:'*',schema:'public',table:'tracks',filter:`project_id=eq.${this.pid}`},()=>this.reloadTracks().then(()=>this.emit()))
+      .on('broadcast',{event:'sfx'},({payload})=>this.playSfx(payload.id,false))
+      .subscribe();
+    this.sync();
+  }
+  destroy(){clearInterval(this.timer);document.removeEventListener('pointerdown',this.unlock,{capture:true});this.stopAll();this.audio.src='';this.box.remove();if(this.ch)sb.removeChannel(this.ch);this.listeners.clear()}
+  on(fn){this.listeners.add(fn);return ()=>this.listeners.delete(fn)}
+  emit(){for(const f of this.listeners)try{f()}catch(e){console.error(e)}}
+  now(){return Date.now()+this.offset}
+  async reloadTracks(){const {data,error}=await sb.from('tracks').select('*').eq('project_id',this.pid).order('sort').order('created_at');if(!error)this.tracks=data||[]}
+  track(id){return this.tracks.find(t=>t.id===id)}
+  get current(){return this.state?.track_id?this.track(this.state.track_id):null}
+  desiredPos(){
+    const s=this.state;if(!s)return 0;let p=+s.position||0;
+    if(s.playing)p+=(this.now()-new Date(s.started_at).getTime())/1000;
+    const d=this.duration();if(s.loop&&d>0)p=p%d;
+    return Math.max(0,p);
+  }
+  duration(){const c=this.cur;if(!c)return +(this.current?.duration)||0;if(c.kind==='yt'&&c.player?.getDuration)return c.player.getDuration()||+(this.current?.duration)||0;if(c.kind==='sc')return c.dur||+(this.current?.duration)||0;return isFinite(this.audio.duration)?this.audio.duration:(+(this.current?.duration)||0)}
+  outVol(){return this.local.muted?0:clamp((this.state?.volume??.8)*this.local.vol,0,1)}
+  setLocalVol(v){this.local.vol=v;LS.set('rpa_myvol',String(v));this.applyVol();this.emit()}
+  toggleMute(){this.local.muted=!this.local.muted;LS.set('rpa_mute',this.local.muted?'1':'0');this.applyVol();this.emit()}
+  applyVol(){const v=this.outVol(),c=this.cur;this.audio.volume=v;if(c?.kind==='yt'&&c.player?.setVolume)c.player.setVolume(v*100);if(c?.kind==='sc'&&c.widget)c.widget.setVolume(v*100)}
+  stopAll(){try{this.audio.pause()}catch(_){}const c=this.cur;if(c?.kind==='yt'){try{c.player.destroy()}catch(_){}}if(c?.kind==='sc'){try{c.widget.pause()}catch(_){}}this.box.innerHTML='';this.cur=null}
+  async srcFor(t){
+    if(t.kind==='yadisk'){const r=await fetch('https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key='+encodeURIComponent(t.src));const j=await r.json();if(!j.href)throw new Error('Яндекс Диск не отдал файл');return j.href}
+    return t.src;
+  }
+  /** приводит воспроизведение к состоянию с сервера */
+  async sync(force){
+    const s=this.state,t=this.current;
+    if(!s||!t){if(this.cur)this.stopAll();this.emit();return}
+    const loadKey=t.id+'|'+t.src;
+    if(!this.cur||this.cur.key!==loadKey){
+      this.stopAll();const key=loadKey,token=this.loadToken=uid();
+      try{
+        if(t.kind==='youtube'){
+          await ytReady();if(token!==this.loadToken)return;
+          const div=document.createElement('div');this.box.appendChild(div);
+          const c=this.cur={key,kind:'yt',ready:false};
+          c.player=new YT.Player(div,{width:200,height:113,videoId:t.src,playerVars:{autoplay:0,controls:0,disablekb:1,playsinline:1,rel:0},events:{
+            onReady:()=>{c.ready=true;this.applyVol();this.applyPlay(true)},
+            onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)this.onEnded();if(e.data===YT.PlayerState.PLAYING){this.blocked=false;this.saveDuration(t,c.player.getDuration())}this.emit()},
+            onError:()=>{toast('YouTube не даёт проиграть этот ролик (ограничение автора на встраивание)','err')}}});
+          return;
+        }
+        if(t.kind==='soundcloud'){
+          await scReady();if(token!==this.loadToken)return;
+          const ifr=document.createElement('iframe');ifr.allow='autoplay';ifr.src='https://w.soundcloud.com/player/?url='+encodeURIComponent(t.src)+'&auto_play=false&visual=false&show_artwork=false';this.box.appendChild(ifr);
+          const c=this.cur={key,kind:'sc',ready:false,pos:0,dur:0};
+          c.widget=SC.Widget(ifr);
+          c.widget.bind(SC.Widget.Events.READY,()=>{c.ready=true;c.widget.getDuration(d=>{c.dur=d/1000;this.saveDuration(t,c.dur)});this.applyVol();this.applyPlay(true)});
+          c.widget.bind(SC.Widget.Events.PLAY_PROGRESS,e=>{c.pos=e.currentPosition/1000});
+          c.widget.bind(SC.Widget.Events.PLAY,()=>{c.playing=true;this.blocked=false;this.emit()});
+          c.widget.bind(SC.Widget.Events.PAUSE,()=>{c.playing=false;this.emit()});
+          c.widget.bind(SC.Widget.Events.FINISH,()=>this.onEnded());
+          return;
+        }
+        const src=await this.srcFor(t);if(token!==this.loadToken)return;
+        this.cur={key,kind:'audio',ready:true};this.audio.src=src;this.audio.loop=false;
+        this.audio.onloadedmetadata=()=>{this.saveDuration(t,this.audio.duration);this.applyPlay(true)};
+        this.audio.onerror=()=>toast('Не удалось загрузить трек «'+t.title+'»','err');
+        this.applyVol();
+      }catch(e){console.error(e);toast('Не удалось включить трек: '+e.message,'err');return}
+    }
+    this.applyPlay(force);
+  }
+  pos(){const c=this.cur;if(!c)return 0;if(c.kind==='yt')return c.player?.getCurrentTime?.()||0;if(c.kind==='sc')return c.pos||0;return this.audio.currentTime||0}
+  isPlaying(){const c=this.cur;if(!c)return false;if(c.kind==='yt')return c.player?.getPlayerState?.()===1;if(c.kind==='sc')return !!c.playing;return !this.audio.paused}
+  applyPlay(hard){
+    const c=this.cur,s=this.state;if(!c||!c.ready||!s)return;
+    const want=this.desiredPos(),drift=Math.abs(this.pos()-want);
+    this.applyVol();
+    if(s.playing){
+      if(hard||drift>1.5)this.seekTo(want);
+      if(!this.isPlaying()){
+        if(c.kind==='yt')c.player.playVideo();
+        else if(c.kind==='sc')c.widget.play();
+        else this.audio.play().then(()=>{this.blocked=false;this.emit()}).catch(()=>{this.blocked=true;this.emit()});
+        if(c.kind!=='audio')setTimeout(()=>{if(this.state?.playing&&!this.isPlaying()){this.blocked=true;this.emit()}},2500);
+      }
+    }else{
+      if(c.kind==='yt')c.player.pauseVideo?.();else if(c.kind==='sc')c.widget.pause();else this.audio.pause();
+      if(hard||drift>0.5)this.seekTo(want);
+    }
+    this.emit();
+  }
+  seekTo(t){const c=this.cur;if(!c)return;if(c.kind==='yt')c.player.seekTo?.(t,true);else if(c.kind==='sc'){c.widget.seekTo(t*1000);c.pos=t}else{try{this.audio.currentTime=t}catch(_){}}}
+  tick(){if(this.cur&&this.state?.playing&&!this.blocked)this.applyPlay(false);this.emit()}
+  onEnded(){
+    const s=this.state;if(!s)return;
+    if(s.loop){this.seekTo(0);this.applyPlay(true);return}
+    if(this.canEdit&&s.playing)this.write({playing:false,position:0});
+  }
+  saveDuration(t,d){if(!this.canEdit||!d||!isFinite(d)||Math.abs((+t.duration||0)-d)<1)return;t.duration=d;sb.from('tracks').update({duration:d}).eq('id',t.id).then(()=>{})}
+  /* ---- управление (мастер) ---- */
+  async write(patch){
+    const base=this.state||{project_id:this.pid,track_id:null,playing:false,position:0,volume:.8,loop:true};
+    const pos=this.desiredPos();
+    const next={...base,project_id:this.pid,position:pos,...patch,started_at:new Date(this.now()).toISOString(),updated_by:App.user.id,client:CLIENT_ID,updated_at:new Date().toISOString()};
+    this.state=next;this.unlocked=true;this.sync(true);
+    const {error}=await sb.from('music_state').upsert({project_id:next.project_id,track_id:next.track_id,playing:next.playing,position:next.position,started_at:next.started_at,volume:next.volume,loop:next.loop,updated_by:next.updated_by,client:next.client,updated_at:next.updated_at});
+    if(error)fail(error);
+  }
+  playTrack(id){const t=this.track(id);if(!t)return;if(t.category==='sfx')return this.playSfx(id,true);this.write({track_id:id,playing:true,position:0})}
+  toggle(){if(!this.state?.track_id)return;this.write({playing:!this.state.playing})}
+  seek(t){this.write({position:t})}
+  setLoop(v){this.write({loop:v})}
+  setVolume(v){this.write({volume:v})}
+  stop(){this.write({playing:false,position:0})}
+  next(dir=1){const cur=this.current;const list=this.tracks.filter(t=>t.category===(cur?.category||'music'));if(!list.length)return;let i=list.findIndex(t=>t.id===cur?.id);i=(i+dir+list.length)%list.length;this.write({track_id:list[i].id,playing:true,position:0})}
+  async playSfx(id,send){
+    const t=this.track(id);if(!t)return;
+    if(send&&this.ch)this.ch.send({type:'broadcast',event:'sfx',payload:{id}});
+    if(t.kind!=='file'&&t.kind!=='url'&&t.kind!=='yadisk'){if(send)toast('Эффекты пока проигрываются только из файлов и прямых ссылок','err');return}
+    try{const a=new Audio(await this.srcFor(t));a.volume=this.outVol();await a.play()}catch(_){this.blocked=true;this.emit()}
+  }
+}
+
+/* ---------- док плеера в шапке проекта ---------- */
+function mountDock(el,eng,goMusic){
+  const draw=()=>{
+    const t=eng.current,s=eng.state;
+    if(!t){el.innerHTML=eng.blocked?'':'';el.hidden=true;return}
+    el.hidden=false;
+    const playing=s?.playing;
+    const html=`<span class="eq ${playing&&!eng.blocked?'on':''}"><i></i><i></i><i></i></span>
+      ${eng.blocked?`<button class="unlock" data-unlock>🔊 Включить звук</button>`:`<span class="mt" title="${esc(t.title)}" ${goMusic?'data-go':''}>${esc(t.title)}</span>`}
+      ${eng.canEdit?`<button data-pp title="${playing?'Пауза':'Играть'}">${playing?'❚❚':'▶'}</button>`:''}
+      <button data-mute title="${eng.local.muted?'Включить звук':'Выключить звук у себя'}">${eng.local.muted?'🔇':'🔈'}</button>
+      <input type="range" min="0" max="1" step="0.01" value="${eng.local.vol}" data-myvol title="Моя громкость">`;
+    if(el._h!==html){el.innerHTML=html;el._h=html}
+  };
+  el.onclick=e=>{const b=e.target.closest('button,[data-go]');if(!b)return;if(b.dataset.unlock!==undefined)eng.unlock();if(b.dataset.pp!==undefined)eng.toggle();if(b.dataset.mute!==undefined)eng.toggleMute();if(b.dataset.go!==undefined&&goMusic)goMusic()};
+  el.oninput=e=>{if(e.target.dataset.myvol!==undefined)eng.setLocalVol(+e.target.value)};
+  draw();return eng.on(draw);
+}
+
+/* ---------- вкладка «Музыка» ---------- */
+function renderMusicTab(main,eng,isM){
+  let cat=LS.get('rpa_mcat')||'all',q='';
+  main.innerHTML=`<div class="music">
+    <section class="np"></section>
+    ${isM?`<section class="madd panel">
+      <h2>Добавить трек</h2>
+      <form class="mlink"><input name="url" placeholder="Ссылка: YouTube, SoundCloud, Google Диск, Dropbox, Яндекс Диск или прямая ссылка на mp3" required>
+        <select name="cat">${Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><button class="btn primary">Добавить</button></form>
+      <label class="drop"><input type="file" accept="audio/*,.mp3,.ogg,.wav,.m4a,.flac,.opus,.aac" multiple hidden><b>Загрузить файлы</b><span>или перетащите сюда mp3, ogg, wav, m4a, flac — до 50 МБ каждый</span></label>
+      <p class="muted hintline">Музыка из Яндекс Музыки, Spotify и ВК не встраивается — эти сервисы запрещают воспроизведение на других сайтах.</p>
+    </section>`:''}
+    <section class="lib panel"><div class="libhead"><h2>Библиотека</h2><div class="cats">${[['all','Все'],...Object.entries(CATS)].map(([k,v])=>`<button data-cat="${k}" class="${k===cat?'on':''}">${v}</button>`).join('')}</div><input class="msearch" placeholder="Поиск"></div><div class="tl"></div></section>
+  </div>`;
+  const np=$('.np',main),tl=$('.tl',main);
+  const drawNP=()=>{
+    const t=eng.current,s=eng.state,d=eng.duration(),p=Math.min(eng.desiredPos(),d||Infinity);
+    const playing=!!s?.playing;
+    const html=t?`<div class="np-art" style="${t.thumb?`background-image:url('${esc(t.thumb)}')`:''}">${t.thumb?'':'♪'}</div>
+      <div class="np-main"><div class="np-label">${playing?'Сейчас играет у всех':'На паузе'} · ${CATS[t.category]} · ${KIND_LABEL[t.kind]}</div><div class="np-title">${esc(t.title)}</div>
+      <div class="np-bar"><span>${fmtTime(p)}</span><input type="range" min="0" max="${Math.max(1,Math.floor(d))}" step="1" value="${Math.floor(p)}" ${isM&&d?'':'disabled'} data-seek><span>${d?fmtTime(d):'--:--'}</span></div></div>
+      <div class="np-ctl">${isM?`<button data-prev title="Предыдущий">⏮</button><button class="big" data-pp>${playing?'❚❚':'▶'}</button><button data-next title="Следующий">⏭</button><button data-stop title="Стоп">■</button><button data-loop class="${s?.loop?'on':''}" title="Повтор трека">🔁</button>
+        <label class="vol" title="Громкость для всех">Для всех<input type="range" min="0" max="1" step="0.01" value="${s?.volume??.8}" data-vol></label>`:''}
+        <label class="vol" title="Только у вас">Моя<input type="range" min="0" max="1" step="0.01" value="${eng.local.vol}" data-myvol></label>${eng.blocked?'<button class="btn primary sm" data-unlock>🔊 Включить звук</button>':''}</div>`
+      :`<div class="np-empty">${isM?'Выберите трек в библиотеке — он зазвучит у всех участников игры.':'Мастер пока ничего не включил.'}</div>`;
+    if(np._h!==html){if(!np.contains(document.activeElement)||document.activeElement.tagName!=='INPUT'){np.innerHTML=html;np._h=html}}
+  };
+  const drawList=()=>{
+    const list=eng.tracks.filter(t=>(cat==='all'||t.category===cat)&&(!q||t.title.toLowerCase().includes(q)));
+    const cur=eng.state?.track_id;
+    tl.innerHTML=list.length?list.map(t=>`<div class="tr ${t.id===cur?'cur':''}" data-id="${t.id}">
+      <button class="tplay" data-play title="${t.category==='sfx'?'Проиграть эффект у всех':'Включить у всех'}" ${isM?'':'disabled'}>${t.id===cur&&eng.state?.playing?'❚❚':'▶'}</button>
+      <div class="tthumb" style="${t.thumb?`background-image:url('${esc(t.thumb)}')`:''}">${t.thumb?'':'♪'}</div>
+      <div class="tinfo"><div class="ttitle">${esc(t.title)}</div><div class="tmeta">${KIND_LABEL[t.kind]} · ${CATS[t.category]}${t.duration?' · '+fmtTime(+t.duration):''}</div></div>
+      ${isM?`<select data-tcat>${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===t.category?'selected':''}>${v}</option>`).join('')}</select><button class="tic" data-ren title="Переименовать">${ICON.edit}</button><button class="tic" data-del title="Удалить">${ICON.trash}</button>`:''}
+    </div>`).join(''):`<div class="np-empty">${eng.tracks.length?'Ничего не найдено':'Библиотека пуста'+(isM?' — добавьте ссылку или загрузите файлы':'')}</div>`;
+  };
+  drawNP();drawList();
+  const off=eng.on(()=>{if(!document.body.contains(main))return off();drawNP();const k=eng.tracks.map(t=>t.id+t.title+t.category+t.duration).join()+eng.state?.track_id+eng.state?.playing;if(tl._k!==k){tl._k=k;drawList()}});
+  $$('[data-cat]',main).forEach(b=>b.onclick=()=>{cat=b.dataset.cat;LS.set('rpa_mcat',cat);$$('[data-cat]',main).forEach(x=>x.classList.toggle('on',x===b));drawList()});
+  $('.msearch',main).oninput=e=>{q=e.target.value.trim().toLowerCase();drawList()};
+  np.onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+    if(d.unlock!==undefined)eng.unlock();if(d.pp!==undefined)eng.toggle();if(d.next!==undefined)eng.next(1);if(d.prev!==undefined)eng.next(-1);if(d.stop!==undefined)eng.stop();if(d.loop!==undefined)eng.setLoop(!eng.state?.loop)};
+  np.onchange=e=>{const d=e.target.dataset;if(d.seek!==undefined)eng.seek(+e.target.value);if(d.vol!==undefined)eng.setVolume(+e.target.value)};
+  np.oninput=e=>{if(e.target.dataset.myvol!==undefined)eng.setLocalVol(+e.target.value)};
+  tl.onclick=async e=>{
+    const row=e.target.closest('.tr');if(!row||!isM)return;const t=eng.track(row.dataset.id);if(!t)return;
+    if(e.target.closest('[data-play]')){if(t.id===eng.state?.track_id&&t.category!=='sfx')eng.toggle();else eng.playTrack(t.id);return}
+    if(e.target.closest('[data-del]')){if(await confirmBox(`Удалить «${t.title}» из библиотеки?`)){if(t.id===eng.state?.track_id)await eng.stop();const {error}=await sb.from('tracks').delete().eq('id',t.id);if(!fail(error)){if(t.kind==='file'){const path=t.src.split('/object/public/music/')[1];if(path)sb.storage.from('music').remove([decodeURIComponent(path)])}await eng.reloadTracks();eng.emit()}}return}
+    if(e.target.closest('[data-ren]')){const {el,close}=openModal(`<h3>Название трека</h3><form><label class="f">Название<input name="t" required maxlength="200" value="${esc(t.title)}"></label><div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Сохранить</button></div></form>`);el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);el.querySelector('form').onsubmit=async ev=>{ev.preventDefault();const {error}=await sb.from('tracks').update({title:ev.target.t.value.trim()}).eq('id',t.id);if(!fail(error)){close();await eng.reloadTracks();eng.emit()}};return}
+  };
+  tl.onchange=async e=>{if(e.target.dataset.tcat===undefined)return;const id=e.target.closest('.tr').dataset.id;const {error}=await sb.from('tracks').update({category:e.target.value}).eq('id',id);if(!fail(error)){await eng.reloadTracks();eng.emit()}};
+  if(!isM)return;
+  const f=$('.mlink',main);
+  f.onsubmit=async e=>{
+    e.preventDefault();const btn=f.querySelector('button');btn.disabled=true;btn.textContent='Ищу…';
+    try{
+      const r=await resolveLink(f.url.value);
+      let duration=null;
+      if(r.needsProbe){const d=await probeAudio(r.kind==='yadisk'?await eng.srcFor(r):r.src);if(d===null)throw new Error('По этой ссылке не нашлось аудиофайла. Проверьте, что файл открыт для всех.');duration=d||null}
+      const {error}=await sb.from('tracks').insert({project_id:eng.pid,title:r.title,kind:r.kind,src:r.src,thumb:r.thumb,category:f.cat.value,duration,created_by:App.user.id,sort:eng.tracks.length});
+      if(error)throw error;
+      f.url.value='';toast('Трек «'+r.title+'» добавлен');await eng.reloadTracks();eng.emit();
+    }catch(ex){toast(ex.message||String(ex),'err')}
+    finally{btn.disabled=false;btn.textContent='Добавить'}
+  };
+  const drop=$('.drop',main),inp=drop.querySelector('input');
+  const upload=async files=>{
+    const list=[...files].filter(x=>x.type.startsWith('audio/')||/\.(mp3|ogg|oga|wav|m4a|aac|flac|opus|webm)$/i.test(x.name));
+    if(!list.length)return toast('Выберите аудиофайлы','err');
+    for(const file of list){
+      if(file.size>50*1024*1024){toast(`«${file.name}» больше 50 МБ`,'err');continue}
+      toast('Загружаю «'+file.name+'»…');
+      try{
+        const url=URL.createObjectURL(file);const duration=await probeAudio(url);URL.revokeObjectURL(url);
+        const ext=(file.name.split('.').pop()||'mp3').toLowerCase().replace(/[^a-z0-9]/g,'')||'mp3';
+        const path=`${App.user.id}/${eng.pid}/${uid()}.${ext}`;
+        const {error:ue}=await sb.storage.from('music').upload(path,file,{contentType:file.type||'audio/mpeg',cacheControl:'31536000'});if(ue)throw ue;
+        const src=sb.storage.from('music').getPublicUrl(path).data.publicUrl;
+        const {error}=await sb.from('tracks').insert({project_id:eng.pid,title:file.name.replace(/\.[^.]+$/,''),kind:'file',src,category:$('.mlink select',main).value,duration:duration||null,created_by:App.user.id,sort:eng.tracks.length});if(error)throw error;
+      }catch(ex){toast(`Не удалось загрузить «${file.name}»: ${ex.message||ex}`,'err')}
+    }
+    await eng.reloadTracks();eng.emit();toast('Готово');
+  };
+  inp.onchange=()=>{upload(inp.files);inp.value=''};
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};
+  drop.ondragleave=()=>drop.classList.remove('over');
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');upload(e.dataTransfer.files)};
+}
+
 /* ============ boot ============ */
 (async()=>{
   if(!sb){root().innerHTML=`<div class="fatal"><h2>${CONFIGURED?'Не удалось загрузить модуль сервера':'Сервер ещё не подключён'}</h2><p class="muted">${CONFIGURED?'Проверьте подключение к интернету и перезапустите приложение.':'В приложение нужно вписать адрес и ключ проекта Supabase.'}</p></div>`;return}
   const qs=new URLSearchParams(location.search+'&'+location.hash.slice(1));
+  const invQ=qs.get('invite');if(invQ&&/^[A-Za-z0-9]{6}$/.test(invQ)){LS.set('rpa_invite',invQ.toUpperCase());history.replaceState(null,'',location.pathname)}
   const oauthErr=qs.get('error_description');
   root().innerHTML='<div class="loading"><div class="spin"></div>Загрузка…</div>';
   let session=null;
