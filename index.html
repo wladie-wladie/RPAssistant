@@ -318,7 +318,7 @@ label.f b{color:var(--danger);font-weight:400}
 .cell{position:absolute;inset:0;display:flex;align-items:center;padding:inherit}
 .item.text .cell,.item.text .cell.top{align-items:flex-start;position:static;padding:0}
 .item.shape .cell{padding:10% 12%}
-.txt{width:100%;max-height:100%;overflow:hidden;white-space:pre-wrap;word-break:break-word;outline:none;line-height:1.3}
+.txt{width:100%;max-height:100%;min-height:1.3em;overflow:hidden;white-space:pre-wrap;word-break:break-word;outline:none;line-height:1.3}
 .item.text .txt{max-height:none;overflow:visible}
 .item.editing .txt{overflow:auto;cursor:text;user-select:text;-webkit-user-select:text}
 .item.editing .frame-title{cursor:text;user-select:text;-webkit-user-select:text;background:#fff;box-shadow:0 0 0 2px var(--blue);border-radius:3px;padding:1px 4px;bottom:calc(100% + 4px)}
@@ -360,6 +360,8 @@ label.f b{color:var(--danger);font-weight:400}
 .ctx button.on{background:#e3e8ff;color:var(--blue)}
 .ctx svg{width:18px;height:18px}
 .ctx .val{min-width:24px;text-align:center;font-size:12px;color:#6b7080}
+.tcb{display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:14px;line-height:1}.tcb i{display:block;width:16px;height:4px;border-radius:2px;margin-top:2px;border:1px solid rgba(0,0,0,.2)}
+.ctx .pop button.autoc{min-width:0;width:auto;height:24px;padding:0 8px;font-size:11px;border:1px solid #ddd}
 .swv{display:flex;align-items:center;gap:5px;font-size:12px}.swv i{display:block;width:16px;background:#2c3040;border-radius:2px}
 .ctx .pop button.swb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:40px;height:40px;padding:0}.ctx .pop button.swb i{display:block;width:24px;background:#2c3040;border-radius:2px}.ctx .pop button.swb span{font-size:10px;color:#6b7080;font-weight:600}
 .ctx .vsep{width:1px;height:20px;background:#e7e8ee;margin:0 4px}
@@ -921,6 +923,8 @@ function smoothPath(P){
   const l=P[P.length-1];return d+` L${r1(l[0])} ${r1(l[1])}`;
 }
 const center=b=>({x:b.x+b.w/2,y:b.y+b.h/2});
+const autoFs=it=>Math.round(clamp(Math.min(it.w,it.h)*.2,14,96));
+const fsOf=it=>it.afs?autoFs(it):it.fs;
 const rotBox=it=>{if((it.rot||0)%180===90){const cx=it.x+it.w/2,cy=it.y+it.h/2;return {x:cx-it.h/2,y:cy-it.w/2,w:it.h,h:it.w}}return {x:it.x,y:it.y,w:it.w,h:it.h}};
 function edgePt(it,t){
   const c=center(it),dx=t.x-c.x,dy=t.y-c.y;if(!dx&&!dy)return c;
@@ -1099,7 +1103,7 @@ class Board{
     const D={
       sticky:{w:200,h:200,color:this.stickyColor,text:'',fs:18,align:'center'},
       text:{w:240,h:30,color:'#1f2937',text:'',fs:20,align:'left'},
-      shape:{w:180,h:120,kind:this.shapeKind,fill:'#cfe6f5',stroke:'#1f2937',sw:2,text:'',fs:16,align:'center'},
+      shape:{w:180,h:120,kind:this.shapeKind,fill:'#cfe6f5',stroke:'#1f2937',sw:2,text:'',fs:20,afs:true,align:'center'},
       frame:{w:800,h:500,fill:'#ffffff',title:'Фрейм '+(this.items.filter(i=>i.type==='frame').length+1)},
       image:{w:300,h:200},
       pen:{w:1,h:1,stroke:this.penColor,width:this.penWidth,pts:[],bw:1,bh:1},
@@ -1142,13 +1146,13 @@ class Board{
     if(it.rot)st+=`transform:rotate(${it.rot}deg);`;
     d.style.cssText=st;
     if(this.editing&&this.editing.id===it.id)return;
-    const sig=JSON.stringify([it.type==='shape'?[r1(it.w),r1(it.h)]:0,it.text,it.title,it.color,it.fill,it.stroke,it.sw,it.kind,it.fs,it.align,it.bold,it.asset,it.src,it.emoji,it.type==='prop'?r1(Math.min(it.w,it.h)):0]);
+    const sig=JSON.stringify([it.type==='shape'?[r1(it.w),r1(it.h)]:0,it.text,it.title,it.color,it.fill,it.stroke,it.sw,it.kind,fsOf(it),it.tc,it.align,it.bold,it.asset,it.src,it.emoji,it.type==='prop'?r1(Math.min(it.w,it.h)):0]);
     if(d._sig===sig)return;d._sig=sig;
-    const txt=(col,ph='')=>`<div class="cell"><div class="txt" data-ph="${ph}" style="font-size:${it.fs}px;text-align:${it.align||'left'};color:${col};${it.bold?'font-weight:700;':''}">${esc(it.text)}</div></div>`;
+    const txt=(col,ph='',halo)=>{const dark=contrast(col)==='#ffffff';const hc=dark?'255,255,255':'0,0,0';return `<div class="cell"><div class="txt" data-ph="${ph}" style="font-size:${fsOf(it)}px;text-align:${it.align||'left'};color:${col};${it.bold?'font-weight:800;':''}${halo?`font-weight:${it.bold?800:650};text-shadow:0 0 3px rgba(${hc},.85),0 0 1px rgba(${hc},1),0 0 6px rgba(${hc},.5);`:''}">${esc(it.text)}</div></div>`};
     switch(it.type){
       case 'sticky':d.innerHTML=txt(contrast(it.color));break;
       case 'text':d.innerHTML=txt(it.color,'Текст');break;
-      case 'shape':d.innerHTML=`<svg class="shp" width="${it.w}" height="${it.h}" viewBox="0 0 ${it.w} ${it.h}"><g fill="${it.fill==='transparent'?'none':it.fill}" stroke="${it.stroke==='transparent'?'none':it.stroke}" stroke-width="${it.sw}" stroke-linejoin="round" ${it.fill==='transparent'?'pointer-events="all"':''}>${shapeGeom(it.kind,it.w,it.h,it.sw/2+.5)}</g></svg>${txt(it.fill==='transparent'?'#1f2937':contrast(it.fill))}`;break;
+      case 'shape':d.innerHTML=`<svg class="shp" width="${it.w}" height="${it.h}" viewBox="0 0 ${it.w} ${it.h}"><g fill="${it.fill==='transparent'?'none':it.fill}" stroke="${it.stroke==='transparent'?'none':it.stroke}" stroke-width="${it.sw}" stroke-linejoin="round" ${it.fill==='transparent'?'pointer-events="all"':''}>${shapeGeom(it.kind,it.w,it.h,it.sw/2+.5)}</g></svg>${txt(it.tc||(it.fill==='transparent'?'#1f2937':contrast(it.fill)),'',true)}`;break;
       case 'frame':d.innerHTML=`<div class="frame-title">${esc(it.title)}</div>`;break;
       case 'image':d.innerHTML=`<img src="${esc(it.src||this.assets[it.asset]||'')}" draggable="false" alt="">`;break;
       case 'prop':d.innerHTML=`<div class="propi" style="font-size:${r1(Math.min(it.w,it.h)*.78)}px">${esc(it.emoji||'❔')}</div>`;break;
@@ -1240,7 +1244,7 @@ class Board{
       const sh=sel.find(i=>i.type==='shape');
       if(sh)parts.push(btn('pop:stroke',`<span class="sw ring" style="border-color:${sh.stroke==='transparent'?'#ccc':sh.stroke}"></span>`,'Цвет контура',this.pop==='stroke'),btn('pop:sw',`<span class="swv"><i style="height:${clamp(sh.sw||0,1,8)}px;opacity:${sh.sw?1:.25}"></i>${sh.sw||0}</span>`,'Толщина контура',this.pop==='sw'),btn('pop:kind',shapeIcon(sh.kind),'Форма',this.pop==='kind'));
       const tx=sel.find(i=>TEXTUAL.has(i.type));
-      if(tx)parts.push('<i class="vsep"></i>',btn('fs-','A−','Меньше шрифт'),`<span class="val">${tx.fs}</span>`,btn('fs+','A+','Больше шрифт'),btn('bold','<b>B</b>','Жирный',tx.bold),btn('align',ICON['al_'+(tx.align||'left')],'Выравнивание'));
+      if(tx)parts.push('<i class="vsep"></i>',...(sh?[btn('pop:tcolor',`<span class="tcb">A<i style="background:${sh.tc||(sh.fill==='transparent'?'#1f2937':contrast(sh.fill))}"></i></span>`,'Цвет текста',this.pop==='tcolor')]:[]),btn('fs-','A−','Меньше шрифт'),`<span class="val">${fsOf(tx)}</span>`,btn('fs+','A+','Больше шрифт'),btn('bold','<b>B</b>','Жирный',tx.bold),btn('align',ICON['al_'+(tx.align||'left')],'Выравнивание'));
       const ln=sel.find(i=>i.type==='line');
       if(ln)parts.push('<i class="vsep"></i>',btn('pop:lstyle',ICON['ls_'+ln.style],'Тип линии',this.pop==='lstyle'),btn('arrow',ICON['ar_'+ln.arrow],'Стрелки'),btn('dash',ICON.dash,'Пунктир',ln.dash));
       const wd=sel.find(i=>i.type==='line'||i.type==='pen');
@@ -1254,6 +1258,7 @@ class Board{
     }
     let pop='';
     if(!locked){
+      if(this.pop==='tcolor')pop='<button data-tcol="" class="autoc" title="Автоматически под цвет фигуры">авто</button>'+PAL.filter(c=>c!=='transparent').map(col=>`<button data-tcol="${col}" class="sw" style="background:${col}"></button>`).join('');
       if(this.pop==='main'||this.pop==='stroke')pop=PAL.map(col=>`<button data-color="${col}" class="sw ${col==='transparent'?'tr':''}" style="background:${col}" title="${col==='transparent'?'Прозрачный':col}"></button>`).join('')+'<label class="sw" title="Свой цвет"><input type="color" data-ccolor></label>';
       if(this.pop==='kind')pop=Object.entries(SHAPES).map(([k,n])=>`<button data-kind="${k}" title="${n}" class="${f.kind===k?'on':''}">${shapeIcon(k)}</button>`).join('');
       if(this.pop==='lstyle')pop=[['straight','Прямая'],['elbow','Ломаная'],['curve','Кривая']].map(([k,n])=>`<button data-lstyle="${k}" title="${n}">${ICON['ls_'+k]}</button>`).join('');
@@ -1282,19 +1287,20 @@ class Board{
     this.commit();this.render();
   }
   onCtx(e){
-    const b=e.target.closest('[data-act],[data-color],[data-kind],[data-lstyle],[data-width],[data-sw]');if(!b)return;
+    const b=e.target.closest('[data-act],[data-color],[data-kind],[data-lstyle],[data-width],[data-sw],[data-tcol]');if(!b)return;
     const sel=this.selItems(),ds=b.dataset;
     if(ds.color)return this.applyColor(this.pop,ds.color);
     if(ds.kind){sel.forEach(i=>{if(i.type==='shape')i.kind=ds.kind});this.shapeKind=ds.kind}
     else if(ds.lstyle)sel.forEach(i=>{if(i.type==='line')i.style=ds.lstyle});
     else if(ds.width)sel.forEach(i=>{if(i.type==='line'||i.type==='pen')i.width=+ds.width});
     else if(ds.sw!==undefined)sel.forEach(i=>{if(i.type==='shape')i.sw=+ds.sw});
+    else if(ds.tcol!==undefined)sel.forEach(i=>{if(i.type==='shape'){if(ds.tcol)i.tc=ds.tcol;else delete i.tc}});
     else{
       const a=ds.act;
       if(a.startsWith('pop:')){const p=a.slice(4);this.pop=this.pop===p?null:p;this.renderCtx();return}
       const tx=sel.filter(i=>TEXTUAL.has(i.type));
       switch(a){
-        case 'fs-':case 'fs+':tx.forEach(i=>{const k=FS_STEPS.findIndex(s=>s>=i.fs);let n=a==='fs+'?(FS_STEPS[k]===i.fs?k+1:k):(k<=0?0:k-1);i.fs=FS_STEPS[clamp(n,0,FS_STEPS.length-1)];if(i.type==='text')i.h=Math.max(i.h,i.fs*1.35)});this.fitTexts(tx);break;
+        case 'fs-':case 'fs+':tx.forEach(i=>{if(i.afs){i.fs=autoFs(i);delete i.afs}const k=FS_STEPS.findIndex(s=>s>=i.fs);let n=a==='fs+'?(FS_STEPS[k]===i.fs?k+1:k):(k<=0?0:k-1);i.fs=FS_STEPS[clamp(n,0,FS_STEPS.length-1)];if(i.type==='text')i.h=Math.max(i.h,i.fs*1.35)});this.fitTexts(tx);break;
         case 'bold':{const v=!tx[0]?.bold;tx.forEach(i=>i.bold=v);break}
         case 'align':{const o=['left','center','right'];const v=o[(o.indexOf(tx[0]?.align||'left')+1)%3];tx.forEach(i=>i.align=v);break}
         case 'arrow':{const o=['end','both','none'];const ln=sel.find(i=>i.type==='line');const v=o[(o.indexOf(ln.arrow)+1)%3];sel.forEach(i=>{if(i.type==='line')i.arrow=v});break}
@@ -1982,8 +1988,8 @@ const MAP_TOOLS=[
   {id:'select',title:'Выбор',key:'KeyV',keyLabel:'V'},
   {id:'hand',title:'Рука',key:'KeyH',keyLabel:'H'},0,
   {id:'wall',title:'Стена',key:'KeyW',keyLabel:'W',tool:'line',icon:'wall',preset:{type:'line',stroke:'#2f2a26',width:10,arrow:'none',style:'straight',dash:false},hint:'Тяните, чтобы провести стену — концы прилипают к углам клеток (Alt — без прилипания)'},
-  {id:'room',title:'Комната / пол',key:'KeyR',keyLabel:'R',tool:'shape',icon:'room',preset:{type:'shape',kind:'rect',fill:'#b8b1a3',stroke:'#2f2a26',sw:8},hint:'Растяните комнату по клеткам. Материал пола — повторный клик по кнопке инструмента'},
-  {id:'area',title:'Зона: вода, трава, лава…',key:'KeyA',keyLabel:'A',tool:'shape',icon:'area',preset:{type:'shape',kind:'ellipse',fill:'#7fb3d5',stroke:'#3b6e9e',sw:2},hint:'Растяните зону. Тип зоны и форма — в панели'},
+  {id:'room',title:'Комната / пол',key:'KeyR',keyLabel:'R',tool:'shape',icon:'room',preset:{type:'shape',kind:'rect',fill:'#b8b1a3',stroke:'#2f2a26',sw:8,afs:true,bold:true},hint:'Растяните комнату по клеткам. Материал пола — повторный клик по кнопке инструмента'},
+  {id:'area',title:'Зона: вода, трава, лава…',key:'KeyA',keyLabel:'A',tool:'shape',icon:'area',preset:{type:'shape',kind:'ellipse',fill:'#7fb3d5',stroke:'#3b6e9e',sw:2,afs:true,bold:true},hint:'Растяните зону. Тип зоны и форма — в панели'},
   {id:'tpl',title:'Объекты: мебель, деревья, ловушки…',key:'KeyO',keyLabel:'O',ext:true,icon:'tpl',hint:'Выберите объект в панели и кликайте на карте. Поставленный объект можно менять: цвет, размер, поворот'},
   {id:'prop',title:'Значки',key:'KeyI',keyLabel:'I',icon:'prop',hint:'Выберите значок и кликните по клетке'},
   {id:'shape',title:'Фигура',key:'KeyS',keyLabel:'S'},
