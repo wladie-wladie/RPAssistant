@@ -360,6 +360,8 @@ label.f b{color:var(--danger);font-weight:400}
 .ctx button.on{background:#e3e8ff;color:var(--blue)}
 .ctx svg{width:18px;height:18px}
 .ctx .val{min-width:24px;text-align:center;font-size:12px;color:#6b7080}
+.swv{display:flex;align-items:center;gap:5px;font-size:12px}.swv i{display:block;width:16px;background:#2c3040;border-radius:2px}
+.ctx .pop button.swb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:40px;height:40px;padding:0}.ctx .pop button.swb i{display:block;width:24px;background:#2c3040;border-radius:2px}.ctx .pop button.swb span{font-size:10px;color:#6b7080;font-weight:600}
 .ctx .vsep{width:1px;height:20px;background:#e7e8ee;margin:0 4px}
 .ctx .pop{border-top:1px solid #eef0f4;margin-top:4px;padding:6px 4px 2px;display:flex;flex-wrap:wrap;gap:4px;max-width:330px}
 .ctx .pop button.sw{width:24px;height:24px;min-width:0;padding:0;border-radius:50%}
@@ -1236,7 +1238,7 @@ class Board{
       const main=sel.find(i=>i.type!=='image');
       if(main)parts.push(btn('pop:main',`<span class="sw ${this.mainColor(main)==='transparent'?'tr':''}" style="background:${this.mainColor(main)}"></span>`,'Цвет',this.pop==='main'));
       const sh=sel.find(i=>i.type==='shape');
-      if(sh)parts.push(btn('pop:stroke',`<span class="sw ring" style="border-color:${sh.stroke==='transparent'?'#ccc':sh.stroke}"></span>`,'Контур',this.pop==='stroke'),btn('pop:kind',shapeIcon(sh.kind),'Форма',this.pop==='kind'));
+      if(sh)parts.push(btn('pop:stroke',`<span class="sw ring" style="border-color:${sh.stroke==='transparent'?'#ccc':sh.stroke}"></span>`,'Цвет контура',this.pop==='stroke'),btn('pop:sw',`<span class="swv"><i style="height:${clamp(sh.sw||0,1,8)}px;opacity:${sh.sw?1:.25}"></i>${sh.sw||0}</span>`,'Толщина контура',this.pop==='sw'),btn('pop:kind',shapeIcon(sh.kind),'Форма',this.pop==='kind'));
       const tx=sel.find(i=>TEXTUAL.has(i.type));
       if(tx)parts.push('<i class="vsep"></i>',btn('fs-','A−','Меньше шрифт'),`<span class="val">${tx.fs}</span>`,btn('fs+','A+','Больше шрифт'),btn('bold','<b>B</b>','Жирный',tx.bold),btn('align',ICON['al_'+(tx.align||'left')],'Выравнивание'));
       const ln=sel.find(i=>i.type==='line');
@@ -1256,6 +1258,7 @@ class Board{
       if(this.pop==='kind')pop=Object.entries(SHAPES).map(([k,n])=>`<button data-kind="${k}" title="${n}" class="${f.kind===k?'on':''}">${shapeIcon(k)}</button>`).join('');
       if(this.pop==='lstyle')pop=[['straight','Прямая'],['elbow','Ломаная'],['curve','Кривая']].map(([k,n])=>`<button data-lstyle="${k}" title="${n}">${ICON['ls_'+k]}</button>`).join('');
       if(this.pop==='width')pop=[1,2,3,4,6,8,12].map(w=>`<button data-width="${w}">${w}</button>`).join('');
+      if(this.pop==='sw'){const cur=sel.find(i=>i.type==='shape')?.sw;pop=[0,1,2,3,4,6,8,12,16].map(w=>`<button data-sw="${w}" class="swb ${cur===w?'on':''}" title="${w?'Контур '+w+' px':'Без контура'}"><i style="height:${w?Math.min(w,12):1}px;${w?'':'opacity:.3'}"></i><span>${w||'нет'}</span></button>`).join('')}
     }
     const html=`<div class="row">${parts.join('')}</div>${pop?`<div class="pop">${pop}</div>`:''}`;
     if(c._html!==html){c.innerHTML=html;c._html=html}
@@ -1279,12 +1282,13 @@ class Board{
     this.commit();this.render();
   }
   onCtx(e){
-    const b=e.target.closest('[data-act],[data-color],[data-kind],[data-lstyle],[data-width]');if(!b)return;
+    const b=e.target.closest('[data-act],[data-color],[data-kind],[data-lstyle],[data-width],[data-sw]');if(!b)return;
     const sel=this.selItems(),ds=b.dataset;
     if(ds.color)return this.applyColor(this.pop,ds.color);
     if(ds.kind){sel.forEach(i=>{if(i.type==='shape')i.kind=ds.kind});this.shapeKind=ds.kind}
     else if(ds.lstyle)sel.forEach(i=>{if(i.type==='line')i.style=ds.lstyle});
     else if(ds.width)sel.forEach(i=>{if(i.type==='line'||i.type==='pen')i.width=+ds.width});
+    else if(ds.sw!==undefined)sel.forEach(i=>{if(i.type==='shape')i.sw=+ds.sw});
     else{
       const a=ds.act;
       if(a.startsWith('pop:')){const p=a.slice(4);this.pop=this.pop===p?null:p;this.renderCtx();return}
@@ -1365,7 +1369,7 @@ class Board{
         it.w=1;it.h=1;
         if(this.tool==='frame')this.items.unshift(it);else this.items.push(it);
         this.sel=new Set([it.id]);
-        this.drag={mode:'create',id:it.id,start:sp,sx:e.clientX,sy:e.clientY,def,moved:false};this.render();break;
+        this.drag={mode:'create',id:it.id,start:sp,sx:e.clientX,sy:e.clientY,def,moved:false,hitId:hit&&!hit.locked?hit.id:null};this.render();break;
       }
       case 'pen':{
         const it=this.newItem('pen',p.x,p.y);this.items.push(it);
@@ -1450,6 +1454,12 @@ class Board{
       case 'marquee':if(!d.moved&&d.clickId&&!e.shiftKey)this.sel=new Set([d.clickId]);break;
       case 'create':{
         const it=this.idx.get(d.id);
+        // клик (без растягивания) по существующему объекту инструментом-заготовкой: выбираем объект, а не создаём новый —
+        // так двойной клик открывает ввод текста в комнате/зоне/фигуре
+        if(!d.moved&&this.preset&&d.hitId&&this.idx.has(d.hitId)){
+          this.items=this.items.filter(x=>x!==it);this.reindex();
+          this.setTool('select');this.sel=this.expandGroups(new Set([d.hitId]));this.render();break;
+        }
         if(!d.moved||(it.w<10&&it.h<10)){it.w=d.def.w;it.h=d.def.h;it.x=d.start.x-it.w/2;it.y=d.start.y-it.h/2;if(it.type==='text')it.y=d.start.y-it.h/2}
         if(it.type==='text')it.h=Math.max(it.h,it.fs*1.35);
         if(this.preset){this.render();break}
