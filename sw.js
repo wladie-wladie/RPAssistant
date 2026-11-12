@@ -1,7 +1,7 @@
 // RPAssistant service worker: network-first, so new versions from GitHub arrive automatically;
 // cached copy is used only when offline.
-const CACHE='rpa-v14';
-self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','index.html','manifest.webmanifest','icon.svg','icon-192.png','icon-512.png']).catch(()=>{})))});
+const CACHE='rpa-v15';
+self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','index.html','manifest.webmanifest','icon.svg','icon-192.png','icon-512.png','vtm.js','chars.js','rules.js','chars.css']).catch(()=>{})))});
 self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});
 self.addEventListener('fetch',e=>{
   const r=e.request;if(r.method!=='GET'||new URL(r.url).origin!==location.origin)return;

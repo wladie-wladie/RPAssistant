@@ -462,9 +462,13 @@ label.f b{color:var(--danger);font-weight:400}
 .item.text .txt{font-family:Inter,Manrope,sans-serif}
 .item.shape .txt{font-family:Inter,Manrope,sans-serif}
 </style>
+<link rel="stylesheet" href="chars.css">
 </head>
 <body>
 <div id="app"></div>
+<script src="vtm.js"></script>
+<script src="chars.js"></script>
+<script src="rules.js"></script>
 <script>
 'use strict';
 const APP_VERSION='0.1.0';
@@ -667,6 +671,7 @@ async function go(view,...args){
   if(App.mapView){App.mapView.destroy();App.mapView=null}App.mapsTab=null;
   if(App.music&&!(view==='project'&&args[0]===App.music.pid)){App.music.destroy();App.music=null}
   if(App.hub&&!(view==='project'&&args[0]===App.hub.pid)){App.hub.destroy();App.hub=null}
+  if(App.chars&&!(view==='project'&&args[0]===App.chars.pid)){App.chars.destroy();App.chars=null;$('.dicelog')?.remove();$('.rollpop')?.remove()}
   document.body.className=App.user?.role?'role-'+App.user.role:'';
   try{
     if(view==='auth')return renderAuth();
@@ -930,14 +935,16 @@ async function renderProject(pid,tab='board'){
   const isOwner=p.owner_id===App.user.id;
   const myRole=isOwner?'owner':await API.myRole(pid);
   const isM=isOwner||myRole==='comaster';
-  const tabs=isOwner?[['board','Доска'],['maps','Карты'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['settings','Настройки']]
-    :isM?[['board','Доска'],['maps','Карты'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['info','Об игре']]:[['board','Доска'],['maps','Карты'],['music','Музыка'],['info','Об игре']];
+  const tabs=isOwner?[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['sessions','Сессии',1],['notes','Заметки',1],['settings','Настройки']]
+    :isM?[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['sessions','Сессии',1],['notes','Заметки',1],['info','Об игре']]:[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['info','Об игре']];
   if(!App.hub||App.hub.pid!==pid){if(App.hub)App.hub.destroy();App.hub=new ProjectHub(pid,isM)}
+  if(!App.chars||App.chars.pid!==pid){if(App.chars)App.chars.destroy();App.chars=new CharStore(pid,isM)}
   if(!App.music||App.music.pid!==pid){if(App.music)App.music.destroy();App.music=new MusicEngine(pid,isM);App.music.init().catch(e=>console.error(e))}
   root().innerHTML=headerHTML(`<div class="crumb"><button class="btn ghost sm" data-back>← Проекты</button><span class="pt" title="${esc(p.title)}">${esc(p.title)}</span><span class="sys">${esc(sysName(p))}</span></div>
     <div class="spacer"></div><div class="mdock" hidden></div>${isOwner?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
   if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,tab!=='music'?()=>go('project',pid,'music'):null);
   if(isOwner)$('[data-invite]').onclick=()=>inviteModal(p);
+  mountDiceLog();
   bindHeader();
   $('[data-back]').onclick=()=>{LS.set('rpa_nav',null);go('home')};
   $$('[data-tab]').forEach(b=>b.onclick=()=>go('project',pid,b.dataset.tab));
@@ -980,6 +987,8 @@ async function renderProject(pid,tab='board'){
   }
   if(tab==='music'){renderMusicTab(main,App.music,isM);return}
   if(tab==='maps'){renderMapsTab(main,pid,isM);return}
+  if(tab==='chars'){renderCharsTab(main,pid,isM);return}
+  if(tab==='rules'){renderRulesTab(main,pid,isM);return}
   const SOON={
     chars:['🧙','Персонажи','Листы персонажей игроков и NPC с характеристиками по правилам выбранной системы.'],
     sessions:['📅','Сессии','Планирование встреч, журнал прошедших сессий и заметки по итогам.'],
@@ -2338,6 +2347,7 @@ class MapView{
     this.L.fog=document.createElement('canvas');this.L.fog.className='ml-fog';this.L.fog.style.zIndex=this.canEdit?99990:100002;w.appendChild(this.L.fog);
     this.L.fx=document.createElementNS('http://www.w3.org/2000/svg','svg');this.L.fx.setAttribute('class','ml-fx');w.appendChild(this.L.fx);
     this.renderLayers();this.renderHead();
+    this._mc=mountMapCharPanel(this);
     this.inflight=false;this.again=false;
     this.loadTokens().then(()=>this.subscribe());
     if(!view)requestAnimationFrame(()=>this.board.fit(1));
@@ -2350,7 +2360,7 @@ class MapView{
     const s=Math.max(1,Math.round(size)),off=(s%2)?CELL/2:0;
     return {x:Math.round((x-off)/CELL)*CELL+off,y:Math.round((y-off)/CELL)*CELL+off};
   }
-  destroy(){clearTimeout(this.fogT);if(this.ch)sb.removeChannel(this.ch);this.board.destroy();this.host.innerHTML=''}
+  destroy(){clearTimeout(this.fogT);this._mc?.();if(this.ch)sb.removeChannel(this.ch);this.board.destroy();this.host.innerHTML=''}
 
   /* ---------- слои ---------- */
   renderLayers(){
