@@ -624,16 +624,17 @@ const API={
   async profile(){const {data:{user}}=await sb.auth.getUser();if(!user)return null;const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error)throw error;return data},
   async listProjects(){
     const u=App.user;
-    const {data:mem,error:e2}=await sb.from('project_members').select('role,project:projects(*,owner:profiles!projects_owner_id_fkey(name))').eq('user_id',u.id);if(e2)throw e2;
-    const joined=mem.filter(r=>r.project).map(r=>({...r.project,myRole:r.role}));
+    const {data:mem,error:e2}=await sb.from('project_members').select('role,project:projects(*,owner:profiles!projects_owner_id_fkey(name),project_members(role))').eq('user_id',u.id);if(e2)throw e2;
+    const cnt=p=>({members:(p.project_members||[]).filter(m=>m.role!=='comaster').length,comasters:(p.project_members||[]).filter(m=>m.role==='comaster').length});
+    const joined=mem.filter(r=>r.project).map(r=>({...r.project,myRole:r.role,...(r.role==='comaster'?cnt(r.project):{})}));
     if(u.role==='master'){
       const {data,error}=await sb.from('projects').select('*,project_members(role)').eq('owner_id',u.id);if(error)throw error;
-      const own=data.map(p=>({...p,myRole:'owner',members:(p.project_members||[]).filter(m=>m.role!=='comaster').length,comasters:(p.project_members||[]).filter(m=>m.role==='comaster').length}));
+      const own=data.map(p=>({...p,myRole:'owner',...cnt(p)}));
       return [...own,...joined.filter(p=>p.myRole==='comaster')].sort((a,b)=>b.updated_at.localeCompare(a.updated_at));
     }
     return joined.filter(p=>p.myRole!=='comaster').sort((a,b)=>b.updated_at.localeCompare(a.updated_at));
   },
-  async getProject(id){const {data,error}=await sb.from('projects').select('*,owner:profiles!projects_owner_id_fkey(name)').eq('id',id).maybeSingle();if(error)throw error;return data},
+  async getProject(id){const {data,error}=await sb.from('projects').select('*,owner:profiles!projects_owner_id_fkey(name,avatar_url)').eq('id',id).maybeSingle();if(error)throw error;return data},
   async saveProject(p){
     const row={title:p.title,system:p.system,description:p.description||'',color:p.color,board_access:p.board_access||'view',code:p.code,updated_at:new Date().toISOString()};
     if(p.id){const {error}=await sb.from('projects').update(row).eq('id',p.id);if(error)throw error;return p.id}
@@ -648,6 +649,7 @@ const API={
   async myRole(pid){const {data}=await sb.from('project_members').select('role').eq('project_id',pid).eq('user_id',App.user.id).maybeSingle();return data?.role||null},
   async applyOps(pid,ops){const {error}=await sb.rpc('apply_board_ops',{p:pid,ups:ops.ups,dels:ops.dels,ord:ops.ord,cl:CLIENT_ID});if(error)throw error},
   async members(pid){const {data,error}=await sb.from('project_members').select('user_id,role,joined_at,profile:profiles(name,avatar_url)').eq('project_id',pid);if(error)throw error;return data},
+  async transferMaster(pid,uid_){const {error}=await sb.rpc('transfer_master',{p:pid,new_master:uid_});if(error)throw error},
   async kick(pid,uid_){const {error}=await sb.from('project_members').delete().eq('project_id',pid).eq('user_id',uid_);if(error)throw error},
   async board(pid){const {data,error}=await sb.from('boards').select('items,updated_at').eq('project_id',pid).maybeSingle();if(error)throw error;return data},
   async saveBoard(pid,items){
@@ -839,8 +841,8 @@ async function renderHome(){
   const card=p=>`<div class="card" data-open="${p.id}">
     <div class="cover" style="--c:${esc(p.color||'#7c5cff')}"><span class="sys">${esc(sysName(p))}</span></div>
     <div class="card-body"><h3>${esc(p.title)}</h3><p>${esc(p.description||'Без описания')}</p>
-    <div class="meta">${p.myRole==='owner'?`<span>Игроков: ${p.members}</span>${p.comasters?`<span>Сомастеров: ${p.comasters}</span>`:''}`:`${p.myRole==='comaster'?'<span class="co">Сомастер</span>':''}<span>Мастер: ${esc(p.owner?.name||'—')}</span>`}</div></div>
-    ${p.myRole==='owner'?`<div class="card-menu"><button data-inv="${p.id}" title="Пригласить">${ICON.invite}</button><button data-edit="${p.id}" title="Изменить">${ICON.edit}</button><button data-export="${p.id}" title="Экспорт в файл">${ICON.export}</button><button data-del="${p.id}" title="Удалить">${ICON.trash}</button></div>`:''}
+    <div class="meta">${p.myRole==='owner'||p.myRole==='comaster'?`${p.myRole==='owner'?'<span class="co">Мастер</span>':`<span class="co">Сомастер</span><span>Мастер: ${esc(p.owner?.name||'—')}</span>`}<span>Игроков: ${p.members}</span>${p.comasters?`<span>Сомастеров: ${p.comasters}</span>`:''}`:`<span>Мастер: ${esc(p.owner?.name||'—')}</span>`}</div></div>
+    ${p.myRole==='owner'||p.myRole==='comaster'?`<div class="card-menu"><button data-inv="${p.id}" title="Пригласить">${ICON.invite}</button><button data-edit="${p.id}" title="Изменить">${ICON.edit}</button><button data-export="${p.id}" title="Экспорт в файл">${ICON.export}</button><button data-del="${p.id}" title="Удалить">${ICON.trash}</button></div>`:''}
   </div>`;
   root().innerHTML=headerHTML()+`<main class="home">
     <div class="home-head"><div><h1>${isM?'Мои проекты':'Мои игры'}</h1><p class="muted" style="margin:0">${isM?'Каждый проект — отдельная игра или кампания со своей системой, доской и игроками.':'Игры, в которых вы участвуете. Код приглашения выдаёт мастер.'}</p></div>
@@ -935,15 +937,15 @@ async function renderProject(pid,tab='board'){
   const isOwner=p.owner_id===App.user.id;
   const myRole=isOwner?'owner':await API.myRole(pid);
   const isM=isOwner||myRole==='comaster';
-  const tabs=isOwner?[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['sessions','Сессии',1],['notes','Заметки',1],['settings','Настройки']]
+  const tabs=isM?[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['sessions','Сессии',1],['notes','Заметки',1],['settings','Настройки']]
     :isM?[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['sessions','Сессии',1],['notes','Заметки',1],['info','Об игре']]:[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['info','Об игре']];
   if(!App.hub||App.hub.pid!==pid){if(App.hub)App.hub.destroy();App.hub=new ProjectHub(pid,isM)}
   if(!App.chars||App.chars.pid!==pid){if(App.chars)App.chars.destroy();App.chars=new CharStore(pid,isM)}
   if(!App.music||App.music.pid!==pid){if(App.music)App.music.destroy();App.music=new MusicEngine(pid,isM);App.music.init().catch(e=>console.error(e))}
   root().innerHTML=headerHTML(`<div class="crumb"><button class="btn ghost sm" data-back>← Проекты</button><span class="pt" title="${esc(p.title)}">${esc(p.title)}</span><span class="sys">${esc(sysName(p))}</span></div>
-    <div class="spacer"></div><div class="mdock" hidden></div>${isOwner?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
+    <div class="spacer"></div><div class="mdock" hidden></div>${isM?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
   if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,tab!=='music'?()=>go('project',pid,'music'):null);
-  if(isOwner)$('[data-invite]').onclick=()=>inviteModal(p);
+  if(isM)$('[data-invite]').onclick=()=>inviteModal(p);
   mountDiceLog();
   bindHeader();
   $('[data-back]').onclick=()=>{LS.set('rpa_nav',null);go('home')};
@@ -1005,14 +1007,15 @@ async function renderProject(pid,tab='board'){
   if(tab==='settings'){
     const mem=await API.members(pid);
     main.innerHTML=`<div class="page">
-      <section class="panel"><h2>Игра</h2><div class="kv" style="margin-bottom:14px"><div>Название</div><div>${esc(p.title)}</div><div>Игровая система</div><div>${esc(sysName(p))}</div><div>Правила системы</div><div class="muted">будут подключены позже</div></div><button class="btn" data-edit>Изменить название, систему, описание</button></section>
+      <section class="panel"><h2>Игра</h2><div class="kv" style="margin-bottom:14px"><div>Название</div><div>${esc(p.title)}</div><div>Игровая система</div><div>${esc(sysName(p))}</div><div>Мастер</div><div>${isOwner?'вы':esc(p.owner?.name||'—')}</div><div>Правила системы</div><div class="muted">будут подключены позже</div></div><button class="btn" data-edit>Изменить название, систему, описание</button></section>
       <section class="panel"><h2>Ссылка для игроков</h2><div class="inv-row" style="margin-bottom:10px"><input readonly value="${esc(inviteLink(p.code))}"><button class="btn primary" data-copy>Копировать</button><button class="btn ghost" data-regen title="Старая ссылка перестанет работать">Новая ссылка</button></div>
         <p class="muted" style="margin:0;font-size:13px">Отправьте ссылку игроку. Он откроет её, войдёт или зарегистрируется — и сразу окажется в игре.</p></section>
       <section class="panel"><h2>Ссылка для сомастеров</h2><div class="inv-row" style="margin-bottom:10px"><input readonly value="${esc(inviteLink(p.comaster_code))}"><button class="btn" data-copy2>Копировать</button><button class="btn ghost" data-regen2 title="Старая ссылка перестанет работать">Новая ссылка</button></div>
-        <p class="muted" style="margin:0;font-size:13px">Сомастер входит аккаунтом мастера и редактирует доску и музыку вместе с вами в реальном времени, но не может менять настройки и удалять проект.</p></section>
+        <p class="muted" style="margin:0;font-size:13px">Сомастер входит аккаунтом мастера. У него всё то же, что у мастера: доска, карты, персонажи, музыка, настройки, приглашения. «Мастер» — только титул, его можно передать сомастеру.</p></section>
       <section class="panel"><h2>Доступ игроков к доске</h2><select data-access style="max-width:320px"><option value="view" ${p.board_access!=='none'?'selected':''}>Видят в реальном времени (только просмотр)</option><option value="none" ${p.board_access==='none'?'selected':''}>Скрыта от игроков</option></select></section>
-      <section class="panel"><h2>Участники (${mem.length})</h2>${mem.length?`<ul class="plist">${mem.sort((a,b)=>a.role===b.role?0:a.role==='comaster'?-1:1).map(m=>`<li><span class="pl">${m.profile?.avatar_url?`<img class="ava" src="${esc(m.profile.avatar_url)}" referrerpolicy="no-referrer" alt="">`:''}${esc(m.profile?.name||'Участник')}<span class="badge ${m.role==='comaster'?'master':'player'}">${m.role==='comaster'?'Сомастер':'Игрок'}</span></span><button class="btn sm ghost" data-kick="${m.user_id}">Убрать</button></li>`).join('')}</ul>`:'<p class="muted" style="margin:0">Пока никто не присоединился.</p>'}</section>
-      <section class="panel"><h2>Проект</h2><div class="row-g"><button class="btn" data-export>${ICON.export} Экспорт в файл</button><button class="btn danger" data-del>${ICON.trash} Удалить проект</button></div></section>
+      <section class="panel"><h2>Участники (${mem.length+1})</h2><ul class="plist"><li><span class="pl">${p.owner?.avatar_url?`<img class="ava" src="${esc(p.owner.avatar_url)}" referrerpolicy="no-referrer" alt="">`:''}${esc(p.owner?.name||'Мастер')}${isOwner?' <span class="muted">(вы)</span>':''}<span class="badge master">Мастер</span></span></li>${mem.sort((a,b)=>a.role===b.role?0:a.role==='comaster'?-1:1).map(m=>{const me_=m.user_id===App.user.id;return `<li><span class="pl">${m.profile?.avatar_url?`<img class="ava" src="${esc(m.profile.avatar_url)}" referrerpolicy="no-referrer" alt="">`:''}${esc(m.profile?.name||'Участник')}${me_?' <span class="muted">(вы)</span>':''}<span class="badge ${m.role==='comaster'?'master':'player'}">${m.role==='comaster'?'Сомастер':'Игрок'}</span></span><span class="row-g">${isOwner&&m.role==='comaster'?`<button class="btn sm" data-crown="${m.user_id}" data-name="${esc(m.profile?.name||'сомастер')}" title="Передать титул мастера — вы станете сомастером">👑 Сделать мастером</button>`:''}${me_?'':`<button class="btn sm ghost" data-kick="${m.user_id}">Убрать</button>`}</span></li>`}).join('')}</ul>${mem.length?'':'<p class="muted" style="margin:6px 0 0">Пока никто не присоединился.</p>'}
+        ${isOwner?'<p class="muted" style="margin:10px 0 0;font-size:13px">«Мастер» — только титул: права у мастера и сомастеров одинаковые. Передать титул можно сомастеру — вы сами станете сомастером.</p>':''}</section>
+      <section class="panel"><h2>Проект</h2><div class="row-g"><button class="btn" data-export>${ICON.export} Экспорт в файл</button><button class="btn danger" data-del>${ICON.trash} Удалить проект</button>${isOwner?'':'<button class="btn ghost" data-leave>Покинуть игру</button>'}</div></section>
     </div>`;
     $('[data-edit]').onclick=()=>projectModal(p);
     $('[data-copy]').onclick=()=>{navigator.clipboard?.writeText(inviteLink(p.code)).then(()=>toast('Ссылка скопирована'),()=>toast(inviteLink(p.code)))};
@@ -1021,6 +1024,9 @@ async function renderProject(pid,tab='board'){
     $('[data-copy2]').onclick=()=>{navigator.clipboard?.writeText(inviteLink(p.comaster_code)).then(()=>toast('Ссылка скопирована'),()=>toast(inviteLink(p.comaster_code)))};
     $('[data-access]').onchange=async e=>{const {error}=await sb.from('projects').update({board_access:e.target.value}).eq('id',pid);if(!fail(error))toast('Доступ обновлён')};
     $$('[data-kick]').forEach(b=>b.onclick=async()=>{try{await API.kick(pid,b.dataset.kick);go('project',pid,'settings')}catch(e){fail(e)}});
+    $$('[data-crown]').forEach(b=>b.onclick=async()=>{if(!await confirmBox(`Сделать мастером «${b.dataset.name}»? Вы станете сомастером. Права у вас не изменятся.`,'Передать титул'))return;
+      try{await API.transferMaster(pid,b.dataset.crown);toast('Титул мастера передан');go('project',pid,'settings')}catch(e){fail(e,/transfer_master|function/.test(e.message||'')?'Сначала выполните в Supabase скрипт supabase/006_master_title.sql':undefined)}});
+    $('[data-leave]')?.addEventListener('click',async()=>{if(await confirmBox('Покинуть эту игру?','Покинуть')){try{await API.kick(pid,App.user.id);LS.set('rpa_nav',null);go('home')}catch(e){fail(e)}}});
     $('[data-export]').onclick=()=>exportProject(pid);
     $('[data-del]').onclick=async()=>{if(await confirmBox(`Удалить проект «${p.title}» вместе с доской? Игроки потеряют к нему доступ.`)){try{await API.deleteProject(pid);LS.set('rpa_nav',null);go('home')}catch(e){fail(e)}}};
   }
