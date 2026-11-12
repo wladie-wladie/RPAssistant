@@ -156,12 +156,17 @@ function rollSummary(d){
   if(d.type==='power')return [`${VTM.DISC[d.disc]||''} ${d.lvl||''}`,'#c9b6ff'];
   const [t,col]=VTM.RES[d.res]||['',''];return [`${t} · ${d.succ} ${plural(d.succ,'успех','успеха','успехов')}${d.diff?` из ${d.diff}`:''}${d.margin>0?` (+${d.margin})`:''}`,col];
 }
+// чужие броски игрок видит без своих данных о листе: только кто, что и чем кончилось — без кубов (их число выдаёт пул) и без значений Голода
+function seesRoll(r){const S=App.chars;if(!S||S.isM||r.user_id===App.user.id)return true;const c=r.character_id&&S.get(r.character_id);return !!(c&&c.owner_id===App.user.id)}
 function rollCard(r,full){
-  const d=r.data,[sum,col]=rollSummary(d);const mine=r.user_id===App.user.id;
+  const open=seesRoll(r);const d=open?r.data:{...r.data,parts:undefined,pool:undefined,hunger:undefined,hungerFrom:undefined,hungerTo:undefined,margin:0};
+  let [sum,col]=rollSummary(r.data);if(!open&&r.data.type==='rouse')sum=r.data.blocked?'Пробуждение невозможно':r.data.hungerTo>r.data.hungerFrom?'Голод вырос':'Голод не вырос';
+  if(!open&&r.data.type==='roll'){const [t]=VTM.RES[r.data.res]||[''];sum=t}
+  const mine=r.user_id===App.user.id;
   const canWp=full&&mine&&d.type==='roll'&&!d.wp&&r.character_id&&d.reg.some(v=>v<6);
   return `<div class="rcard ${d.res||d.type}" data-rid="${r.id}"><div class="rc-h"><b>${esc(d.char||d.who||'')}</b>${d.char&&d.who&&!mine?`<span class="rc-who">${esc(d.who)}</span>`:''}${r.secret?'<span class="rc-sec" title="Скрытый бросок">🔒</span>':''}<span class="rc-t">${new Date(r.created_at||Date.now()).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</span></div>
     <div class="rc-l">${d.type==='rouse'?'🩸 ':d.type==='power'?(VTM.DISC_ICON[d.disc]||'✨')+' ':'🎲 '}${esc(d.label||'')}</div>${d.vs?`<div class="rc-vs">против ${esc(d.vs)}</div>`:''}
-    <div class="rc-d">${diceHTML(d)}</div><div class="rc-r" style="color:${col}">${esc(sum)}</div>${VTM.RES_HINT[d.res]&&full?`<div class="rc-hint">${esc(VTM.RES_HINT[d.res])}</div>`:''}${d.type==='power'&&d.desc?`<div class="rc-hint">${esc(d.desc)}</div>`:''}
+    ${open?`<div class="rc-d">${diceHTML(d)}</div>`:""}<div class="rc-r" style="color:${col}">${esc(sum)}</div>${VTM.RES_HINT[d.res]&&full?`<div class="rc-hint">${esc(VTM.RES_HINT[d.res])}</div>`:''}${d.type==='power'&&d.desc?`<div class="rc-hint">${esc(d.desc)}</div>`:''}
     ${canWp?`<button class="btn sm rc-wp" data-wp="${r.id}">Перебросить до 3 кубов за Силу воли</button>`:''}</div>`;
 }
 function showRollPopup(r){
