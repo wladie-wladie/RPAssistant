@@ -229,3 +229,8 @@ mark{background:#e3b75b55;color:#fff;border-radius:3px;padding:0 2px}
 .xp input{height:34px}
 .mc-tr .boxes{flex:1;min-width:0}
 .rollpop{left:auto;right:18px;transform:none;top:120px;width:min(360px,92vw)}
+
+/* панель персонажа двигается за шапку */
+.mc-h{cursor:grab;touch-action:none;user-select:none}
+.mchar.drag{box-shadow:0 22px 50px -10px rgba(0,0,0,.7);opacity:.97}.mchar.drag .mc-h{cursor:grabbing}
+.mc-grip{color:var(--muted);font-size:13px;line-height:1;letter-spacing:-1px;opacity:.7}

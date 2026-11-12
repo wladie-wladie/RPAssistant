@@ -2071,6 +2071,8 @@ class MusicEngine{
     this.applyVol();
     if(s.playing){
       if(hard||drift>1.5)this.seekTo(want);
+      // после загрузки страницы звук сам не включается: ждём «Включить звук» или действия мастера
+      if(!this.unlocked){this.blocked=true;this.emit();return}
       if(!this.isPlaying()){
         if(c.kind==='yt')c.player.playVideo();
         else if(c.kind==='sc')c.widget.play();
@@ -2108,9 +2110,10 @@ class MusicEngine{
   stop(){this.write({playing:false,position:0})}
   next(dir=1){const cur=this.current;const list=this.tracks.filter(t=>t.category===(cur?.category||'music'));if(!list.length)return;let i=list.findIndex(t=>t.id===cur?.id);i=(i+dir+list.length)%list.length;this.write({track_id:list[i].id,playing:true,position:0})}
   async playSfx(id,send){
-    const t=this.track(id);if(!t)return;
+    const t=this.track(id);if(!t)return;if(!send&&!this.unlocked){this.blocked=true;this.emit();return}
     if(send&&this.ch)this.ch.send({type:'broadcast',event:'sfx',payload:{id}});
     if(t.kind!=='file'&&t.kind!=='url'&&t.kind!=='yadisk'){if(send)toast('Эффекты пока проигрываются только из файлов и прямых ссылок','err');return}
+    if(send)this.unlocked=true;
     try{const a=new Audio(await this.srcFor(t));a.volume=this.outVol();await a.play()}catch(_){this.blocked=true;this.emit()}
   }
 }

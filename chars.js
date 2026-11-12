@@ -438,14 +438,14 @@ function mountMapCharPanel(mv){
     const all=pick(),c=cur&&S.get(cur);
     if(!all.length){el.innerHTML=S.isM?'':`<div class="mc-empty">🧛 Создайте персонажа во вкладке «Персонажи», чтобы бросать кубы и применять силы прямо здесь.</div>`;return}
     const d=c.data,known=(d.powers||[]).map(id=>VTM.POWER[id]).filter(Boolean);
-    el.innerHTML=`<div class="mc-h"><button class="mc-tg" data-tg title="${open?'Свернуть':'Развернуть'}">${open?'▾':'▸'}</button>${all.length>1?`<select data-mc>${all.map(x=>`<option value="${x.id}" ${x.id===cur?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:`<b>${esc(c.name)}</b>`}<span class="mc-hun" title="Голод">${boxes('hunger',c)}</span></div>
+    el.innerHTML=`<div class="mc-h" title="Перетащите, чтобы передвинуть · двойной щелчок — на место"><span class="mc-grip" aria-hidden="true">⠿</span><button class="mc-tg" data-tg title="${open?'Свернуть':'Развернуть'}">${open?'▾':'▸'}</button>${all.length>1?`<select data-mc>${all.map(x=>`<option value="${x.id}" ${x.id===cur?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:`<b>${esc(c.name)}</b>`}<span class="mc-hun" title="Голод">${boxes('hunger',c)}</span></div>
     ${open?`<div class="mc-b"><div class="mc-tr"><span title="Здоровье">❤</span>${boxes('health',c)}</div><div class="mc-tr"><span title="Сила воли">✦</span>${boxes('wp',c)}</div>
       <div class="mc-q">${QUICK_ROLLS.map(([n,a,b,ic])=>`<button data-q="${a}|${b}|${n}" title="${VTM.ATTR_NAME[a]} + ${VTM.SKILL_NAME[b]} = ${VTM.val(d,a)+VTM.val(d,b)}"><span>${ic}</span>${n}<b>${VTM.val(d,a)+VTM.val(d,b)}</b></button>`).join('')}</div>
       ${known.length?`<div class="mc-l">Силы</div><div class="mc-p">${known.map(p=>`<button data-pw="${p.id}" title="${esc(p.d)}${p.vs?' · против '+esc(p.vs):''}"><span>${VTM.DISC_ICON[p.disc]}</span>${esc(p.n)}${p.r?`<i>${'🩸'.repeat(p.r)}</i>`:''}</button>`).join('')}</div>`:''}
       <div class="mc-f"><button class="btn sm" data-rouse>🩸 Пробуждение</button><button class="btn primary sm" data-roll>🎲 Свой бросок</button></div></div>`:''}`;
   };
   el.onclick=e=>{const t=e.target;const c=cur&&S.get(cur);
-    if(t.closest('[data-tg]')){open=!open;LS.set('rpa_mchar_open',open?'1':'0');return draw()}
+    if(t.closest('[data-tg]')){open=!open;LS.set('rpa_mchar_open',open?'1':'0');draw();return place()}
     if(!c)return;
     const bx=t.closest('[data-box] i');if(bx&&S.canEdit(c))return S.patch(c.id,cycleBox(c,bx.parentElement.dataset.box,+bx.dataset.i));
     const q=t.closest('[data-q]');if(q){const [a,b,n]=q.dataset.q.split('|');return openRollDialog(c,{a,b,label:n})}
@@ -453,8 +453,22 @@ function mountMapCharPanel(mv){
     if(t.closest('[data-rouse]'))return rouseCheck(c);
     if(t.closest('[data-roll]'))return openRollDialog(c,{a:'dex',b:'athletics'});
   };
-  el.onchange=e=>{if(e.target.dataset.mc!==undefined){cur=e.target.value;LS.set('rpa_mchar_'+mv.ctx.pid,cur);draw()}};
+  el.onchange=e=>{if(e.target.dataset.mc!==undefined){cur=e.target.value;LS.set('rpa_mchar_'+mv.ctx.pid,cur);draw();place()}};
   el.addEventListener('pointerdown',e=>e.stopPropagation());el.addEventListener('wheel',e=>e.stopPropagation());
-  const off=S.on(()=>draw());S.ready.then(draw);
-  return ()=>{off();el.remove()};
+  // перетаскивание за шапку: панель можно поставить в любое место карты, позиция запоминается
+  let P=null;try{P=JSON.parse(LS.get('rpa_mchar_pos')||'null')}catch(_){P=null}
+  const place=()=>{if(!P){el.style.left=el.style.top='';el.style.bottom='';return}
+    const W=wrap.clientWidth,H=wrap.clientHeight,w=el.offsetWidth;
+    const x=Math.max(0,Math.min(W-w,P.x)),y=Math.max(0,Math.min(H-44,P.y));el.style.left=x+'px';el.style.top=y+'px';el.style.bottom='auto'};
+  let dr=null;
+  el.addEventListener('pointerdown',e=>{const h=e.target.closest('.mc-h');if(!h||e.button!==0||e.target.closest('button,select,input,[data-box]'))return;
+    const r=el.getBoundingClientRect(),wr=wrap.getBoundingClientRect();dr={dx:e.clientX-r.left,dy:e.clientY-r.top,wr};el.classList.add('drag');el.setPointerCapture(e.pointerId);e.preventDefault()});
+  el.addEventListener('pointermove',e=>{if(!dr)return;P={x:e.clientX-dr.wr.left-dr.dx,y:e.clientY-dr.wr.top-dr.dy};place()});
+  const end=()=>{if(!dr)return;dr=null;el.classList.remove('drag');const x=parseFloat(el.style.left)||0,y=parseFloat(el.style.top)||0;P={x,y};LS.set('rpa_mchar_pos',JSON.stringify(P))};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+  el.addEventListener('dblclick',e=>{const hh=el.querySelector('.mc-h');if(!hh||e.clientY>hh.getBoundingClientRect().bottom||e.target.closest('button,select'))return;P=null;LS.set('rpa_mchar_pos',null);place()});
+  const ro=window.ResizeObserver?new ResizeObserver(place):null;ro&&ro.observe(wrap);
+  const draw2=()=>{draw();place()};
+  const off=S.on(()=>draw2());S.ready.then(draw2);
+  return ()=>{off();ro&&ro.disconnect();el.remove()};
 }
