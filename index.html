@@ -223,6 +223,71 @@ label.f b{color:var(--danger);font-weight:400}
 .tinfo{flex:1;min-width:0}.ttitle{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tmeta{font-size:12px;color:var(--muted)}
 .tr select{width:130px;height:32px;font-size:12px;padding:0 8px}
 .tic{width:32px;height:32px;border:0;background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;display:grid;place-items:center}.tic:hover{background:var(--panel2);color:var(--text)}.tic svg{width:16px;height:16px}
+.maps{flex:1;display:flex;min-height:0}
+.mlist{width:250px;flex:none;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.mlist-h{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}.mlist-h b{font-family:var(--serif);font-size:22px}
+.ml{overflow:auto;padding:0 8px 12px;display:flex;flex-direction:column;gap:4px}
+.mli{position:relative;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.mli:hover{background:var(--panel2)}.mli.on{background:color-mix(in srgb,var(--acc) 10%,transparent);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.mli-t{display:flex;align-items:center;gap:8px;font-weight:600}.mli-t svg{width:16px;height:16px;flex:none;color:var(--acc)}.mli-t span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mli-m{font-size:12px;color:var(--muted);margin:2px 0 0 24px}
+.eye{display:grid;place-items:center;color:var(--muted)}.eye svg{width:15px;height:15px}.eye.on{color:var(--teal)}
+.mli-a{position:absolute;right:8px;bottom:6px;display:none;gap:2px}.mli:hover .mli-a{display:flex}
+.mli-a button{width:26px;height:26px;border:0;background:var(--panel);color:var(--muted);border-radius:6px;cursor:pointer;display:grid;place-items:center}.mli-a button:hover{color:var(--text)}.mli-a svg{width:14px;height:14px}
+.mmain{flex:1;display:flex;min-width:0;min-height:0}
+.mapwrap{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;position:relative}
+.maphead{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.maphead .btn.on{border-color:var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--panel2))}
+.maphead .btn svg{width:15px;height:15px}
+.mname{font-family:var(--serif);font-size:21px;font-weight:700;cursor:pointer;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.mscale{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap}
+.mh-sep{width:1px;height:22px;background:var(--line);margin:0 2px}
+.switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap}
+.switch input{display:none}.switch span{width:34px;height:20px;border-radius:20px;background:var(--line);position:relative;transition:background 160ms var(--ease)}
+.switch span:after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform 160ms var(--ease)}
+.switch input:checked+span{background:var(--teal)}.switch input:checked+span:after{transform:translateX(14px)}
+.mapstage{flex:1;display:flex;min-height:0;position:relative}
+.mapboard{background:#d9d3c5}
+.mapboard .vp{background-image:none}
+.ml-tok{position:absolute;left:0;top:0;width:0;height:0}
+.tok{position:absolute;pointer-events:auto;touch-action:none;transition:left 90ms linear,top 90ms linear}
+.tok.movable{cursor:grab}.tok.movable:active{cursor:grabbing;transition:none}
+.tk-c{position:absolute;inset:6%;border-radius:50%;background:var(--tc) center/cover;border:3px solid #fff;box-shadow:0 0 0 2px var(--tc),0 4px 10px rgba(0,0,0,.45);display:grid;place-items:center;color:#fff;font-weight:800;font-size:clamp(10px,28%,34px);text-shadow:0 1px 2px rgba(0,0,0,.6);font-family:Manrope,sans-serif;user-select:none}
+.tok.mine .tk-c{box-shadow:0 0 0 2px var(--tc),0 0 0 6px rgba(255,255,255,.55),0 4px 10px rgba(0,0,0,.45)}
+.tok.sel .tk-c{box-shadow:0 0 0 3px #4f6bed,0 0 0 7px rgba(79,107,237,.35),0 4px 10px rgba(0,0,0,.45)}
+.tok.hid{opacity:.45}.tok.hid .tk-c{border-style:dashed}
+.tk-n{position:absolute;left:50%;top:100%;transform:translate(-50%,-6px);background:rgba(20,22,34,.85);color:#fff;font-size:12px;font-weight:700;padding:1px 7px;border-radius:6px;white-space:nowrap;pointer-events:none;font-family:Manrope,sans-serif}
+.tk-hp{position:absolute;left:12%;right:12%;top:-2px;height:6px;background:rgba(0,0,0,.55);border-radius:4px;overflow:hidden}.tk-hp i{display:block;height:100%;background:#22c55e}
+.pingr{animation:pingr 1.1s ease-out 2;transform-box:fill-box;transform-origin:center}.pingr.d2{animation-delay:.35s}
+@keyframes pingr{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(7)}}
+.tokpanel{position:absolute;right:12px;top:62px;width:270px;max-height:calc(100% - 80px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;z-index:20;box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.tp-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.tp-h b{font-family:var(--serif);font-size:20px}
+.tokpanel input,.tokpanel select{height:36px}
+.colors.sm button{width:24px;height:24px;border-radius:50%}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer}.chk input{width:auto;height:auto}
+.mapboard .tb{top:8px;transform:none;max-height:calc(100% - 16px);overflow-y:auto;scrollbar-width:none}
+.mapboard .tb button{width:36px;height:36px}
+.mapboard .tb svg{width:19px;height:19px}
+.mapboard .ro-badge{left:auto;right:12px;top:12px}
+.tool-pop .r.col{flex-direction:column;max-width:none}
+.tool-pop button.wide{width:auto;height:32px;justify-content:flex-start;display:flex;gap:8px;padding:0 10px;font-size:13px;white-space:nowrap}
+.tool-pop .r.emo{max-width:280px}.tool-pop .r.emo button{font-size:20px}
+.tool-pop .r.tpls{max-width:340px;max-height:430px;overflow:auto;gap:6px}
+.tplc{position:relative;width:76px!important;height:76px!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid #ece8de!important;background:#fff!important}
+.tplc.on{border-color:var(--blue)!important;background:#eef1ff!important}
+.tplc span{font-size:10px;line-height:1.1;text-align:center;color:#4a4f60;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tplc i{position:absolute;top:1px;right:4px;font-style:normal;color:#c0392b;font-size:15px;line-height:1}
+.tplhint{font-size:11px;color:#8a8fa3;max-width:330px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pre{display:block;cursor:pointer}.pre input{display:none}
+.pre span{display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#10141f;transition:border-color 140ms var(--ease)}
+.pre input:checked+span{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,#10141f)}
+.pre b{color:var(--text);font-size:14px}.pre small{color:var(--muted);font-size:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 10px}
+.msettings input[type=color]{height:40px;padding:4px}
+.msettings input[type=range]{height:auto;padding:0;accent-color:var(--acc)}
+.bgbox{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.toast.act{display:flex;align-items:center;gap:12px}
 .fatal{margin:auto;max-width:520px;text-align:center;padding:40px;line-height:1.6}
 
 /* ================= BOARD ================= */
@@ -240,6 +305,10 @@ label.f b{color:var(--danger);font-weight:400}
 .item.shape .shp{position:absolute;inset:0;overflow:visible}
 .item.frame{border:1px solid rgba(0,0,0,.14);border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .frame-title{position:absolute;left:0;bottom:100%;padding-bottom:6px;font-family:var(--serif);font-size:20px;font-weight:700;color:#4b4f5e;white-space:nowrap;outline:none;min-width:40px;cursor:default}
+.item.prop{display:grid;place-items:center}
+.propi{line-height:1;user-select:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+.vp[data-tool=ext]{cursor:crosshair}
+.vp[data-tool=prop]{cursor:copy}
 .item.image img{width:100%;height:100%;display:block;pointer-events:none}
 .item.line,.item.pen{pointer-events:none}
 .item.line svg,.item.pen svg{overflow:visible;display:block}
@@ -364,6 +433,22 @@ const ICON={
  ls_elbow:sv('<path d="M4 19h8V5h8"/>'),
  ls_curve:sv('<path d="M4 19C12 19 12 5 20 5"/>'),
  edit:sv('<path d="M4 20h4L19 9l-4-4L4 16z"/>'),
+ rotate:sv('<path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 4v7h-7"/>'),
+ group:sv('<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M2 2h4M2 2v4M22 22h-4M22 22v-4" opacity=".6"/>'),
+ ungroup:sv('<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M14 4l6 6M20 4l-6 6" opacity=".7"/>'),
+ wall:sv('<path d="M3 6h18v4H3zM3 14h18v4H3z"/><path d="M8 6v4M15 10v4M11 14v4M17 6v4" opacity=".7"/>'),
+ room:sv('<rect x="3" y="4" width="18" height="16" rx="1" stroke-width="2.6"/><path d="M3 12h6" />'),
+ area:sv('<path d="M4 15c2-6 6-9 10-8s6 5 5 9-6 5-10 4-6-2-5-5z"/><path d="M8 14c2 1 5 1 7-1" opacity=".6"/>'),
+ tpl:sv('<rect x="3" y="7" width="12" height="7" rx="1.5"/><path d="M5 14v4M13 14v4"/><circle cx="18.5" cy="7.5" r="2.5"/><path d="M17 15h4v5h-4z"/>'),
+ prop:sv('<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>'),
+ token:sv('<circle cx="12" cy="9" r="4"/><path d="M5 21a7 7 0 0114 0"/><circle cx="12" cy="12" r="10" opacity=".35"/>'),
+ ruler:sv('<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>'),
+ ping:sv('<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" opacity=".6"/><circle cx="12" cy="12" r="10.5" opacity=".3"/>'),
+ reveal:sv('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+ hide:sv('<path d="M3 3l18 18M10.6 5.1A10 10 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 004.6-1.2"/>'),
+ grid:sv('<rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>'),
+ eye:sv('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+ map:sv('<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>'),
  invite:sv('<circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0112 0M18 8v6M15 11h6"/>'),
  export:sv('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),
 };
@@ -453,7 +538,9 @@ const root=()=>$('#app');
 function destroyBoard(){if(App.board){App.board.destroy();App.board=null}if(App.unsub){App.unsub();App.unsub=null}}
 async function go(view,...args){
   destroyBoard();
+  if(App.mapView){App.mapView.destroy();App.mapView=null}App.mapsTab=null;
   if(App.music&&!(view==='project'&&args[0]===App.music.pid)){App.music.destroy();App.music=null}
+  if(App.hub&&!(view==='project'&&args[0]===App.hub.pid)){App.hub.destroy();App.hub=null}
   document.body.className=App.user?.role?'role-'+App.user.role:'';
   try{
     if(view==='auth')return renderAuth();
@@ -595,7 +682,7 @@ function renderOnboard(){
   };
   draw();
 }
-async function logout(){destroyBoard();if(App.music){App.music.destroy();App.music=null}await sb.auth.signOut();App.user=null;LS.set('rpa_nav',null);go('auth')}
+async function logout(){destroyBoard();if(App.mapView){App.mapView.destroy();App.mapView=null}if(App.music){App.music.destroy();App.music=null}if(App.hub){App.hub.destroy();App.hub=null}await sb.auth.signOut();App.user=null;LS.set('rpa_nav',null);go('auth')}
 
 function headerHTML(mid=''){
   const u=App.user;
@@ -717,8 +804,9 @@ async function renderProject(pid,tab='board'){
   const isOwner=p.owner_id===App.user.id;
   const myRole=isOwner?'owner':await API.myRole(pid);
   const isM=isOwner||myRole==='comaster';
-  const tabs=isOwner?[['board','Доска'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['settings','Настройки']]
-    :isM?[['board','Доска'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['info','Об игре']]:[['board','Доска'],['music','Музыка'],['info','Об игре']];
+  const tabs=isOwner?[['board','Доска'],['maps','Карты'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['settings','Настройки']]
+    :isM?[['board','Доска'],['maps','Карты'],['music','Музыка'],['chars','Персонажи',1],['sessions','Сессии',1],['notes','Заметки',1],['rules','Правила',1],['info','Об игре']]:[['board','Доска'],['maps','Карты'],['music','Музыка'],['info','Об игре']];
+  if(!App.hub||App.hub.pid!==pid){if(App.hub)App.hub.destroy();App.hub=new ProjectHub(pid,isM)}
   if(!App.music||App.music.pid!==pid){if(App.music)App.music.destroy();App.music=new MusicEngine(pid,isM);App.music.init().catch(e=>console.error(e))}
   root().innerHTML=headerHTML(`<div class="crumb"><button class="btn ghost sm" data-back>← Проекты</button><span class="pt" title="${esc(p.title)}">${esc(p.title)}</span><span class="sys">${esc(sysName(p))}</span></div>
     <div class="spacer"></div><div class="mdock" hidden></div>${isOwner?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
@@ -765,6 +853,7 @@ async function renderProject(pid,tab='board'){
     return;
   }
   if(tab==='music'){renderMusicTab(main,App.music,isM);return}
+  if(tab==='maps'){renderMapsTab(main,pid,isM);return}
   const SOON={
     chars:['🧙','Персонажи','Листы персонажей игроков и NPC с характеристиками по правилам выбранной системы.'],
     sessions:['📅','Сессии','Планирование встреч, журнал прошедших сессий и заметки по итогам.'],
@@ -829,6 +918,7 @@ function smoothPath(P){
   const l=P[P.length-1];return d+` L${r1(l[0])} ${r1(l[1])}`;
 }
 const center=b=>({x:b.x+b.w/2,y:b.y+b.h/2});
+const rotBox=it=>{if((it.rot||0)%180===90){const cx=it.x+it.w/2,cy=it.y+it.h/2;return {x:cx-it.h/2,y:cy-it.w/2,w:it.h,h:it.w}}return {x:it.x,y:it.y,w:it.w,h:it.h}};
 function edgePt(it,t){
   const c=center(it),dx=t.x-c.x,dy=t.y-c.y;if(!dx&&!dy)return c;
   let s;
@@ -848,13 +938,16 @@ class Board{
     this.view=data.view?{...data.view}:{x:0,y:0,z:1};
     this.sel=new Set();this.tool='select';this.shapeKind='rect';this.penColor='#1f2937';this.penWidth=3;this.stickyColor='#fff0b8';
     this.dom=new Map();this.idx=new Map();this.drag=null;this.editing=null;this.hoverId=null;this.space=false;this.pop=null;this.clip=null;this.ls=[];
+    this.toolList=(opts.tools||TOOLS.map(t=>t&&{id:t[0],title:t[1],keyLabel:t[2]}));
+    this.toolDefs=new Map(this.toolList.filter(Boolean).map(t=>[t.id,t]));
+    this.cell=opts.cell||70;this.propEmoji='🧰';
     this.build();this.reindex();this.hist=[JSON.stringify(this.items)];this.hi=0;this.bind();this.setTool('select');
     if(!data.view)requestAnimationFrame(()=>this.fit(1));else requestAnimationFrame(()=>this.render());
   }
   build(){
     const r=document.createElement('div');r.className='board'+(this.ro?' ro':'');r.tabIndex=0;
     r.innerHTML=`<div class="vp"><div class="world"></div><div class="overlay"></div><div class="marquee"></div><div class="cursors"></div></div>
-      ${this.ro?'<div class="ro-badge"><span class="live"></span>Доска мастера · в реальном времени</div>':`<div class="tb">${TOOLS.map(t=>t?`<button data-tool="${t[0]}" title="${t[1]} (${t[2]})">${ICON[t[0]]}</button>`:'<div class="sep"></div>').join('')}</div><div class="tool-pop" hidden></div><div class="ctx" hidden></div>`}
+      ${this.ro?`<div class="ro-badge"><span class="live"></span>${esc(this.opts.roBadge||'Доска мастера · в реальном времени')}</div>`:`<div class="tb">${this.toolList.map(t=>t?`<button data-tool="${t.id}" title="${esc(t.title)}${t.keyLabel?` (${t.keyLabel})`:''}">${ICON[t.icon||t.id]||ICON.shape}</button>`:'<div class="sep"></div>').join('')}</div><div class="tool-pop" hidden></div><div class="ctx" hidden></div>`}
       <div class="zoom"><button data-z="out" title="Отдалить (−)">−</button><span class="zl" data-z="100" title="Масштаб 100%">100%</span><button data-z="in" title="Приблизить (+)">+</button><button data-z="fit" title="Показать всё (Shift+1)">${ICON.fit}</button></div>
       <div class="hint"></div><input type="file" accept="image/*" multiple hidden class="file">`;
     this.host.appendChild(r);this.root=r;
@@ -940,30 +1033,58 @@ class Board{
   toScreen(x,y){const v=this.view;return {x:x*v.z+v.x,y:y*v.z+v.y}}
   centerWorld(){const r=this.rect(),v=this.view;return {x:(r.width/2-v.x)/v.z,y:(r.height/2-v.y)/v.z}}
   selItems(){return [...this.sel].map(id=>this.idx.get(id)).filter(Boolean)}
-  bounds(it){if(it.type==='line'){const {pa,pb}=this.lineEnds(it);return {x:Math.min(pa.x,pb.x),y:Math.min(pa.y,pb.y),w:Math.abs(pa.x-pb.x),h:Math.abs(pa.y-pb.y)}}return {x:it.x,y:it.y,w:it.w,h:it.h}}
+  bounds(it){if(it.type==='line'){const {pa,pb}=this.lineEnds(it);return {x:Math.min(pa.x,pb.x),y:Math.min(pa.y,pb.y),w:Math.abs(pa.x-pb.x),h:Math.abs(pa.y-pb.y)}}return rotBox(it)}
+  setBounds(it,b){if((it.rot||0)%180===90){const cx=b.x+b.w/2,cy=b.y+b.h/2;it.w=b.h;it.h=b.w;it.x=cx-it.w/2;it.y=cy-it.h/2}else{it.x=b.x;it.y=b.y;it.w=b.w;it.h=b.h}}
+  snapP(p,e){if(!this.opts.snap||(e&&e.altKey))return p;return this.opts.snap(p.x,p.y)}
+  expandGroups(set){const gs=new Set(this.items.filter(i=>set.has(i.id)&&i.g).map(i=>i.g));if(!gs.size)return set;for(const i of this.items)if(i.g&&gs.has(i.g))set.add(i.id);return set}
+  insertTemplate(list,at){
+    const keys=list.map(i=>i.id||uid()),fresh=list.map(()=>uid()),ids=new Map(keys.map((k,n)=>[k,fresh[n]])),g=list.length>1?uid():null;
+    const B=union(list.map(i=>i.type==='line'?{x:Math.min(i.from.x,i.to.x),y:Math.min(i.from.y,i.to.y),w:Math.abs(i.from.x-i.to.x),h:Math.abs(i.from.y-i.to.y)}:rotBox(i)));
+    const dx=at.x-B.x,dy=at.y-B.y,out=[];
+    list.forEach((o,k)=>{const n=clone(o);n.id=fresh[k];if(g)n.g=g;else delete n.g;delete n.locked;
+      if(n.type==='line'){for(const end of ['from','to']){const pt=n[end];if(pt.id&&ids.has(pt.id))n[end]={id:ids.get(pt.id)};else n[end]={x:(pt.x||0)+dx,y:(pt.y||0)+dy}}}
+      else{n.x+=dx;n.y+=dy}
+      out.push(n)});
+    this.items.push(...out);this.sel=new Set(out.map(i=>i.id));this.commit();this.render();return out;
+  }
+  rotateSel(){
+    const sel=this.selItems().filter(i=>!i.locked);if(!sel.length)return;
+    const B=union(sel.map(i=>this.bounds(i))),cx=B.x+B.w/2,cy=B.y+B.h/2;
+    const rp=(x,y)=>({x:cx-(y-cy),y:cy+(x-cx)});
+    for(const i of sel){
+      if(i.type==='line'){for(const end of ['from','to'])if(!i[end].id)i[end]=rp(i[end].x,i[end].y);continue}
+      const c=rp(i.x+i.w/2,i.y+i.h/2);i.rot=((i.rot||0)+90)%360;if(!i.rot)delete i.rot;i.x=c.x-i.w/2;i.y=c.y-i.h/2;
+    }
+    this.commit();this.render();
+  }
   hitAt(cx,cy,exclude){const el=document.elementFromPoint(cx,cy);const h=el&&el.closest&&el.closest('[data-id]');if(!h||!this.world.contains(h))return null;const it=this.idx.get(h.dataset.id);return it&&it.id!==exclude?it:null}
 
-  setTool(t){
-    this.tool=t;this.vp.dataset.tool=t;
-    if(!this.ro){
-      $$('.tb [data-tool]',this.root).forEach(b=>b.classList.toggle('on',b.dataset.tool===t));
-      if(t!=='select')this.sel.clear();
-      this.renderToolPop();
-    }
-    this.hintEl.textContent=this.ro?'Колесо — масштаб · Перетаскивайте, чтобы двигать доску':(HINTS[t]||'');
+  setTool(id){
+    const def=this.toolDefs.get(id)||{id};
+    this.toolId=id;this.tool=def.tool||id;this.preset=def.preset?clone(def.preset):null;
+    if(this.preset&&this.presetMem&&this.presetMem[id])Object.assign(this.preset,this.presetMem[id]);
+    this.vp.dataset.tool=def.ext?'ext':this.tool;
+    $$('.tb [data-tool]',this.root).forEach(b=>b.classList.toggle('on',b.dataset.tool===id));
+    if(!this.ro){if(id!=='select')this.sel.clear();this.renderToolPop()}
+    this.hintEl.textContent=def.hint||(this.ro&&!def.ext?'Колесо — масштаб · Перетаскивайте, чтобы двигать карту':(HINTS[this.tool]||''));
+    this.opts.onToolChange?.(id);
     this.render();
   }
   renderToolPop(){
-    const tp=this.tp,t=this.tool;
-    let h='';
-    if(t==='shape')h=`<div class="lbl">Фигура</div><div class="r">${Object.entries(SHAPES).map(([k,n])=>`<button data-kind="${k}" title="${n}" class="${k===this.shapeKind?'on':''}">${shapeIcon(k)}</button>`).join('')}</div>`;
+    const tp=this.tp;let t=this.tool;
+    if(!tp)return;
+    let h=this.opts.toolPop?.(this.toolId,this)||'';
+    if(h){tp.innerHTML=h;tp.hidden=false;const b=$(`.tb [data-tool="${this.toolId}"]`,this.root);const tb=$('.tb',this.root);tp.style.top=Math.max(8,tb.offsetTop-tb.offsetHeight/2+b.offsetTop)+'px';return}
+    if(this.preset)t='__preset';
+    if(t==='shape'&&!this.preset)h=`<div class="lbl">Фигура</div><div class="r">${Object.entries(SHAPES).map(([k,n])=>`<button data-kind="${k}" title="${n}" class="${k===this.shapeKind?'on':''}">${shapeIcon(k)}</button>`).join('')}</div>`;
     if(t==='pen')h=`<div class="lbl">Цвет</div><div class="r">${PAL.filter(c=>c!=='transparent').slice(8).concat(['#ffffff']).map(c=>`<button data-pcolor="${c}" class="${c===this.penColor?'on':''}"><span class="sw" style="background:${c}"></span></button>`).join('')}</div><div class="lbl">Толщина</div><div class="r">${[2,3,5,8,14].map(w=>`<button data-pw="${w}" class="${w===this.penWidth?'on':''}"><span style="display:block;width:${Math.min(w,14)+2}px;height:${Math.min(w,14)+2}px;border-radius:50%;background:#2c3040"></span></button>`).join('')}</div>`;
     if(t==='sticky')h=`<div class="lbl">Цвет стикера</div><div class="r">${PAL.slice(0,8).map(c=>`<button data-scolor="${c}" class="${c===this.stickyColor?'on':''}"><span class="sw" style="background:${c};border-radius:4px"></span></button>`).join('')}</div>`;
     tp.innerHTML=h;tp.hidden=!h;
-    if(h){const b=$(`.tb [data-tool="${t}"]`,this.root);const tb=$('.tb',this.root);tp.style.top=(tb.offsetTop-tb.offsetHeight/2+b.offsetTop)+'px'}
+    if(h){const b=$(`.tb [data-tool="${this.toolId}"]`,this.root);const tb=$('.tb',this.root);tp.style.top=Math.max(8,tb.offsetTop-tb.offsetHeight/2+b.offsetTop)+'px'}
   }
   onToolPop(e){
     const b=e.target.closest('button');if(!b)return;
+    const r=this.opts.onToolPop?.(b,this,e);if(r){this.renderToolPop();if(r==='hide')this.tp.hidden=true;return}
     if(b.dataset.kind)this.shapeKind=b.dataset.kind;
     if(b.dataset.pcolor)this.penColor=b.dataset.pcolor;
     if(b.dataset.pw)this.penWidth=+b.dataset.pw;
@@ -980,8 +1101,10 @@ class Board{
       image:{w:300,h:200},
       pen:{w:1,h:1,stroke:this.penColor,width:this.penWidth,pts:[],bw:1,bh:1},
       line:{stroke:'#1f2937',width:2,arrow:'end',style:'straight',dash:false},
+      prop:{w:this.cell,h:this.cell,emoji:this.propEmoji},
     }[type];
-    return Object.assign({id:uid(),type,x,y},clone(D),extra);
+    const pre=this.preset&&this.preset.type===type?(({type:_t,...r})=>r)(this.preset):{};
+    return Object.assign({id:uid(),type,x,y},clone(D),clone(pre),extra);
   }
 
   /* ---------- rendering ---------- */
@@ -1013,9 +1136,10 @@ class Board{
     let st=`left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px;`;
     if(it.type==='sticky')st+=`background:${it.color};`;
     if(it.type==='frame')st+=`background:${it.fill};`;
+    if(it.rot)st+=`transform:rotate(${it.rot}deg);`;
     d.style.cssText=st;
     if(this.editing&&this.editing.id===it.id)return;
-    const sig=JSON.stringify([it.type==='shape'?[r1(it.w),r1(it.h)]:0,it.text,it.title,it.color,it.fill,it.stroke,it.sw,it.kind,it.fs,it.align,it.bold,it.asset,it.src]);
+    const sig=JSON.stringify([it.type==='shape'?[r1(it.w),r1(it.h)]:0,it.text,it.title,it.color,it.fill,it.stroke,it.sw,it.kind,it.fs,it.align,it.bold,it.asset,it.src,it.emoji,it.type==='prop'?r1(Math.min(it.w,it.h)):0]);
     if(d._sig===sig)return;d._sig=sig;
     const txt=(col,ph='')=>`<div class="cell"><div class="txt" data-ph="${ph}" style="font-size:${it.fs}px;text-align:${it.align||'left'};color:${col};${it.bold?'font-weight:700;':''}">${esc(it.text)}</div></div>`;
     switch(it.type){
@@ -1024,11 +1148,12 @@ class Board{
       case 'shape':d.innerHTML=`<svg class="shp" width="${it.w}" height="${it.h}" viewBox="0 0 ${it.w} ${it.h}"><g fill="${it.fill==='transparent'?'none':it.fill}" stroke="${it.stroke==='transparent'?'none':it.stroke}" stroke-width="${it.sw}" stroke-linejoin="round" ${it.fill==='transparent'?'pointer-events="all"':''}>${shapeGeom(it.kind,it.w,it.h,it.sw/2+.5)}</g></svg>${txt(it.fill==='transparent'?'#1f2937':contrast(it.fill))}`;break;
       case 'frame':d.innerHTML=`<div class="frame-title">${esc(it.title)}</div>`;break;
       case 'image':d.innerHTML=`<img src="${esc(it.src||this.assets[it.asset]||'')}" draggable="false" alt="">`;break;
+      case 'prop':d.innerHTML=`<div class="propi" style="font-size:${r1(Math.min(it.w,it.h)*.78)}px">${esc(it.emoji||'❔')}</div>`;break;
     }
   }
   drawPen(d,it){
     const pad=it.width/2+8;
-    d.style.cssText=`left:${it.x-pad}px;top:${it.y-pad}px;width:${it.w+pad*2}px;height:${it.h+pad*2}px;`;
+    d.style.cssText=`left:${it.x-pad}px;top:${it.y-pad}px;width:${it.w+pad*2}px;height:${it.h+pad*2}px;${it.rot?`transform:rotate(${it.rot}deg);`:''}`;
     const sig=JSON.stringify([r1(it.w),r1(it.h),it.stroke,it.width,it.pts.length,it.bw,it.bh]);
     if(d._sig===sig)return;d._sig=sig;
     const sx=it.w/(it.bw||1),sy=it.h/(it.bh||1);
@@ -1041,9 +1166,10 @@ class Board{
     const ca=ia?center(ia):{x:A.x||0,y:A.y||0},cb=ib?center(ib):{x:B.x||0,y:B.y||0};
     let pa=ca,pb=cb;const horiz=Math.abs(cb.x-ca.x)>=Math.abs(cb.y-ca.y);
     if(it.style==='elbow'){
-      if(ia)pa=horiz?{x:cb.x>ca.x?ia.x+ia.w:ia.x,y:ca.y}:{x:ca.x,y:cb.y>ca.y?ia.y+ia.h:ia.y};
-      if(ib)pb=horiz?{x:cb.x>ca.x?ib.x:ib.x+ib.w,y:cb.y}:{x:cb.x,y:cb.y>ca.y?ib.y:ib.y+ib.h};
-    }else{if(ia)pa=edgePt(ia,cb);if(ib)pb=edgePt(ib,ca)}
+      const A_=ia&&rotBox(ia),B_=ib&&rotBox(ib);
+      if(ia)pa=horiz?{x:cb.x>ca.x?A_.x+A_.w:A_.x,y:ca.y}:{x:ca.x,y:cb.y>ca.y?A_.y+A_.h:A_.y};
+      if(ib)pb=horiz?{x:cb.x>ca.x?B_.x:B_.x+B_.w,y:cb.y}:{x:cb.x,y:cb.y>ca.y?B_.y:B_.y+B_.h};
+    }else{if(ia)pa=edgePt({...ia,...rotBox(ia)},cb);if(ib)pb=edgePt({...ib,...rotBox(ib)},ca)}
     return {pa,pb,horiz};
   }
   linePath(it){
@@ -1117,6 +1243,10 @@ class Board{
       const wd=sel.find(i=>i.type==='line'||i.type==='pen');
       if(wd)parts.push(btn('pop:width',`<span style="font-size:12px">${wd.width}px</span>`,'Толщина',this.pop==='width'));
       if(sel.length===1&&f.type==='frame')parts.push('<i class="vsep"></i>',btn('rename','Переименовать','Переименовать фрейм'));
+      const grouped=sel.length>1&&sel.every(i=>i.g&&i.g===sel[0].g);
+      parts.push('<i class="vsep"></i>',btn('rot',ICON.rotate,'Повернуть на 90° (Shift+R)'));
+      if(sel.length>1)parts.push(grouped?btn('ungroup',ICON.ungroup,'Разгруппировать'):btn('group',ICON.group,'Сгруппировать (Ctrl+G)'));
+      if(this.opts.ctxExtra)parts.push(this.opts.ctxExtra(sel,btn));
       parts.push('<i class="vsep"></i>',btn('front',ICON.front,'На передний план ( ] )'),btn('back',ICON.back,'На задний план ( [ )'),btn('lock',ICON.unlock,'Заблокировать'),btn('dup',ICON.copy,'Дублировать (Ctrl+D)'),btn('del',ICON.trash,'Удалить (Del)'));
     }
     let pop='';
@@ -1169,6 +1299,10 @@ class Board{
         case 'dup':this.duplicate(sel);return;
         case 'del':this.deleteSel();return;
         case 'rename':this.startEdit(sel[0].id);return;
+        case 'rot':this.rotateSel();return;
+        case 'group':{const g=uid();sel.forEach(i=>i.g=g);break}
+        case 'ungroup':sel.forEach(i=>delete i.g);break;
+        default:if(a.startsWith('x:')&&this.opts.onCtxExtra){this.opts.onCtxExtra(a.slice(2),sel,this);return}
       }
     }
     this.commit();this.render();
@@ -1179,13 +1313,15 @@ class Board{
   onDown(e){
     if(this.editing){if(this.editing.el.contains(e.target))return;this.endEdit()}
     this.root.focus({preventScroll:true});
-    this.pop=null;
+    this.pop=null;if(this.tp&&this.opts.tools)this.tp.hidden=true;
     const p=this.toWorld(e),v=this.view;
     const handle=e.target.dataset&&e.target.dataset.handle;
     const hEl=e.target.closest&&e.target.closest('[data-id]');
     const hit=hEl&&this.world.contains(hEl)?this.idx.get(hEl.dataset.id):null;
     const cap=()=>{try{this.vp.setPointerCapture(e.pointerId)}catch(_){}};
-    if(e.button===1||e.button===2||this.space||this.tool==='hand'||this.ro){
+    const def=this.toolDefs.get(this.toolId)||{};
+    const roOk=this.ro&&this.opts.roTools&&this.opts.roTools.includes(this.toolId);
+    if(e.button===1||e.button===2||this.space||this.tool==='hand'||(this.ro&&!roOk)){
       this.drag={mode:'pan',sx:e.clientX,sy:e.clientY,vx:v.x,vy:v.y};this.vp.classList.add('panning');cap();e.preventDefault();return;
     }
     if(e.button!==0)return;
@@ -1197,11 +1333,17 @@ class Board{
       else{const rs=sel.filter(i=>i.type!=='line');const lines=sel.filter(i=>i.type==='line');this.drag={mode:'resize',h:handle,B0:union(rs.map(i=>this.bounds(i))),orig:new Map(rs.map(i=>[i.id,clone(i)])),lorig:new Map(lines.map(i=>[i.id,clone(i)]))}}
       this.render();return;
     }
+    if(def.ext&&this.opts.toolHandler){const h=this.opts.toolHandler(this.toolId,e,p,this);if(h)this.drag={mode:'ext',h};this.render();return}
     switch(this.tool){
+      case 'prop':{
+        const c=this.cell,sp=this.opts.snap&&!e.altKey?{x:Math.floor(p.x/c)*c,y:Math.floor(p.y/c)*c}:{x:p.x-c/2,y:p.y-c/2};
+        const it=this.newItem('prop',sp.x,sp.y);this.items.push(it);this.sel=new Set([it.id]);this.commit();this.render();break;
+      }
       case 'select':{
         if(hit&&!hit.locked){
           if(e.shiftKey){if(this.sel.has(hit.id))this.sel.delete(hit.id);else this.sel.add(hit.id)}
           else if(!this.sel.has(hit.id))this.sel=new Set([hit.id]);
+          if(this.sel.has(hit.id)&&!e.altKey)this.expandGroups(this.sel);
           if(!this.sel.has(hit.id)){this.render();this.drag=null;return}
           const mv=new Set(this.selItems().filter(i=>!i.locked).map(i=>i.id));
           for(const fr of this.selItems().filter(i=>i.type==='frame'&&!i.locked)){
@@ -1216,19 +1358,21 @@ class Board{
         this.render();break;
       }
       case 'sticky':case 'text':case 'shape':case 'frame':{
-        const it=this.newItem(this.tool,p.x,p.y);
+        const sp=this.tool==='text'?p:this.snapP(p,e);
+        const it=this.newItem(this.tool,sp.x,sp.y);
         const def={w:it.w,h:it.h};
         it.w=1;it.h=1;
         if(this.tool==='frame')this.items.unshift(it);else this.items.push(it);
         this.sel=new Set([it.id]);
-        this.drag={mode:'create',id:it.id,start:p,sx:e.clientX,sy:e.clientY,def,moved:false};this.render();break;
+        this.drag={mode:'create',id:it.id,start:sp,sx:e.clientX,sy:e.clientY,def,moved:false};this.render();break;
       }
       case 'pen':{
         const it=this.newItem('pen',p.x,p.y);this.items.push(it);
         this.drag={mode:'pen',id:it.id,abs:[[p.x,p.y]]};this.updatePen(it,this.drag.abs);this.render();break;
       }
       case 'line':{
-        const from=ATTACH(hit)?{id:hit.id}:{x:p.x,y:p.y};
+        const sp=this.snapP(p,e);
+        const from=ATTACH(hit)&&!this.preset?{id:hit.id}:{x:sp.x,y:sp.y};
         const ln=this.newItem('line',0,0,{from,to:{x:p.x,y:p.y}});this.items.push(ln);this.reindex();
         this.drag={mode:'lineEnd',id:ln.id,end:'to',isNew:true,sx:e.clientX,sy:e.clientY};this.hoverId=null;this.render();this.dom.get(ln.id)?.classList.add('nohit');break;
       }
@@ -1244,10 +1388,12 @@ class Board{
     }
     const z=this.view.z;
     switch(d.mode){
+      case 'ext':d.h.move&&d.h.move(p,e);break;
       case 'pan':this.view.x=d.vx+(e.clientX-d.sx);this.view.y=d.vy+(e.clientY-d.sy);this.renderView();break;
       case 'move':{
         if(!d.moved&&Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<3)return;
-        d.moved=true;const dx=p.x-d.start.x,dy=p.y-d.start.y;
+        d.moved=true;let dx=p.x-d.start.x,dy=p.y-d.start.y;
+        if(this.opts.snap&&!e.altKey){const ref=[...d.orig.values()].find(o=>o.type!=='line'&&o.type!=='pen'&&o.type!=='text');if(ref){const rb=rotBox(ref);const t=this.opts.snap(rb.x+dx,rb.y+dy);dx=t.x-rb.x;dy=t.y-rb.y}}
         for(const [id,o] of d.orig){const it=this.idx.get(id);if(!it)continue;
           if(it.type==='line'){if(!o.from.id)it.from={x:o.from.x+dx,y:o.from.y+dy};if(!o.to.id)it.to={x:o.to.x+dx,y:o.to.y+dy}}
           else{it.x=o.x+dx;it.y=o.y+dy}}
@@ -1259,24 +1405,25 @@ class Board{
         const s=this.toScreen(R.x,R.y);Object.assign(this.mq.style,{display:'block',left:s.x+'px',top:s.y+'px',width:R.w*z+'px',height:R.h*z+'px'});
         const ns=new Set(d.base);
         for(const it of this.items){const b=this.bounds(it);if(it.type==='frame'?inside(b,R):overlap({x:b.x,y:b.y,w:Math.max(b.w,1),h:Math.max(b.h,1)},R))ns.add(it.id)}
-        this.sel=ns;this.renderOverlay();break;
+        this.sel=e.altKey?ns:this.expandGroups(ns);this.renderOverlay();break;
       }
       case 'resize':{
+        if(this.opts.snap&&!e.altKey)Object.assign(p,this.opts.snap(p.x,p.y));
         const {x,y,w,h}=d.B0,r=x+w,b=y+h,H=d.h;let nx=x,ny=y,nr=r,nb=b;const mn=8;
         if(H.includes('w'))nx=Math.min(p.x,r-mn);if(H.includes('e'))nr=Math.max(p.x,x+mn);
         if(H.includes('n'))ny=Math.min(p.y,b-mn);if(H.includes('s'))nb=Math.max(p.y,y+mn);
-        const allImg=[...d.orig.values()].every(o=>o.type==='image'||o.type==='sticky');
+        const allImg=[...d.orig.values()].every(o=>o.type==='image'||o.type==='sticky'||o.type==='prop');
         if(H.length===2&&(e.shiftKey!==allImg)){const sc=Math.max((nr-nx)/w,(nb-ny)/h);const W=w*sc,Hh=h*sc;if(H.includes('w'))nx=r-W;else nr=x+W;if(H.includes('n'))ny=b-Hh;else nb=y+Hh}
         const sx=(nr-nx)/(w||1),sy=(nb-ny)/(h||1);
-        for(const [id,o] of d.orig){const it=this.idx.get(id);it.x=nx+(o.x-x)*sx;it.y=ny+(o.y-y)*sy;it.w=Math.max(4,o.w*sx);it.h=Math.max(4,o.h*sy)}
+        for(const [id,o] of d.orig){const it=this.idx.get(id);const ob=rotBox(o);this.setBounds(it,{x:nx+(ob.x-x)*sx,y:ny+(ob.y-y)*sy,w:Math.max(4,ob.w*sx),h:Math.max(4,ob.h*sy)})}
         for(const [id,o] of d.lorig){const it=this.idx.get(id);if(!o.from.id)it.from={x:nx+(o.from.x-x)*sx,y:ny+(o.from.y-y)*sy};if(!o.to.id)it.to={x:nx+(o.to.x-x)*sx,y:ny+(o.to.y-y)*sy}}
         this.render();break;
       }
       case 'create':{
         const it=this.idx.get(d.id);
         if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<4)return;
-        d.moved=true;let w=Math.abs(p.x-d.start.x),h=Math.abs(p.y-d.start.y);
-        if(e.shiftKey||it.type==='sticky'){const m=Math.max(w,h);w=h=m}
+        d.moved=true;if(it.type!=='text'&&this.opts.snap&&!e.altKey)Object.assign(p,this.opts.snap(p.x,p.y));let w=Math.abs(p.x-d.start.x),h=Math.abs(p.y-d.start.y);
+        if(e.shiftKey||(it.type==='sticky'&&!this.opts.snap)){const m=Math.max(w,h);w=h=m}
         it.x=p.x<d.start.x?d.start.x-w:d.start.x;it.y=p.y<d.start.y?d.start.y-h:d.start.y;it.w=Math.max(w,1);it.h=Math.max(h,1);this.render();break;
       }
       case 'pen':{
@@ -1286,7 +1433,7 @@ class Board{
       case 'lineEnd':{
         const it=this.idx.get(d.id);const other=d.end==='from'?it.to:it.from;
         const h=this.hitAt(e.clientX,e.clientY,it.id);
-        if(ATTACH(h)&&h.id!==other.id&&!e.altKey){it[d.end]={id:h.id};this.hoverId=h.id}else{it[d.end]={x:p.x,y:p.y};this.hoverId=null}
+        if(ATTACH(h)&&h.id!==other.id&&!e.altKey&&!this.opts.snap){it[d.end]={id:h.id};this.hoverId=h.id}else{const sp=this.snapP(p,e);it[d.end]={x:sp.x,y:sp.y};this.hoverId=null}
         this.render();break;
       }
       case 'erase':this.eraseAt(e);break;
@@ -1296,13 +1443,15 @@ class Board{
     const d=this.drag;if(!d)return;
     this.drag=null;this.vp.classList.remove('panning');this.mq.style.display='none';this.hoverId=null;
     switch(d.mode){
+      case 'ext':d.h.up&&d.h.up(this.toWorld(e),e);break;
       case 'pan':this.viewChanged();break;
-      case 'move':if(!d.moved&&!d.shift)this.sel=new Set([d.clickId]);break;
+      case 'move':if(!d.moved&&!d.shift)this.sel=e.altKey?new Set([d.clickId]):this.expandGroups(new Set([d.clickId]));break;
       case 'marquee':if(!d.moved&&d.clickId&&!e.shiftKey)this.sel=new Set([d.clickId]);break;
       case 'create':{
         const it=this.idx.get(d.id);
         if(!d.moved||(it.w<10&&it.h<10)){it.w=d.def.w;it.h=d.def.h;it.x=d.start.x-it.w/2;it.y=d.start.y-it.h/2;if(it.type==='text')it.y=d.start.y-it.h/2}
         if(it.type==='text')it.h=Math.max(it.h,it.fs*1.35);
+        if(this.preset){this.render();break}
         this.setTool('select');this.sel=new Set([it.id]);this.render();
         if(TEXTUAL.has(it.type)){this.startEdit(it.id);return}
         break;
@@ -1313,7 +1462,7 @@ class Board{
         if(d.isNew){
           const far=Math.hypot(e.clientX-d.sx,e.clientY-d.sy)>8;
           if(!far&&!(it.to.id&&it.from.id))this.items=this.items.filter(x=>x!==it);
-          else{this.setTool('select');this.sel=new Set([it.id])}
+          else if(this.preset){this.sel=new Set()}else{this.setTool('select');this.sel=new Set([it.id])}
         }
         break;
       }
@@ -1348,7 +1497,8 @@ class Board{
   zoomAt(cx,cy,f){const v=this.view,nz=clamp(v.z*f,0.05,5);v.x=cx-(cx-v.x)*nz/v.z;v.y=cy-(cy-v.y)*nz/v.z;v.z=nz;this.renderView();this.viewChanged()}
   fit(initial){
     const r=this.rect();if(!r.width)return;
-    if(!this.items.length){this.view={x:r.width/2,y:r.height/2,z:1}}
+    if(!this.items.length&&!this.opts.fitBounds){this.view={x:r.width/2,y:r.height/2,z:1}}
+    else if(this.opts.fitBounds){const B=this.opts.fitBounds();const z=clamp(Math.min((r.width-120)/Math.max(B.w,1),(r.height-100)/Math.max(B.h,1)),0.05,initial?1.2:2);this.view={z,x:r.width/2-(B.x+B.w/2)*z,y:r.height/2-(B.y+B.h/2)*z}}
     else{const B=union(this.items.map(i=>{const b=this.bounds(i);return i.type==='frame'?{x:b.x,y:b.y-30,w:b.w,h:b.h+30}:b}));const z=clamp(Math.min((r.width-180)/Math.max(B.w,1),(r.height-140)/Math.max(B.h,1)),0.05,initial?1:2);this.view={z,x:r.width/2-(B.x+B.w/2)*z,y:r.height/2-(B.y+B.h/2)*z}}
     this.renderView();this.viewChanged();
   }
@@ -1394,11 +1544,12 @@ class Board{
     if(c==='Minus'||c==='NumpadSubtract'){e.preventDefault();return this.zoomAt(r.width/2,r.height/2,0.8)}
     if(c==='Digit1'&&e.shiftKey){e.preventDefault();return this.fit()}
     if(c==='Digit0'&&mod){e.preventDefault();return this.zoomAt(r.width/2,r.height/2,1/this.view.z)}
-    if(this.ro)return;
+    if(this.ro){const t=this.opts.tools&&this.toolList.find(t=>t&&t.key===c&&(t.id==='hand'||this.opts.roTools?.includes(t.id)));if(t&&!mod)this.setTool(t.id);return}
     if(mod&&c==='KeyZ'){e.preventDefault();return e.shiftKey?this.redo():this.undo()}
     if(mod&&c==='KeyY'){e.preventDefault();return this.redo()}
     if(mod&&c==='KeyA'){e.preventDefault();this.sel=new Set(this.items.map(i=>i.id));return this.render()}
     if(mod&&c==='KeyD'){e.preventDefault();return this.duplicate(this.selItems())}
+    if(mod&&c==='KeyG'){e.preventDefault();const sl=this.selItems();if(sl.length>1){const g=e.shiftKey?null:uid();sl.forEach(i=>{if(g)i.g=g;else delete i.g});this.commit();this.render()}return}
     if(mod)return;
     const sel=this.selItems();
     if(e.key==='Delete'||e.key==='Backspace'){if(sel.length){e.preventDefault();this.deleteSel()}return}
@@ -1410,6 +1561,8 @@ class Board{
       this.commit();return this.render();
     }
     if(c==='BracketRight'||c==='BracketLeft'){if(sel.length){const s=this.items.filter(i=>this.sel.has(i.id)),o=this.items.filter(i=>!this.sel.has(i.id));this.items=c==='BracketRight'?[...o,...s]:[...s,...o];this.commit();this.render()}return}
+    if(c==='KeyR'&&e.shiftKey&&sel.length){e.preventDefault();return this.rotateSel()}
+    if(this.opts.tools){const t=this.toolList.find(t=>t&&t.key===c);if(t){if(t.id==='image')return this.file.click();if(t.id==='undo')return this.undo();if(t.id==='redo')return this.redo();this.setTool(t.id)}return}
     const map={KeyV:'select',KeyH:'hand',KeyN:'sticky',KeyT:'text',KeyR:'shape',KeyO:'shape',KeyL:'line',KeyP:'pen',KeyE:'eraser',KeyF:'frame'};
     if(c==='KeyI')return this.file.click();
     if(map[c]){if(c==='KeyO')this.shapeKind='ellipse';if(c==='KeyR'&&this.tool!=='shape')this.shapeKind='rect';this.setTool(map[c])}
@@ -1752,6 +1905,508 @@ function renderMusicTab(main,eng,isM){
   drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};
   drop.ondragleave=()=>drop.classList.remove('over');
   drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');upload(e.dataTransfer.files)};
+}
+
+/* ================================================================
+   MAPS — карты локаций: сетка в метрах, объекты, туман войны, фишки
+================================================================ */
+const CELL=70;
+const MAP_PRESETS={
+  dungeon:{label:'Подземелье / помещение — клетка 1,5 м',grid:'square',cellM:1.5,unit:'м',cols:30,rows:20,base:'#e9e1cf'},
+  outdoor:{label:'Местность / улица — клетка 5 м',grid:'square',cellM:5,unit:'м',cols:40,rows:28,base:'#dfe7c8'},
+  hex:{label:'Шестиугольники — гекс 1,5 м',grid:'hex',cellM:1.5,unit:'м',cols:30,rows:20,base:'#e9e1cf'},
+  region:{label:'Регион / мир — без сетки, клетка = 1 км',grid:'none',cellM:1,unit:'км',cols:40,rows:28,base:'#efe4c6'},
+};
+const MATERIALS=[['Камень','#b8b1a3'],['Доски','#c49a6c'],['Плитка','#ddd6c6'],['Мрамор','#efece6'],['Трава','#9ccc65'],['Земля','#a1887f'],['Песок','#e6cf8b'],['Снег','#eef3f6'],['Ковёр','#9b3b3b'],['Тьма','#3a3a46']];
+const AREAS=[['Вода','#7fb3d5','#3b6e9e'],['Глубокая вода','#3f6f9c','#1e3a5f'],['Трава','#9ccc65','#5a8a32'],['Болото','#7d8f5a','#4e5c36'],['Лава','#e2582a','#9a2a0a'],['Яма','#2b2b33','#111111'],['Песок','#e6cf8b','#b39b52'],['Лёд','#cfe8f3','#7fb3d5'],['Кровь','#8b1e1e','#5a0f0f'],['Магия','#b79ce8','#6d4bb3']];
+const WALLS=[['Камень','#2f2a26',10],['Тонкая','#2f2a26',5],['Дерево','#6d4c2f',7],['Скала','#5f5a54',16],['Магический барьер','#7c5cff',4]];
+const MAP_EMOJI=['🧰','🛢️','🔥','🌲','🌳','🪨','🚪','🗝️','💀','⚔️','🛡️','🏹','💰','💎','📜','🕯️','🪦','⛲','🐉','👹','🧟','🕷️','🐺','🦇','❗','❓','⭐','🎯','🏰','⛺','🌋','🌀','☠️','🪤','🍺','🛏️'];
+const TOKEN_COLORS=['#e3b75b','#ef4444','#3b82f6','#22c55e','#a855f7','#f97316','#14b8a6','#ec4899','#64748b','#1f2937'];
+
+/* ---- встроенные шаблоны объектов (вид сверху, клетка = 70) ---- */
+const tR=(x,y,w,h,fill,stroke='#3b2f25',sw=2,kind='rect',ex={})=>({type:'shape',kind,x,y,w,h,fill,stroke,sw,text:'',fs:14,align:'center',...ex});
+const tE=(x,y,w,h,fill,stroke='#3b2f25',sw=2)=>tR(x,y,w,h,fill,stroke,sw,'ellipse');
+const tL=(x1,y1,x2,y2,stroke='#3b2f25',width=2)=>({type:'line',from:{x:x1,y:y1},to:{x:x2,y:y2},stroke,width,arrow:'none',style:'straight',dash:false});
+const BUILTIN_TEMPLATES=[
+  {id:'b:table',name:'Стол со стульями',icon:'🪑',items:[tR(5,18,130,64,'#9c6b3f','#5b3a1e',3,'round'),tR(22,0,28,16,'#7a5230'),tR(90,0,28,16,'#7a5230'),tR(22,84,28,16,'#7a5230'),tR(90,84,28,16,'#7a5230')]},
+  {id:'b:rtable',name:'Круглый стол',icon:'🍽️',items:[tE(20,20,100,100,'#9c6b3f','#5b3a1e',3),tE(56,0,28,18,'#7a5230'),tE(56,122,28,18,'#7a5230'),tE(0,56,18,28,'#7a5230'),tE(122,56,18,28,'#7a5230')]},
+  {id:'b:bed',name:'Кровать',icon:'🛏️',items:[tR(5,0,60,136,'#e8e0d0','#5b3a1e',3,'round'),tR(12,8,46,24,'#ffffff','#8a8a8a',2,'round'),tR(5,48,60,88,'#7b4b8a','#4a2d55',2)]},
+  {id:'b:door',name:'Дверь',icon:'🚪',items:[tR(0,28,70,14,'#7a4e2a','#3b2414',2),tL(35,28,35,42,'#3b2414',2)]},
+  {id:'b:wall_door',name:'Стена с дверью',icon:'🧱',items:[tL(0,35,105,35,'#2f2a26',10),tR(105,28,70,14,'#7a4e2a','#3b2414',2),tL(175,35,280,35,'#2f2a26',10)]},
+  {id:'b:chest',name:'Сундук',icon:'🧰',items:[tR(8,16,54,38,'#8a5a2b','#3b2414',3,'round'),tL(8,30,62,30,'#d4a72c',3),tR(31,26,8,10,'#d4a72c','#3b2414',1)]},
+  {id:'b:barrels',name:'Бочки',icon:'🛢️',items:[tE(4,4,58,58,'#8a5a2b','#3b2414',3),tE(17,17,32,32,'#a87442','#3b2414',2),tE(66,30,46,46,'#8a5a2b','#3b2414',3),tE(76,40,26,26,'#a87442','#3b2414',2)]},
+  {id:'b:crates',name:'Ящики',icon:'📦',items:[tR(4,4,56,56,'#b08955','#5b3a1e',3),tL(4,4,60,60,'#5b3a1e',2),tL(60,4,4,60,'#5b3a1e',2),tR(46,46,46,46,'#c49a6c','#5b3a1e',3),tL(46,46,92,92,'#5b3a1e',2)]},
+  {id:'b:fire',name:'Костёр',icon:'🔥',items:[tE(6,6,58,58,'#7a7a7a','#3b3b3b',4),tE(17,17,36,36,'#f08a24','#c2410c',2),tE(27,27,16,16,'#fde047','#f59e0b',1)]},
+  {id:'b:tree',name:'Дерево',icon:'🌳',items:[tE(0,0,140,140,'#4f8a3c','#2f5a24',3),tE(22,18,70,70,'#63a84a','#2f5a24',0),tE(58,58,24,24,'#6b4423','#3b2414',2)]},
+  {id:'b:bush',name:'Кусты',icon:'🌿',items:[tE(0,14,46,40,'#5fa346','#2f5a24',2),tE(28,0,50,48,'#6cb350','#2f5a24',2),tE(16,30,52,40,'#58993f','#2f5a24',2)]},
+  {id:'b:rock',name:'Валун',icon:'🪨',items:[tR(4,8,64,54,'#9e9e9e','#5f5f5f',3,'hexagon'),tR(18,18,22,16,'#b9b9b9','#8a8a8a',1,'hexagon')]},
+  {id:'b:pillar',name:'Колонна',icon:'🏛️',items:[tE(8,8,54,54,'#d6d3cc','#6b6b6b',3),tE(19,19,32,32,'#e7e5e0','#9a9a9a',1)]},
+  {id:'b:well',name:'Колодец',icon:'⛲',items:[tE(0,0,70,70,'#9e9e9e','#5f5f5f',4),tE(13,13,44,44,'#3b6e9e','#1e3a5f',2)]},
+  {id:'b:stairs',name:'Лестница',icon:'🪜',items:[tR(4,0,62,140,'#b8b1a3','#4b4b4b',3),...[20,40,60,80,100,120].map(y=>tL(4,y,66,y,'#4b4b4b',2))]},
+  {id:'b:altar',name:'Алтарь',icon:'🕯️',items:[tR(4,16,132,44,'#d6d3cc','#4b4b4b',3,'round'),tE(56,24,28,28,'#b91c1c','#7f1d1d',2),tE(14,26,10,10,'#fde047','#f59e0b',1),tE(116,26,10,10,'#fde047','#f59e0b',1)]},
+  {id:'b:statue',name:'Статуя',icon:'🗿',items:[tR(4,4,62,62,'#bdb8ae','#6b6b6b',3,'round'),tR(14,14,42,42,'#e7e5e0','#6b6b6b',2,'star')]},
+  {id:'b:trap',name:'Ловушка',icon:'⚠️',items:[tR(6,6,58,58,'transparent','#dc2626',3,'diamond',{text:'!',fs:26,bold:true})]},
+  {id:'b:cart',name:'Повозка',icon:'🛒',items:[tR(10,14,120,62,'#9c6b3f','#5b3a1e',3),tR(20,4,26,10,'#3b2414','#1f140b',1),tR(94,4,26,10,'#3b2414','#1f140b',1),tR(20,76,26,10,'#3b2414','#1f140b',1),tR(94,76,26,10,'#3b2414','#1f140b',1),tL(130,45,160,45,'#5b3a1e',4)]},
+  {id:'b:tent',name:'Палатка',icon:'⛺',items:[tR(4,4,132,132,'#c9b18a','#6b5a3e',3),tL(4,4,136,136,'#6b5a3e',2),tL(136,4,4,136,'#6b5a3e',2)]},
+  {id:'b:pond',name:'Пруд',icon:'💧',items:[tE(0,0,180,120,'#7fb3d5','#3b6e9e',3),tE(30,20,90,60,'#5f97c2','#3b6e9e',0)]},
+  {id:'b:bookcase',name:'Книжный шкаф',icon:'📚',items:[tR(0,12,140,34,'#6d4c2f','#3b2414',3),...[0,1,2,3,4,5].map(k=>tR(6+k*22,17,18,24,['#8b1e1e','#1e3a8b','#2f6b2f','#8b6b1e','#5a1e8b','#8b4a1e'][k],'#2a1a0e',1))]},
+];
+function tplPreview(items,size=46){
+  if(!items.length)return '';
+  const B=union(items.map(i=>i.type==='line'?{x:Math.min(i.from.x,i.to.x),y:Math.min(i.from.y,i.to.y),w:Math.abs(i.from.x-i.to.x)||1,h:Math.abs(i.from.y-i.to.y)||1}:rotBox(i)));
+  const pad=6,sc=(size-pad*2)/Math.max(B.w,B.h);
+  const g=items.map(i=>{
+    if(i.type==='line')return `<line x1="${i.from.x}" y1="${i.from.y}" x2="${i.to.x}" y2="${i.to.y}" stroke="${i.stroke}" stroke-width="${i.width}" stroke-linecap="round"/>`;
+    const tr=i.rot?` transform="rotate(${i.rot} ${i.x+i.w/2} ${i.y+i.h/2})"`:'';
+    if(i.type==='shape')return `<g transform="translate(${i.x} ${i.y})"><g${i.rot?` transform="rotate(${i.rot} ${i.w/2} ${i.h/2})"`:''} fill="${i.fill==='transparent'?'none':i.fill}" stroke="${i.stroke}" stroke-width="${i.sw}">${shapeGeom(i.kind,i.w,i.h,i.sw/2)}</g></g>`;
+    if(i.type==='prop')return `<text x="${i.x+i.w/2}" y="${i.y+i.h*.8}" font-size="${Math.min(i.w,i.h)*.78}" text-anchor="middle"${tr}>${esc(i.emoji||'')}</text>`;
+    if(i.type==='text'||i.type==='sticky')return `<rect x="${i.x}" y="${i.y}" width="${i.w}" height="${i.h}" fill="${i.type==='sticky'?i.color:'none'}" stroke="#999" stroke-dasharray="3 3"/>`;
+    if(i.type==='image')return `<rect x="${i.x}" y="${i.y}" width="${i.w}" height="${i.h}" fill="#ccc"/>`;
+    return '';
+  }).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><g transform="translate(${pad+(size-pad*2-B.w*sc)/2} ${pad+(size-pad*2-B.h*sc)/2}) scale(${sc}) translate(${-B.x} ${-B.y})">${g}</g></svg>`;
+}
+
+const MAP_TOOLS=[
+  {id:'select',title:'Выбор',key:'KeyV',keyLabel:'V'},
+  {id:'hand',title:'Рука',key:'KeyH',keyLabel:'H'},0,
+  {id:'wall',title:'Стена',key:'KeyW',keyLabel:'W',tool:'line',icon:'wall',preset:{type:'line',stroke:'#2f2a26',width:10,arrow:'none',style:'straight',dash:false},hint:'Тяните, чтобы провести стену — концы прилипают к углам клеток (Alt — без прилипания)'},
+  {id:'room',title:'Комната / пол',key:'KeyR',keyLabel:'R',tool:'shape',icon:'room',preset:{type:'shape',kind:'rect',fill:'#b8b1a3',stroke:'#2f2a26',sw:8},hint:'Растяните комнату по клеткам. Материал пола — повторный клик по кнопке инструмента'},
+  {id:'area',title:'Зона: вода, трава, лава…',key:'KeyA',keyLabel:'A',tool:'shape',icon:'area',preset:{type:'shape',kind:'ellipse',fill:'#7fb3d5',stroke:'#3b6e9e',sw:2},hint:'Растяните зону. Тип зоны и форма — в панели'},
+  {id:'tpl',title:'Объекты: мебель, деревья, ловушки…',key:'KeyO',keyLabel:'O',ext:true,icon:'tpl',hint:'Выберите объект в панели и кликайте на карте. Поставленный объект можно менять: цвет, размер, поворот'},
+  {id:'prop',title:'Значки',key:'KeyI',keyLabel:'I',icon:'prop',hint:'Выберите значок и кликните по клетке'},
+  {id:'shape',title:'Фигура',key:'KeyS',keyLabel:'S'},
+  {id:'text',title:'Подпись',key:'KeyT',keyLabel:'T'},
+  {id:'pen',title:'Карандаш',key:'KeyP',keyLabel:'P'},
+  {id:'image',title:'Картинка на карту',key:'KeyU',keyLabel:'U'},0,
+  {id:'token',title:'Фишка персонажа / NPC',key:'KeyK',keyLabel:'K',ext:true,hint:'Кликните по клетке — появится фишка, её можно настроить и отдать игроку'},
+  {id:'ruler',title:'Линейка',key:'KeyM',keyLabel:'M',ext:true,hint:'Тяните, чтобы измерить расстояние — его увидят все'},
+  {id:'ping',title:'Метка для всех',key:'KeyG',keyLabel:'G',ext:true,hint:'Кликните — все увидят вспышку в этом месте'},
+  {id:'reveal',title:'Открыть туман',key:'KeyF',keyLabel:'F',ext:true,hint:'Растяните область, которую увидят игроки'},
+  {id:'hide',title:'Скрыть туманом',key:'KeyJ',keyLabel:'J',ext:true,hint:'Растяните область, которую нужно спрятать от игроков'},0,
+  {id:'undo',title:'Отменить',keyLabel:'Ctrl+Z'},{id:'redo',title:'Повторить',keyLabel:'Ctrl+Y'},
+];
+const PLAYER_MAP_TOOLS=[{id:'hand',title:'Рука',key:'KeyH',keyLabel:'H'},{id:'ruler',title:'Линейка',key:'KeyM',keyLabel:'M',ext:true,hint:'Тяните, чтобы измерить расстояние'},{id:'ping',title:'Метка для всех',key:'KeyG',keyLabel:'G',ext:true,hint:'Кликните — все увидят вспышку'}];
+
+function normSettings(s){return Object.assign({grid:'square',cellM:1.5,unit:'м',cols:30,rows:20,gridColor:'#2b2620',gridOpacity:.28,base:'#e9e1cf',bg:null,snap:true},s||{})}
+const fmtNum=n=>(Math.round(n*10)/10).toString().replace('.',',');
+const HEX_R=CELL/Math.sqrt(3);
+function hexCenter(x,y){
+  const ox=CELL/2,oy=HEX_R,px=x-ox,py=y-oy;
+  let q=(Math.sqrt(3)/3*px-py/3)/HEX_R,r=(2/3*py)/HEX_R,s=-q-r;
+  let rq=Math.round(q),rr=Math.round(r),rs=Math.round(s);
+  const dq=Math.abs(rq-q),dr=Math.abs(rr-r),ds=Math.abs(rs-s);
+  if(dq>dr&&dq>ds)rq=-rr-rs;else if(dr>ds)rr=-rq-rs;
+  return {x:ox+HEX_R*Math.sqrt(3)*(rq+rr/2),y:oy+HEX_R*1.5*rr};
+}
+
+class MapView{
+  constructor(host,map,ctx){
+    this.host=host;this.map=map;this.ctx=ctx;this.S=normSettings(map.settings);this.canEdit=ctx.canEdit;
+    this.fog=Object.assign({enabled:false,ops:[]},map.fog||{});this.tokens=new Map();this.tokEls=new Map();this.selTok=null;this.pendingTpl=null;
+    this.me=App.user;this.myColor=CURSOR_COLORS[[...this.me.id].reduce((a,c)=>a+c.charCodeAt(0),0)%CURSOR_COLORS.length];
+    host.innerHTML=`<div class="mapwrap"><div class="maphead"></div><div class="mapstage"></div><aside class="tokpanel" hidden></aside></div>`;
+    this.head=$('.maphead',host);this.stage=$('.mapstage',host);this.panel=$('.tokpanel',host);
+    let view=null;try{view=JSON.parse(LS.get('rpa_mview_'+map.id))}catch(_){}
+    let t;const save=(items,now)=>{clearTimeout(t);if(now)this.push();else t=setTimeout(()=>this.push(),350)};
+    this.board=new Board(this.stage,{items:map.items||[],view},{
+      readonly:!this.canEdit,roBadge:'Карта мастера · в реальном времени',tools:this.canEdit?MAP_TOOLS:PLAYER_MAP_TOOLS,roTools:['ruler','ping'],cell:CELL,
+      snap:(x,y)=>this.snapV(x,y),fitBounds:()=>({x:-CELL,y:-CELL,w:this.W()+CELL*2,h:this.H()+CELL*2}),
+      toolHandler:(id,e,p)=>this.toolDown(id,e,p),toolPop:id=>this.toolPop(id),onToolPop:b=>this.onToolPop(b),
+      onToolChange:id=>{if(id!=='tpl')this.pendingTpl=null;this.renderHead()},
+      ctxExtra:(sel,btn)=>btn('x:savetpl',`<span style="font-size:12px">В шаблоны</span>`,'Сохранить выделенное как шаблон объекта'),
+      onCtxExtra:(a,sel)=>{if(a==='savetpl')this.saveTemplate(sel)},
+      onChange:this.canEdit?save:null,onView:v=>LS.set('rpa_mview_'+map.id,JSON.stringify(v)),
+      upload:(blob,ext)=>API.upload(ctx.pid,blob,ext),
+    });
+    this.board.presetMem={};
+    this.board.root.classList.add('mapboard');
+    if(!this.canEdit){const tb=document.createElement('div');tb.className='tb';tb.innerHTML=PLAYER_MAP_TOOLS.map(t=>`<button data-tool="${t.id}" title="${t.title} (${t.keyLabel})">${ICON[t.icon||t.id]}</button>`).join('');tb.onclick=e=>{const b=e.target.closest('[data-tool]');if(b)this.board.setTool(b.dataset.tool)};this.board.root.appendChild(tb);this.board.setTool('hand')}
+    // слои карты внутри мира доски
+    const w=this.board.world;
+    this.L={};
+    for(const [k,z] of [['base',-6],['bg',-5],['grid',99980]]){const el=document.createElement(k==='bg'?'img':'div');el.className='ml-'+k;el.style.zIndex=z;if(k==='bg')el.draggable=false;w.appendChild(el);this.L[k]=el}
+    this.L.tok=document.createElement('div');this.L.tok.className='ml-tok';w.appendChild(this.L.tok);
+    this.L.fog=document.createElement('canvas');this.L.fog.className='ml-fog';this.L.fog.style.zIndex=this.canEdit?99990:100002;w.appendChild(this.L.fog);
+    this.L.fx=document.createElementNS('http://www.w3.org/2000/svg','svg');this.L.fx.setAttribute('class','ml-fx');w.appendChild(this.L.fx);
+    this.renderLayers();this.renderHead();
+    this.inflight=false;this.again=false;
+    this.loadTokens().then(()=>this.subscribe());
+    if(!view)requestAnimationFrame(()=>this.board.fit(1));
+  }
+  W(){return this.S.cols*CELL}H(){return this.S.grid==='hex'?Math.ceil(this.S.rows*HEX_R*1.5+HEX_R*.5):this.S.rows*CELL}
+  snapV(x,y){if(!this.S.snap||this.S.grid!=='square')return {x,y};return {x:Math.round(x/CELL)*CELL,y:Math.round(y/CELL)*CELL}}
+  snapToken(x,y,size){
+    if(!this.S.snap||this.S.grid==='none')return {x,y};
+    if(this.S.grid==='hex')return hexCenter(x,y);
+    const s=Math.max(1,Math.round(size)),off=(s%2)?CELL/2:0;
+    return {x:Math.round((x-off)/CELL)*CELL+off,y:Math.round((y-off)/CELL)*CELL+off};
+  }
+  destroy(){clearTimeout(this.fogT);if(this.ch)sb.removeChannel(this.ch);this.board.destroy();this.host.innerHTML=''}
+
+  /* ---------- слои ---------- */
+  renderLayers(){
+    const S=this.S,W=this.W(),H=this.H(),L=this.L;
+    L.base.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;background:${S.base};box-shadow:0 0 0 2px rgba(60,45,30,.35),0 18px 50px rgba(40,30,20,.25);pointer-events:none;z-index:-6`;
+    if(S.bg&&S.bg.src){const b=S.bg;L.bg.src=b.src;L.bg.style.cssText=`position:absolute;left:${b.x*CELL}px;top:${b.y*CELL}px;width:${b.w*CELL}px;height:auto;opacity:${b.opacity??1};pointer-events:none;z-index:-5;max-width:none`;L.bg.hidden=false}else{L.bg.hidden=true;L.bg.removeAttribute('src')}
+    const op=S.gridOpacity,col=S.gridColor,id='g'+this.map.id.slice(0,8);
+    let pat='';
+    if(S.grid==='square')pat=`<pattern id="${id}" width="${CELL}" height="${CELL}" patternUnits="userSpaceOnUse"><path d="M${CELL} 0H0V${CELL}" fill="none" stroke="${col}" stroke-opacity="${op}" stroke-width="1.5"/></pattern>`;
+    if(S.grid==='hex'){
+      const r=HEX_R,hx=(cx,cy)=>{let d='';for(let k=0;k<6;k++){const a=Math.PI/180*(60*k-90);d+=(k?'L':'M')+r1(cx+r*Math.cos(a))+' '+r1(cy+r*Math.sin(a))}return d+'Z'};
+      const th=3*r,cs=[[CELL/2,r],[0,2.5*r],[CELL,2.5*r],[0,-.5*r],[CELL,-.5*r],[CELL/2,4*r]];
+      pat=`<pattern id="${id}" width="${CELL}" height="${r1(th)}" patternUnits="userSpaceOnUse"><path d="${cs.map(c=>hx(c[0],c[1])).join('')}" fill="none" stroke="${col}" stroke-opacity="${op}" stroke-width="1.5"/></pattern>`;
+    }
+    L.grid.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;pointer-events:none;z-index:99980`;
+    L.grid.innerHTML=S.grid==='none'?'':`<svg width="${W}" height="${H}" style="display:block"><defs>${pat}</defs><rect width="${W}" height="${H}" fill="url(#${id})"/></svg>`;
+    L.fx.setAttribute('width',W);L.fx.setAttribute('height',H);L.fx.style.cssText=`position:absolute;left:0;top:0;overflow:visible;pointer-events:none;z-index:100010`;
+    this.renderFog();this.renderTokens();
+  }
+  renderFog(){
+    const c=this.L.fog,W=this.W(),H=this.H();
+    if(!this.fog.enabled){c.hidden=true;return}
+    c.hidden=false;const k=Math.min(1,2048/Math.max(W,H));
+    if(c.width!==Math.round(W*k)||c.height!==Math.round(H*k)){c.width=Math.round(W*k);c.height=Math.round(H*k)}
+    c.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;pointer-events:none;z-index:${this.canEdit?99990:100002};opacity:${this.canEdit?.45:1}`;
+    const g=c.getContext('2d');g.setTransform(k,0,0,k,0,0);g.globalCompositeOperation='source-over';g.fillStyle='#0b0d14';g.clearRect(0,0,W,H);g.fillRect(0,0,W,H);
+    for(const o of this.fog.ops){if(o.t==='r'){g.globalCompositeOperation='destination-out';g.fillRect(o.x,o.y,o.w,o.h)}else{g.globalCompositeOperation='source-over';g.fillRect(o.x,o.y,o.w,o.h)}}
+    g.globalCompositeOperation='source-over';
+  }
+  saveFog(){clearTimeout(this.fogT);this.fogT=setTimeout(async()=>{const {error}=await sb.from('maps').update({fog:this.fog,client:CLIENT_ID,updated_at:new Date().toISOString()}).eq('id',this.map.id);if(error)fail(error)},300)}
+  async saveSettings(patch){
+    Object.assign(this.S,patch);this.renderLayers();this.renderHead();
+    const {error}=await sb.from('maps').update({settings:this.S,client:CLIENT_ID,updated_at:new Date().toISOString()}).eq('id',this.map.id);if(error)fail(error);
+  }
+
+  /* ---------- шапка карты ---------- */
+  renderHead(){
+    const S=this.S,f=this.fog,ed=this.canEdit,m=this.map;
+    const scale=S.grid==='none'?`масштаб: ${CELL} px = ${fmtNum(S.cellM)} ${S.unit}`:`${S.grid==='hex'?'гекс':'клетка'} ${fmtNum(S.cellM)} ${S.unit} · ${S.cols}×${S.rows}`;
+    this.head.innerHTML=`<button class="btn ghost sm" data-back>← Карты</button><span class="mname" ${ed?'data-rename title="Переименовать"':''}>${esc(m.name)}</span><span class="mscale">${scale}</span>
+      ${ed?`<span class="mh-sep"></span><button class="btn sm" data-settings>${ICON.grid} Сетка и фон</button>
+      <button class="btn sm ${S.snap?'on':''}" data-snap title="Объекты и стены прилипают к клеткам (Alt — временно отключить)">Прилипание</button>
+      <span class="mh-sep"></span><button class="btn sm ${f.enabled?'on':''}" data-fog title="Туман войны: игроки видят только открытые области">Туман</button>
+      ${f.enabled?`<button class="btn sm ghost" data-fogall title="Скрыть всю карту">Скрыть всё</button><button class="btn sm ghost" data-fogclear title="Убрать туман целиком">Открыть всё</button>`:''}
+      <span class="mh-sep"></span><button class="btn sm" data-ptoks title="Поставить фишки всем игрокам, у кого их ещё нет">${ICON.token} Фишки игроков</button>
+      <span class="spacer"></span>
+      <label class="switch" title="Карта видна игрокам"><input type="checkbox" data-share ${m.shared?'checked':''}><span></span>Видна игрокам</label>
+      <button class="btn primary sm" data-follow title="Открыть эту карту у всех игроков">Позвать игроков</button>`
+      :`<span class="spacer"></span><button class="btn sm" data-mytok>${ICON.token} К моей фишке</button>`}`;
+    const q=s=>$(s,this.head);
+    q('[data-back]').onclick=()=>this.ctx.onBack();
+    if(!ed){q('[data-mytok]').onclick=()=>{const t=[...this.tokens.values()].find(t=>t.owner_id===this.me.id);if(!t)return toast('Мастер ещё не выдал вам фишку на этой карте');this.centerOn(t.x,t.y)};return}
+    q('[data-rename]').onclick=()=>{const {el,close}=openModal(`<h3>Название карты</h3><form><label class="f">Название<input name="n" required maxlength="80" value="${esc(m.name)}"></label><div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Сохранить</button></div></form>`);el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);el.querySelector('form').onsubmit=async e=>{e.preventDefault();m.name=e.target.n.value.trim();close();await sb.from('maps').update({name:m.name}).eq('id',m.id);this.renderHead();this.ctx.onListChange()}};
+    q('[data-settings]').onclick=()=>this.settingsModal();
+    q('[data-snap]').onclick=()=>this.saveSettings({snap:!S.snap});
+    q('[data-fog]').onclick=()=>{f.enabled=!f.enabled;if(f.enabled&&!f.ops.length)toast('Туман включён: игроки видят только открытые области. Открывайте их инструментом «Открыть туман» (F)');this.renderFog();this.renderHead();this.saveFog()};
+    if(q('[data-fogall]'))q('[data-fogall]').onclick=()=>{f.ops=[];this.renderFog();this.saveFog()};
+    if(q('[data-fogclear]'))q('[data-fogclear]').onclick=()=>{f.ops=[];f.enabled=false;this.renderFog();this.renderHead();this.saveFog()};
+    q('[data-ptoks]').onclick=()=>this.addPlayerTokens();
+    q('[data-share]').onchange=e=>this.setShared(e.target.checked);
+    q('[data-follow]').onclick=async()=>{if(!m.shared)await this.setShared(true);App.hub?.follow(m.id,m.name);toast('Игроки получили приглашение открыть карту')};
+  }
+  async setShared(v){
+    this.map.shared=v;const {error}=await sb.from('maps').update({shared:v}).eq('id',this.map.id);if(fail(error))return;
+    if(!v)this.ch?.send({type:'broadcast',event:'unshare',payload:{}});
+    App.hub?.mapsChanged();this.renderHead();this.ctx.onListChange();toast(v?'Карта открыта игрокам':'Карта скрыта от игроков');
+  }
+  centerOn(x,y){const r=this.board.rect(),v=this.board.view;v.x=r.width/2-x*v.z;v.y=r.height/2-y*v.z;this.board.renderView();this.board.viewChanged()}
+
+  settingsModal(){
+    const S=this.S,bg=S.bg||{};
+    const {el,close}=openModal(`<h3>Сетка и фон карты</h3><form class="msettings">
+      <label class="f">Шаблон<select name="preset"><option value="">— оставить как есть —</option>${Object.entries(MAP_PRESETS).map(([k,p])=>`<option value="${k}">${esc(p.label)}</option>`).join('')}</select></label>
+      <div class="grid3"><label class="f">Сетка<select name="grid"><option value="square" ${S.grid==='square'?'selected':''}>Квадраты</option><option value="hex" ${S.grid==='hex'?'selected':''}>Шестиугольники</option><option value="none" ${S.grid==='none'?'selected':''}>Без сетки</option></select></label>
+      <label class="f">Размер клетки<input name="cellM" type="number" min="0.1" step="0.1" value="${S.cellM}"></label>
+      <label class="f">Единицы<select name="unit">${['м','фт','км','миль'].map(u=>`<option ${u===S.unit?'selected':''}>${u}</option>`).join('')}</select></label></div>
+      <div class="grid3"><label class="f">Клеток по ширине<input name="cols" type="number" min="5" max="300" value="${S.cols}"></label>
+      <label class="f">Клеток по высоте<input name="rows" type="number" min="5" max="300" value="${S.rows}"></label>
+      <label class="f">Прозрачность сетки<input name="gridOpacity" type="range" min="0" max="1" step="0.05" value="${S.gridOpacity}"></label></div>
+      <div class="grid3"><label class="f">Цвет сетки<input name="gridColor" type="color" value="${S.gridColor}"></label><label class="f">Цвет основы<input name="base" type="color" value="${S.base}"></label><div></div></div>
+      <div class="bgbox"><b>Фоновая картинка</b> <span class="muted">— готовая карта или рисунок местности</span>
+        <div class="row-g" style="margin:8px 0"><label class="btn sm">${bg.src?'Заменить':'Загрузить картинку'}<input type="file" accept="image/*" hidden data-bgfile></label>${bg.src?'<button type="button" class="btn sm ghost" data-bgdel>Убрать фон</button><button type="button" class="btn sm ghost" data-bgfit>Растянуть на всю карту</button>':''}</div>
+        ${bg.src?`<div class="grid3"><label class="f">Ширина фона, клеток<input name="bgw" type="number" step="0.1" min="1" value="${r1(bg.w)}"></label><label class="f">Сдвиг X, клеток<input name="bgx" type="number" step="0.1" value="${r1(bg.x)}"></label><label class="f">Сдвиг Y, клеток<input name="bgy" type="number" step="0.1" value="${r1(bg.y)}"></label></div>
+        <label class="f">Прозрачность фона<input name="bgo" type="range" min="0.1" max="1" step="0.05" value="${bg.opacity??1}"></label><p class="muted" style="font-size:12px;margin:-6px 0 0">Совместите клетки на картинке с сеткой: подберите ширину фона и сдвиг. Изменения видны сразу.</p>`:''}
+      </div>
+      <div class="modal-actions"><button type="button" class="btn" data-close>Готово</button></div></form>`);
+    el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+    const f=el.querySelector('form');
+    const apply=()=>{
+      const p={grid:f.grid.value,cellM:Math.max(.1,+f.cellM.value||1.5),unit:f.unit.value,cols:clamp(+f.cols.value||30,5,300),rows:clamp(+f.rows.value||20,5,300),gridOpacity:+f.gridOpacity.value,gridColor:f.gridColor.value,base:f.base.value};
+      if(S.bg&&f.bgw)p.bg={...S.bg,w:Math.max(1,+f.bgw.value),x:+f.bgx.value,y:+f.bgy.value,opacity:+f.bgo.value};
+      this.saveSettings(p);
+    };
+    f.oninput=e=>{if(e.target.name==='preset')return;apply()};
+    f.preset.onchange=()=>{const p=MAP_PRESETS[f.preset.value];if(!p)return;for(const k of ['grid','cellM','unit','cols','rows','base'])if(f[k])f[k].value=p[k];apply()};
+    const bf=el.querySelector('[data-bgfile]');
+    bf.onchange=async()=>{const file=bf.files[0];if(!file)return;toast('Загружаю фон…');try{const {blob,ext,w,h}=await loadImage(file);const src=await API.upload(this.ctx.pid,blob,ext);const bw=this.S.cols;await this.saveSettings({bg:{src,x:0,y:0,w:bw,ratio:h/w,opacity:1}});close();this.settingsModal();toast('Фон загружен — при необходимости подгоните его под сетку')}catch(e){toast('Не удалось загрузить картинку','err')}};
+    el.querySelector('[data-bgdel]')?.addEventListener('click',()=>{this.saveSettings({bg:null});close();this.settingsModal()});
+    el.querySelector('[data-bgfit]')?.addEventListener('click',()=>{const b=this.S.bg;this.saveSettings({bg:{...b,x:0,y:0,w:this.S.cols}});close();this.settingsModal()});
+  }
+
+  /* ---------- инструменты ---------- */
+  toolPop(id){
+    const b=this.board;
+    if(id==='wall')return `<div class="lbl">Стена</div><div class="r col">${WALLS.map(([n,c,w])=>`<button class="wide ${b.preset?.stroke===c&&b.preset?.width===w?'on':''}" data-wall="${c}|${w}"><span style="display:inline-block;width:34px;height:${Math.min(w,12)}px;background:${c};border-radius:2px;vertical-align:middle"></span> ${n}</button>`).join('')}</div>`;
+    if(id==='room')return `<div class="lbl">Пол</div><div class="r">${MATERIALS.map(([n,c])=>`<button title="${n}" data-mat="${c}" class="${b.preset?.fill===c?'on':''}"><span class="sw" style="background:${c};border-radius:4px"></span></button>`).join('')}</div><div class="lbl">Стены комнаты</div><div class="r">${[0,4,8,12].map(w=>`<button data-rsw="${w}" class="${b.preset?.sw===w?'on':''}" title="${w?'Толщина '+w:'Без стен'}">${w?`<span style="display:block;width:20px;height:16px;border:${Math.max(1,w/2.5)}px solid #2f2a26;border-radius:2px"></span>`:'—'}</button>`).join('')}</div>`;
+    if(id==='area')return `<div class="lbl">Зона</div><div class="r col">${AREAS.map(([n,c,s])=>`<button class="wide ${b.preset?.fill===c?'on':''}" data-area="${c}|${s}"><span class="sw" style="background:${c};border-color:${s}"></span> ${n}</button>`).join('')}</div><div class="lbl">Форма</div><div class="r">${['ellipse','rect','round','hexagon','diamond'].map(k=>`<button data-akind="${k}" class="${b.preset?.kind===k?'on':''}">${shapeIcon(k)}</button>`).join('')}</div>`;
+    if(id==='prop')return `<div class="lbl">Значок</div><div class="r emo">${MAP_EMOJI.map(e=>`<button data-emoji="${e}" class="${b.propEmoji===e?'on':''}">${e}</button>`).join('')}</div>`;
+    if(id==='tpl'){
+      const card=(t,custom)=>`<button class="tplc ${this.pendingTpl?.id===t.id?'on':''}" data-tpl="${t.id}" title="${esc(t.name)}">${tplPreview(t.items)}<span>${esc(t.name)}</span>${custom?`<i data-tpldel="${t.id}" title="Удалить шаблон">×</i>`:''}</button>`;
+      const custom=this.ctx.templates();
+      return `<div class="lbl">Объекты</div><div class="r tpls">${BUILTIN_TEMPLATES.map(t=>card(t)).join('')}</div>${custom.length?`<div class="lbl">Шаблоны проекта</div><div class="r tpls">${custom.map(t=>card(t,1)).join('')}</div>`:''}<div class="tplhint">Свой шаблон: выделите объекты на карте → «В шаблоны»</div>`;
+    }
+    return '';
+  }
+  onToolPop(btn,_b,ev){
+    const b=this.board,d=btn.dataset,mem=v=>{b.presetMem[b.toolId]=Object.assign(b.presetMem[b.toolId]||{},v);Object.assign(b.preset,v)};
+    if(d.wall){const [c,w]=d.wall.split('|');mem({stroke:c,width:+w});return 'hide'}
+    if(d.mat){mem({fill:d.mat});return 'hide'}
+    if(d.rsw){mem({sw:+d.rsw});return true}
+    if(d.area){const [c,s]=d.area.split('|');mem({fill:c,stroke:s});return 'hide'}
+    if(d.akind){mem({kind:d.akind});return true}
+    if(d.emoji){b.propEmoji=d.emoji;return 'hide'}
+    if(d.tpl){
+      if(ev&&ev.target.dataset.tpldel){this.deleteTemplate(ev.target.dataset.tpldel);return true}
+      this.pendingTpl=[...BUILTIN_TEMPLATES,...this.ctx.templates()].find(t=>t.id===d.tpl)||null;
+      b.hintEl.textContent=this.pendingTpl?`Кликайте на карте, чтобы поставить «${this.pendingTpl.name}». Другой объект — снова нажмите кнопку «Объекты» (O)`:'';return 'hide';
+    }
+    return false;
+  }
+  toolDown(id,e,p){
+    const b=this.board;
+    if(id==='tpl'){
+      if(!this.pendingTpl){toast('Сначала выберите объект в панели слева');return null}
+      const sp=this.S.snap&&this.S.grid==='square'&&!e.altKey?{x:Math.floor(p.x/CELL)*CELL,y:Math.floor(p.y/CELL)*CELL}:p;
+      b.insertTemplate(clone(this.pendingTpl.items),sp);return null;
+    }
+    if(id==='token'){this.addToken(p);return null}
+    if(id==='ping'){this.ping(p,true);return null}
+    if(id==='ruler'){
+      const a=this.S.grid==='none'||e.altKey?p:this.snapToken(p.x,p.y,1);
+      let last=0;
+      return {move:(q,ev)=>{const bb=this.S.grid==='none'||ev.altKey?q:this.snapToken(q.x,q.y,1);this.drawRuler('me',a,bb,this.myColor,this.me.name);const n=Date.now();if(n-last>60){last=n;this.ch?.send({type:'broadcast',event:'ruler',payload:{id:this.me.id,a,b:bb,color:this.myColor,name:this.me.name}})}},
+              up:()=>{setTimeout(()=>{this.drawRuler('me',null);this.ch?.send({type:'broadcast',event:'ruler',payload:{id:this.me.id,a:null}})},1400)}};
+    }
+    if(id==='reveal'||id==='hide'){
+      const sn=q=>this.S.grid==='square'&&this.S.snap&&!e.altKey?this.snapV(q.x,q.y):q;
+      const a=sn(p);let rect=null;
+      return {move:(q)=>{const c=sn(q);rect={x:Math.min(a.x,c.x),y:Math.min(a.y,c.y),w:Math.abs(c.x-a.x),h:Math.abs(c.y-a.y)};this.L.fx.querySelector('.fogsel')?.remove();this.L.fx.insertAdjacentHTML('beforeend',`<rect class="fogsel" x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}" fill="${id==='reveal'?'rgba(255,255,255,.25)':'rgba(0,0,0,.35)'}" stroke="${id==='reveal'?'#e3b75b':'#1f2937'}" stroke-width="3" stroke-dasharray="10 6"/>`)},
+              up:()=>{this.L.fx.querySelector('.fogsel')?.remove();if(!rect||rect.w<4||rect.h<4)return;this.fog.enabled=true;this.fog.ops.push({t:id==='reveal'?'r':'h',...rect});if(this.fog.ops.length>400)this.fog.ops=this.fog.ops.slice(-400);this.renderFog();this.renderHead();this.saveFog()}};
+    }
+    return null;
+  }
+  drawRuler(key,a,b,color,name){
+    const fx=this.L.fx;fx.querySelector(`[data-r="${key}"]`)?.remove();if(!a||!b)return;
+    const dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy)/CELL*this.S.cellM;
+    const cells=this.S.grid==='square'?Math.max(Math.abs(dx),Math.abs(dy))/CELL:this.S.grid==='hex'?Math.round(Math.hypot(dx,dy)/CELL):null;
+    const lbl=`${fmtNum(dist)} ${this.S.unit}${cells!=null&&cells>0?` · ${Math.round(cells)} кл.`:''}`;
+    const z=this.board.view.z,fs=14/z,mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+    fx.insertAdjacentHTML('beforeend',`<g data-r="${key}"><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="${4/z}" stroke-dasharray="${10/z} ${6/z}" stroke-linecap="round"/><circle cx="${a.x}" cy="${a.y}" r="${5/z}" fill="${color}"/><circle cx="${b.x}" cy="${b.y}" r="${5/z}" fill="${color}"/>
+      <g transform="translate(${mx} ${my})"><rect x="${-fs*4.2}" y="${-fs*1.9}" width="${fs*8.4}" height="${fs*1.6}" rx="${fs*.4}" fill="#1f2337" opacity=".9"/><text y="${-fs*.65}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="#fff" font-family="Manrope,sans-serif">${esc(lbl)}</text></g>${name&&key!=='me'?`<text x="${b.x+8/z}" y="${b.y-8/z}" font-size="${12/z}" fill="${color}" font-weight="700" font-family="Manrope,sans-serif">${esc(name)}</text>`:''}</g>`);
+  }
+  ping(p,send){
+    const fx=this.L.fx,z=this.board.view.z,c=send?this.myColor:(p.color||'#e3b75b');
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.innerHTML=`<circle cx="${p.x}" cy="${p.y}" r="${8/z}" fill="${c}"/><circle class="pingr" cx="${p.x}" cy="${p.y}" r="${10/z}" fill="none" stroke="${c}" stroke-width="${4/z}"/><circle class="pingr d2" cx="${p.x}" cy="${p.y}" r="${10/z}" fill="none" stroke="${c}" stroke-width="${3/z}"/>`;
+    g.style.setProperty('--pr',60/z+'px');fx.appendChild(g);setTimeout(()=>g.remove(),2200);
+    if(send)this.ch?.send({type:'broadcast',event:'ping',payload:{x:p.x,y:p.y,color:c}});
+  }
+
+  /* ---------- фишки ---------- */
+  async loadTokens(){const {data,error}=await sb.from('map_tokens').select('*').eq('map_id',this.map.id);if(!error){this.tokens=new Map((data||[]).map(t=>[t.id,t]));this.renderTokens()}}
+  canMove(t){return this.canEdit||(t.owner_id===this.me.id&&this.map.shared)}
+  renderTokens(){
+    const L=this.L.tok;if(!L)return;
+    for(const [id,el] of this.tokEls)if(!this.tokens.has(id)){el.remove();this.tokEls.delete(id)}
+    for(const t of this.tokens.values()){
+      let el=this.tokEls.get(t.id);
+      if(!el){el=document.createElement('div');el.className='tok';el.dataset.tok=t.id;L.appendChild(el);this.tokEls.set(t.id,el);this.bindToken(el)}
+      const s=(+t.size||1)*CELL,mine=t.owner_id===this.me.id;
+      el.style.cssText=`left:${t.x-s/2}px;top:${t.y-s/2}px;width:${s}px;height:${s}px;z-index:${mine&&!this.canEdit?100004:100000};--tc:${t.color};`;
+      el.className='tok'+(mine?' mine':'')+(t.hidden?' hid':'')+(this.selTok===t.id?' sel':'')+(this.canMove(t)?' movable':'');
+      const ini=(t.name||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+      const hp=t.hp_max?`<div class="tk-hp"><i style="width:${clamp((t.hp??t.hp_max)/t.hp_max*100,0,100)}%"></i></div>`:'';
+      const html=`<div class="tk-c" style="${t.img?`background-image:url('${esc(t.img)}')`:''}">${t.img?'':esc(ini)}</div>${hp}${t.name?`<div class="tk-n">${esc(t.name)}</div>`:''}`;
+      if(el._h!==html){el.innerHTML=html;el._h=html}
+    }
+  }
+  bindToken(el){
+    el.addEventListener('pointerdown',e=>{
+      const t=this.tokens.get(el.dataset.tok);if(!t||e.button!==0)return;
+      if(!this.canMove(t)||this.board.tool==='ruler'||this.board.tool==='ping'||this.board.toolId==='reveal'||this.board.toolId==='hide')return;
+      e.stopPropagation();e.preventDefault();
+      try{el.setPointerCapture(e.pointerId)}catch(_){}
+      const p0=this.board.toWorld(e),ox=t.x-p0.x,oy=t.y-p0.y,sx=e.clientX,sy=e.clientY,start={x:t.x,y:t.y};let moved=false,last=0;
+      const mv=ev=>{if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<4)return;moved=true;const p=this.board.toWorld(ev);t.x=p.x+ox;t.y=p.y+oy;this.renderTokens();
+        this.drawRuler('tok',start,{x:t.x,y:t.y},t.color,null);
+        const n=Date.now();if(n-last>50){last=n;this.ch?.send({type:'broadcast',event:'tokmove',payload:{id:t.id,x:t.x,y:t.y}})}};
+      const up=async ev=>{el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);this.drawRuler('tok',null);
+        if(!moved){if(this.canEdit)this.openTokenPanel(t.id);return}
+        const sp=ev.altKey?{x:t.x,y:t.y}:this.snapToken(t.x,t.y,t.size);t.x=sp.x;t.y=sp.y;this.renderTokens();
+        this.ch?.send({type:'broadcast',event:'tokmove',payload:{id:t.id,x:t.x,y:t.y}});
+        const {error}=await sb.rpc('move_token',{t:t.id,nx:t.x,ny:t.y,cl:CLIENT_ID});if(error){fail(error);t.x=start.x;t.y=start.y;this.renderTokens()}};
+      el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+    });
+    el.addEventListener('dblclick',e=>{if(this.canEdit){e.stopPropagation();this.openTokenPanel(el.dataset.tok)}});
+  }
+  async addToken(p,extra={}){
+    const n=this.tokens.size,sp=this.snapToken(p.x,p.y,extra.size||1);
+    const row={map_id:this.map.id,project_id:this.ctx.pid,name:extra.name??`NPC ${n+1}`,color:extra.color||TOKEN_COLORS[(n+1)%TOKEN_COLORS.length],x:sp.x,y:sp.y,size:extra.size||1,owner_id:extra.owner_id||null,client:CLIENT_ID};
+    const {data,error}=await sb.from('map_tokens').insert(row).select().single();if(fail(error))return;
+    this.tokens.set(data.id,data);this.renderTokens();if(!extra.silent)this.openTokenPanel(data.id);return data;
+  }
+  async addPlayerTokens(){
+    const mem=(await this.ctx.members()).filter(m=>m.role!=='comaster');
+    if(!mem.length)return toast('В игре пока нет игроков — пригласите их кнопкой «Пригласить»','err');
+    const have=new Set([...this.tokens.values()].map(t=>t.owner_id));
+    const c=this.board.centerWorld();let k=0;
+    for(const m of mem){if(have.has(m.user_id))continue;await this.addToken({x:c.x+(k%4)*CELL,y:c.y+Math.floor(k/4)*CELL},{name:m.profile?.name||'Игрок',owner_id:m.user_id,color:TOKEN_COLORS[k%TOKEN_COLORS.length],silent:true});k++}
+    toast(k?`Добавлено фишек: ${k}. Игроки смогут двигать свои фишки, когда карта открыта.`:'У всех игроков уже есть фишки на этой карте');
+  }
+  async openTokenPanel(id){
+    const t=this.tokens.get(id);if(!t)return;this.selTok=id;this.renderTokens();
+    const mem=await this.ctx.members();
+    const P=this.panel;P.hidden=false;
+    P.innerHTML=`<div class="tp-h"><b>Фишка</b><button class="tic" data-x title="Закрыть">×</button></div>
+      <label class="f">Имя<input name="name" value="${esc(t.name)}" maxlength="40"></label>
+      <div class="f">Цвет<div class="colors sm">${TOKEN_COLORS.map(c=>`<button type="button" data-col="${c}" class="${c===t.color?'on':''}" style="background:${c}"></button>`).join('')}</div></div>
+      <div class="f">Портрет<div class="row-g"><label class="btn sm">${t.img?'Заменить':'Загрузить'}<input type="file" accept="image/*" hidden data-img></label>${t.img?'<button class="btn sm ghost" data-noimg>Убрать</button>':''}</div></div>
+      <label class="f">Размер<select name="size">${[[.5,'Крошечный (½ клетки)'],[1,'Средний (1 клетка)'],[2,'Большой (2×2)'],[3,'Огромный (3×3)'],[4,'Громадный (4×4)']].map(([v,n])=>`<option value="${v}" ${+t.size===v?'selected':''}>${n}</option>`).join('')}</select></label>
+      <label class="f">Кто управляет<select name="owner"><option value="">Только мастер</option>${mem.map(m=>`<option value="${m.user_id}" ${t.owner_id===m.user_id?'selected':''}>${esc(m.profile?.name||'Участник')}${m.role==='comaster'?' (сомастер)':''}</option>`).join('')}</select></label>
+      <div class="grid2"><label class="f">Здоровье<input name="hp" type="number" value="${t.hp??''}" placeholder="—"></label><label class="f">Максимум<input name="hp_max" type="number" value="${t.hp_max??''}" placeholder="—"></label></div>
+      <label class="chk"><input type="checkbox" name="hidden" ${t.hidden?'checked':''}> Скрыта от игроков</label>
+      <div class="row-g" style="margin-top:12px"><button class="btn sm" data-center>Показать</button><button class="btn sm danger" data-del>${ICON.trash} Удалить</button></div>`;
+    const upd=async patch=>{Object.assign(t,patch);this.renderTokens();const {error}=await sb.from('map_tokens').update({...patch,client:CLIENT_ID,updated_at:new Date().toISOString()}).eq('id',t.id);if(error)fail(error);if('hidden' in patch&&patch.hidden)this.ch?.send({type:'broadcast',event:'tokgone',payload:{id:t.id}})};
+    const q=s=>$(s,P);
+    q('[data-x]').onclick=()=>this.closeTokenPanel();
+    q('[name=name]').onchange=e=>upd({name:e.target.value.trim()});
+    $$('[data-col]',P).forEach(b=>b.onclick=()=>{upd({color:b.dataset.col});$$('[data-col]',P).forEach(x=>x.classList.toggle('on',x===b))});
+    q('[name=size]').onchange=e=>{const s=+e.target.value,sp=this.snapToken(t.x,t.y,s);upd({size:s,x:sp.x,y:sp.y})};
+    q('[name=owner]').onchange=e=>upd({owner_id:e.target.value||null});
+    q('[name=hp]').onchange=e=>upd({hp:e.target.value===''?null:+e.target.value});
+    q('[name=hp_max]').onchange=e=>upd({hp_max:e.target.value===''?null:+e.target.value});
+    q('[name=hidden]').onchange=e=>upd({hidden:e.target.checked});
+    q('[data-img]').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const {blob,ext}=await loadImage(f);const src=await API.upload(this.ctx.pid,blob,ext);await upd({img:src});this.openTokenPanel(t.id)}catch(_){toast('Не удалось загрузить картинку','err')}};
+    q('[data-noimg]')?.addEventListener('click',()=>{upd({img:null});this.openTokenPanel(t.id)});
+    q('[data-center]').onclick=()=>this.centerOn(t.x,t.y);
+    q('[data-del]').onclick=async()=>{const {error}=await sb.from('map_tokens').delete().eq('id',t.id);if(fail(error))return;this.tokens.delete(t.id);this.ch?.send({type:'broadcast',event:'tokgone',payload:{id:t.id}});this.closeTokenPanel()};
+  }
+  closeTokenPanel(){this.selTok=null;this.panel.hidden=true;this.panel.innerHTML='';this.renderTokens()}
+
+  /* ---------- шаблоны ---------- */
+  saveTemplate(sel){
+    const {el,close}=openModal(`<h3>Сохранить как шаблон</h3><form><label class="f">Название<input name="n" required maxlength="40" placeholder="Например: Барная стойка"></label><label class="f">Значок в списке<input name="i" maxlength="4" value="📦"></label><p class="muted" style="font-size:12px">Шаблон появится в инструменте «Объекты» (O) у всех мастеров этого проекта.</p><div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Сохранить</button></div></form>`);
+    el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+    const f=el.querySelector('form');f.n.focus();
+    f.onsubmit=async e=>{e.preventDefault();
+      const items=clone(sel).map(i=>{delete i.locked;delete i.g;return i});
+      const B=union(items.map(i=>this.board.bounds(i)));
+      for(const i of items){if(i.type==='line'){for(const k of ['from','to'])if(!i[k].id)i[k]={x:i[k].x-B.x,y:i[k].y-B.y};else{const s=this.board.idx.get(i[k].id);if(!sel.includes(s)){const c=center(rotBox(s));i[k]={x:c.x-B.x,y:c.y-B.y}}}}else{i.x-=B.x;i.y-=B.y}}
+      const {error}=await sb.from('map_templates').insert({project_id:this.ctx.pid,name:f.n.value.trim(),icon:f.i.value.trim()||'📦',items,created_by:this.me.id});
+      if(fail(error))return;close();await this.ctx.reloadTemplates();toast('Шаблон сохранён — он в инструменте «Объекты» (O)');
+    };
+  }
+  async deleteTemplate(id){if(!await confirmBox('Удалить этот шаблон проекта?'))return;const {error}=await sb.from('map_templates').delete().eq('id',id);if(fail(error))return;await this.ctx.reloadTemplates();this.board.renderToolPop()}
+
+  /* ---------- синхронизация ---------- */
+  async push(){
+    const b=this.board;if(this.inflight){this.again=true;return}
+    const ops=b.diffOps();if(!ops)return;this.inflight=true;
+    try{const {error}=await sb.rpc('apply_map_ops',{m:this.map.id,ups:ops.ups,dels:ops.dels,ord:ops.ord,cl:CLIENT_ID});if(error)throw error;b.base=Board.applyOps(b.base,ops)}
+    catch(e){console.error(e);toast('Карта не сохранилась — проверьте связь','err');setTimeout(()=>this.push(),3000)}
+    finally{this.inflight=false;if(this.again){this.again=false;this.push()}}
+  }
+  subscribe(){
+    const id=this.map.id;
+    this.ch=sb.channel('map:'+id,{config:{broadcast:{self:false}}})
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'maps',filter:`id=eq.${id}`},pl=>{
+        const r=pl.new;if(!r||r.client===CLIENT_ID)return;
+        if(r.items)this.board.applyRemote(r.items);
+        if(JSON.stringify(r.settings)!==JSON.stringify(this.S)){this.S=normSettings(r.settings);this.renderLayers()}
+        if(r.fog&&JSON.stringify(r.fog)!==JSON.stringify(this.fog)){this.fog=r.fog;this.renderFog()}
+        this.map.name=r.name;this.map.shared=r.shared;this.renderHead();
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'map_tokens',filter:`map_id=eq.${id}`},pl=>{
+        if(pl.eventType==='DELETE'){this.tokens.delete(pl.old.id);this.renderTokens();return}
+        const r=pl.new;if(!r)return;if(r.client===CLIENT_ID&&this.tokens.has(r.id))return;
+        if(r.hidden&&!this.canEdit){this.tokens.delete(r.id)}else this.tokens.set(r.id,r);this.renderTokens();
+      })
+      .on('broadcast',{event:'tokmove'},({payload:p})=>{const t=this.tokens.get(p.id);if(t){t.x=p.x;t.y=p.y;this.renderTokens()}})
+      .on('broadcast',{event:'tokgone'},({payload:p})=>{if(!this.canEdit){this.tokens.delete(p.id);this.renderTokens()}})
+      .on('broadcast',{event:'ruler'},({payload:p})=>this.drawRuler('u'+p.id,p.a,p.b,p.color,p.name))
+      .on('broadcast',{event:'ping'},({payload:p})=>this.ping(p,false))
+      .on('broadcast',{event:'unshare'},()=>{if(!this.canEdit){toast('Мастер скрыл эту карту');this.ctx.onBack(true)}})
+      .subscribe();
+  }
+}
+
+/* ---------- общий канал проекта: «позвать на карту» ---------- */
+class ProjectHub{
+  constructor(pid,canEdit){this.pid=pid;this.canEdit=canEdit;this.ch=sb.channel('proj:'+pid,{config:{broadcast:{self:false}}})
+    .on('broadcast',{event:'follow'},({payload:p})=>{if(this.canEdit)return;LS.set('rpa_map_'+pid,p.mapId);
+      if(App.mapsTab&&App.mapsTab.pid===pid){App.mapsTab.open(p.mapId,true);toast(`Мастер открыл карту «${p.name}»`)}
+      else toastAction(`Мастер зовёт на карту «${p.name}»`,'Открыть',()=>go('project',pid,'maps'))})
+    .on('broadcast',{event:'maps'},()=>{if(App.mapsTab&&App.mapsTab.pid===pid)App.mapsTab.reload()})
+    .subscribe()}
+  follow(mapId,name){this.ch.send({type:'broadcast',event:'follow',payload:{mapId,name}})}
+  mapsChanged(){this.ch.send({type:'broadcast',event:'maps',payload:{}})}
+  destroy(){sb.removeChannel(this.ch)}
+}
+function toastAction(msg,label,fn){const t=document.createElement('div');t.className='toast act';t.innerHTML=`<span>${esc(msg)}</span><button class="btn primary sm">${esc(label)}</button>`;document.body.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));const kill=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)};t.querySelector('button').onclick=()=>{kill();fn()};setTimeout(kill,15000)}
+
+/* ---------- вкладка «Карты» ---------- */
+function renderMapsTab(main,pid,isM){
+  main.innerHTML=`<div class="maps"><aside class="mlist"><div class="mlist-h"><b>Карты</b>${isM?'<button class="btn primary sm" data-newmap>+ Новая</button>':''}</div><div class="ml"></div></aside><section class="mmain"></section></div>`;
+  const ml=$('.ml',main),mm=$('.mmain',main);
+  let maps=[],view=null,templates=[],members=null;
+  const T={pid,
+    templates:()=>templates,
+    async reloadTemplates(){if(!isM)return;const {data}=await sb.from('map_templates').select('*').eq('project_id',pid).order('created_at');templates=data||[];view?.board.renderToolPop()},
+    async members(){if(!members)members=await API.members(pid).catch(()=>[]);return members},
+    async reload(){
+      const {data,error}=await sb.from('maps').select('id,name,settings,shared,updated_at').eq('project_id',pid).order('sort').order('created_at');
+      if(error){fail(error);return}maps=data||[];drawList();
+      if(view&&!maps.some(m=>m.id===view.map.id)){closeView();drawEmpty()}
+    },
+    async open(id,force){
+      if(view&&view.map.id===id&&!force)return;
+      const {data,error}=await sb.from('maps').select('*').eq('id',id).maybeSingle();
+      if(error||!data){toast('Карта недоступна','err');LS.set('rpa_map_'+pid,null);closeView();drawEmpty();return}
+      closeView();LS.set('rpa_map_'+pid,id);main.querySelector('.maps').classList.add('open');
+      view=new MapView(mm,data,{canEdit:isM,pid,templates:()=>templates,reloadTemplates:()=>T.reloadTemplates(),members:()=>T.members(),onBack:(gone)=>{LS.set('rpa_map_'+pid,null);closeView();drawEmpty();if(gone)T.reload()},onListChange:()=>T.reload()});
+      App.mapView=view;drawList();
+    },
+  };
+  App.mapsTab=T;
+  const closeView=()=>{if(view){view.destroy();view=null;App.mapView=null}main.querySelector('.maps')?.classList.remove('open');drawList()};
+  const drawEmpty=()=>{mm.innerHTML=`<div class="soon"><div class="panel"><div class="ic">🗺️</div><h2>${isM?'Карты локаций':'Карты'}</h2><p class="muted">${isM?'Создайте карту: подземелье, таверну, улицу или целый регион. Расставьте стены, мебель и фишки, включите туман войны и откройте карту игрокам одной кнопкой.':'Здесь появятся карты, которые мастер откроет вам. На них можно двигать свою фишку и мерить расстояние.'}</p>${isM?'<button class="btn primary" data-newmap2>+ Создать карту</button>':''}</div></div>`;mm.querySelector('[data-newmap2]')?.addEventListener('click',newMap)};
+  const drawList=()=>{
+    const cur=view?.map.id;
+    ml.innerHTML=maps.length?maps.map(m=>{const S=normSettings(m.settings);return `<div class="mli ${m.id===cur?'on':''}" data-id="${m.id}"><div class="mli-t">${ICON.map}<span>${esc(m.name)}</span>${isM?`<i class="eye ${m.shared?'on':''}" title="${m.shared?'Видна игрокам':'Скрыта от игроков'}">${m.shared?ICON.eye:ICON.hide}</i>`:''}</div><div class="mli-m">${S.grid==='none'?'без сетки':`${S.cols}×${S.rows} · ${fmtNum(S.cellM)} ${S.unit}`}</div>${isM?`<div class="mli-a"><button data-dup title="Копия">${ICON.copy}</button><button data-del title="Удалить">${ICON.trash}</button></div>`:''}</div>`}).join('')
+      :`<div class="muted" style="padding:14px;font-size:13px">${isM?'Пока нет карт':'Мастер ещё не открыл вам карты'}</div>`;
+  };
+  ml.onclick=async e=>{
+    const it=e.target.closest('.mli');if(!it)return;const m=maps.find(x=>x.id===it.dataset.id);
+    if(e.target.closest('[data-del]')){if(await confirmBox(`Удалить карту «${m.name}» со всеми фишками?`)){const {error}=await sb.from('maps').delete().eq('id',m.id);if(!fail(error)){if(view?.map.id===m.id){closeView();drawEmpty()}App.hub?.mapsChanged();T.reload()}}return}
+    if(e.target.closest('[data-dup]')){const {data:full}=await sb.from('maps').select('*').eq('id',m.id).single();const {error}=await sb.from('maps').insert({project_id:pid,name:full.name+' (копия)',settings:full.settings,items:full.items,fog:full.fog,shared:false,sort:maps.length});if(!fail(error))T.reload();return}
+    T.open(m.id);
+  };
+  const newMap=()=>{
+    const {el,close}=openModal(`<h3>Новая карта</h3><form><label class="f">Название<input name="n" required maxlength="80" placeholder="Например: Подвал таверны"></label>
+      <div class="f">Тип карты<div class="presets">${Object.entries(MAP_PRESETS).map(([k,p],i)=>`<label class="pre"><input type="radio" name="p" value="${k}" ${i?'':'checked'}><span><b>${esc(p.label.split(' — ')[0])}</b><small>${esc(p.label.split(' — ')[1]||'')} · ${p.cols}×${p.rows}</small></span></label>`).join('')}</div></div>
+      <p class="muted" style="font-size:12px;margin:-4px 0 16px">Размер, сетку и фоновую картинку можно поменять в любой момент кнопкой «Сетка и фон».</p>
+      <div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Создать</button></div></form>`);
+    el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+    const f=el.querySelector('form');f.n.focus();
+    f.onsubmit=async e=>{e.preventDefault();const p=MAP_PRESETS[f.p.value];const {label,...settings}=p;
+      const {data,error}=await sb.from('maps').insert({project_id:pid,name:f.n.value.trim(),settings:normSettings(settings),sort:maps.length}).select('id').single();
+      if(fail(error))return;close();await T.reload();T.open(data.id)};
+  };
+  main.querySelectorAll('[data-newmap]').forEach(b=>b.onclick=newMap);
+  drawEmpty();
+  T.reload().then(()=>{const last=LS.get('rpa_map_'+pid);if(last&&maps.some(m=>m.id===last))T.open(last)});
+  T.reloadTemplates();
 }
 
 /* ============ boot ============ */
