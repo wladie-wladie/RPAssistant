@@ -759,7 +759,7 @@ async function renderProject(pid,tab='board'){
         el.innerHTML=[...seen.values()].map(m=>`<span class="pa" title="${esc(m.name)} — ${m.role==='player'?'игрок':m.role==='comaster'?'сомастер':'мастер'}${m.id===me.id?' (вы)':''}" style="--pc:${m.color}">${m.avatar?`<img src="${esc(m.avatar)}" referrerpolicy="no-referrer" alt="">`:esc((m.name||'?').trim()[0]||'?').toUpperCase()}</span>`).join('');
         App.board.pruneCursors(new Set(seen.keys()));
       })
-      .subscribe(async status=>{if(status==='SUBSCRIBED')await ch.track({id:me.id,name:me.name,avatar:me.avatar_url||'',color:myColor,role:myRole==='owner'?'master':myRole||'player'})});
+      .subscribe(async status=>{if(status==='SUBSCRIBED'&&ch)await ch.track({id:me.id,name:me.name,avatar:me.avatar_url||'',color:myColor,role:myRole==='owner'?'master':myRole||'player'})});
     App.unsub=()=>{try{ch.send({type:'broadcast',event:'cursor',payload:{id:me.id,x:null}})}catch(_){}sb.removeChannel(ch)};
     return;
   }
@@ -1328,10 +1328,13 @@ class Board{
   eraseAt(e){const h=this.hitAt(e.clientX,e.clientY);if(h&&h.type==='pen'&&!h.locked){this.items=this.items.filter(i=>i!==h);this.sel.delete(h.id);this.render()}}
   onDbl(e){
     if(this.ro||this.editing)return;
-    const hEl=e.target.closest&&e.target.closest('[data-id]');
-    const it=hEl&&this.world.contains(hEl)?this.idx.get(hEl.dataset.id):null;
-    if(it){if(it.type==='frame'&&!e.target.closest('.frame-title'))return;this.sel=new Set([it.id]);this.startEdit(it.id);return}
-    if(this.tool==='select'&&!e.target.closest('.hd')){
+    // из-за захвата указателя e.target здесь — сам холст, поэтому ищем объект под курсором вручную
+    const under=document.elementFromPoint(e.clientX,e.clientY)||e.target;
+    const hEl=under.closest&&under.closest('[data-id]');
+    let it=hEl&&this.world.contains(hEl)?this.idx.get(hEl.dataset.id):null;
+    if(!it){const p=this.toWorld(e);it=[...this.items].reverse().find(i=>(TEXTUAL.has(i.type))&&p.x>=i.x&&p.x<=i.x+i.w&&p.y>=i.y&&p.y<=i.y+i.h)||null}
+    if(it){if(it.type==='frame'&&!under.closest('.frame-title'))return;this.sel=new Set([it.id]);this.startEdit(it.id);return}
+    if(this.tool==='select'&&!under.closest('.hd')){
       const p=this.toWorld(e);const t=this.newItem('text',p.x,p.y-14);t.h=t.fs*1.35;this.items.push(t);this.sel=new Set([t.id]);this.render();this.startEdit(t.id);
     }
   }
