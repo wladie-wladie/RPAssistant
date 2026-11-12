@@ -2044,7 +2044,8 @@ class MusicEngine{
           const c=this.cur={key,kind:'yt',ready:false};
           c.player=new YT.Player(div,{width:200,height:113,videoId:t.src,playerVars:{autoplay:0,controls:0,disablekb:1,playsinline:1,rel:0},events:{
             onReady:()=>{c.ready=true;this.applyVol();this.applyPlay(true)},
-            onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)this.onEnded();if(e.data===YT.PlayerState.PLAYING){this.blocked=false;this.saveDuration(t,c.player.getDuration())}this.emit()},
+            onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)this.onEnded();
+              if(e.data===YT.PlayerState.PLAYING){if(!this.unlocked||!this.state?.playing){c.player.pauseVideo();return}this.blocked=false;this.saveDuration(t,c.player.getDuration())}this.emit()},
             onError:()=>{toast('YouTube не даёт проиграть этот ролик (ограничение автора на встраивание)','err')}}});
           return;
         }
@@ -2076,11 +2077,11 @@ class MusicEngine{
     const want=this.desiredPos(),drift=Math.abs(this.pos()-want);
     this.applyVol();
     if(s.playing){
-      if(hard||drift>1.5)this.seekTo(want);
       // после загрузки страницы звук сам не включается: ждём «Включить звук» или действия мастера
       if(!this.unlocked){this.blocked=true;this.emit();return}
+      if(hard||drift>1.5)this.seekTo(want);
       if(!this.isPlaying()){
-        if(c.kind==='yt')c.player.playVideo();
+        if(c.kind==='yt'){if(this.ytIdle())c.player.loadVideoById({videoId:this.current.src,startSeconds:want});else c.player.playVideo()}
         else if(c.kind==='sc')c.widget.play();
         else this.audio.play().then(()=>{this.blocked=false;this.emit()}).catch(()=>{this.blocked=true;this.emit()});
         if(c.kind!=='audio')setTimeout(()=>{if(this.state?.playing&&!this.isPlaying()){this.blocked=true;this.emit()}},2500);
@@ -2091,7 +2092,9 @@ class MusicEngine{
     }
     this.emit();
   }
-  seekTo(t){const c=this.cur;if(!c)return;if(c.kind==='yt')c.player.seekTo?.(t,true);else if(c.kind==='sc'){c.widget.seekTo(t*1000);c.pos=t}else{try{this.audio.currentTime=t}catch(_){}}}
+  // у YouTube seekTo по не начатому ролику сам запускает его (с начала, если звук ещё не разрешён) — поэтому такой ролик не трогаем
+  ytIdle(){const c=this.cur;if(c?.kind!=='yt'||!c.player?.getPlayerState)return false;const st=c.player.getPlayerState();return st===-1||st===5}
+  seekTo(t){const c=this.cur;if(!c)return;if(c.kind==='yt'){if(!this.ytIdle())c.player.seekTo?.(t,true);return}else if(c.kind==='sc'){c.widget.seekTo(t*1000);c.pos=t}else{try{this.audio.currentTime=t}catch(_){}}}
   tick(){if(this.cur&&this.state?.playing&&!this.blocked)this.applyPlay(false);this.emit()}
   onEnded(){
     const s=this.state;if(!s)return;
