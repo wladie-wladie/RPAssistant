@@ -748,16 +748,17 @@ async function renderProject(pid,tab='board'){
     let ch,lastCur=0;
     App.board=new Board(main,{items:b?.items||[],view},{readonly:!isM,onChange:isM?save:null,onView:v=>LS.set(vk,JSON.stringify(v)),upload:(blob,ext)=>API.upload(pid,blob,ext),
       onCursor:pt=>{const now=Date.now();if(!ch||(pt&&now-lastCur<60))return;lastCur=now;ch.send({type:'broadcast',event:'cursor',payload:{id:me.id,name:me.name,color:myColor,x:pt?pt.x:null,y:pt?pt.y:null}})}});
+    const bd=App.board; // обработчики старого канала не должны трогать новую доску
     App.board.root.insertAdjacentHTML('beforeend',`<div class="presence"></div>${isM?'<div class="save-state" data-s="saved">Сохранено</div>':''}`);
     ch=sb.channel('board:'+pid,{config:{presence:{key:me.id+':'+CLIENT_ID},broadcast:{self:false}}})
-      .on('postgres_changes',{event:'*',schema:'public',table:'boards',filter:`project_id=eq.${pid}`},pl=>{const row=pl.new;if(!row||!row.items||row.client===CLIENT_ID)return;App.board&&App.board.applyRemote(row.items)})
-      .on('broadcast',{event:'cursor'},({payload:c})=>App.board&&App.board.showCursor(c))
+      .on('postgres_changes',{event:'*',schema:'public',table:'boards',filter:`project_id=eq.${pid}`},pl=>{const row=pl.new;if(App.board!==bd||!row||!row.items||row.client===CLIENT_ID)return;bd.applyRemote(row.items)})
+      .on('broadcast',{event:'cursor'},({payload:c})=>{if(App.board!==bd||!c||c.id===me.id)return;bd.showCursor(c)})
       .on('presence',{event:'sync'},()=>{
         const st=ch.presenceState(),seen=new Map();
         for(const k in st)for(const m of st[k])if(!seen.has(m.id))seen.set(m.id,m);
-        const el=App.board&&$('.presence',App.board.root);if(!el)return;
+        if(App.board!==bd)return;const el=$('.presence',bd.root);if(!el)return;
         el.innerHTML=[...seen.values()].map(m=>`<span class="pa" title="${esc(m.name)} — ${m.role==='player'?'игрок':m.role==='comaster'?'сомастер':'мастер'}${m.id===me.id?' (вы)':''}" style="--pc:${m.color}">${m.avatar?`<img src="${esc(m.avatar)}" referrerpolicy="no-referrer" alt="">`:esc((m.name||'?').trim()[0]||'?').toUpperCase()}</span>`).join('');
-        App.board.pruneCursors(new Set(seen.keys()));
+        bd.pruneCursors(new Set(seen.keys()));
       })
       .subscribe(async status=>{if(status==='SUBSCRIBED'&&ch)await ch.track({id:me.id,name:me.name,avatar:me.avatar_url||'',color:myColor,role:myRole==='owner'?'master':myRole||'player'})});
     App.unsub=()=>{try{ch.send({type:'broadcast',event:'cursor',payload:{id:me.id,x:null}})}catch(_){}sb.removeChannel(ch)};
