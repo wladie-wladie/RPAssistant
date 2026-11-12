@@ -1993,7 +1993,7 @@ class MusicEngine{
     this.unlocked=false;this.cur=null;this.box=document.createElement('div');this.box.className='mbox';document.body.appendChild(this.box);
     this.audio=new Audio();this.audio.preload='auto';this.audio.onended=()=>this.onEnded();
     this.unlock=()=>{this.unlocked=true;this.blocked=false;this.sync(true);this.emit()};
-    document.addEventListener('pointerdown',this.unlock,{once:true,capture:true});
+    // звук включается только кнопкой «Включить звук» или когда мастер сам запускает трек — не от любого щелчка по странице
     this.timer=setInterval(()=>this.tick(),1000);
   }
   async init(){
@@ -2007,7 +2007,7 @@ class MusicEngine{
       .subscribe();
     this.sync();
   }
-  destroy(){clearInterval(this.timer);document.removeEventListener('pointerdown',this.unlock,{capture:true});this.stopAll();this.audio.src='';this.box.remove();if(this.ch)sb.removeChannel(this.ch);this.listeners.clear()}
+  destroy(){clearInterval(this.timer);this.stopAll();this.audio.src='';this.box.remove();if(this.ch)sb.removeChannel(this.ch);this.listeners.clear()}
   on(fn){this.listeners.add(fn);return ()=>this.listeners.delete(fn)}
   emit(){for(const f of this.listeners)try{f()}catch(e){console.error(e)}}
   now(){return Date.now()+this.offset}
