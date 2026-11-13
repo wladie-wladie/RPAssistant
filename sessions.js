@@ -186,9 +186,7 @@ async function renderStage(main,pid,isM,p){
       ${S.scene==='map'&&mv?`<span class="sc-g"><span class="sc-l">Карта</span>
         <button class="ic" data-mv="settings" title="Сетка, размер и фон карты">⚙</button>
         <button class="ic ${mv.S.snap?'on':''}" data-mv="snap" title="Прилипание к клеткам">🧲</button>
-        <button class="ic ${mv.fog.enabled?'on':''}" data-mv="fog" title="Туман войны: игроки видят только открытые области">🌫</button>
-        ${mv.fog.enabled?`<button class="ic" data-mv="fogall" title="Скрыть всю карту туманом">⬛</button><button class="ic" data-mv="fogclear" title="Убрать туман целиком">⬜</button>`:''}
-        <button class="ic" data-mv="ptoks" title="Поставить фишки всем игрокам, у кого их ещё нет">👤＋</button></span>`
+        ${mv.fog.enabled?`<button class="ic" data-mv="fogclear" title="Убрать туман с карты целиком">🌫✕</button>`:''}</span>`
       :`<span class="sc-g"><button data-bg title="Фон доски">🎨 Фон</button></span>`}
       <span class="sc-g"><span class="sc-l">Могут</span>
         <button class="tg ${o.draw?'on':''}" data-ov="draw" title="Игроки рисуют и пишут на доске">✏️</button>
