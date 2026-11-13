@@ -411,6 +411,7 @@ function openCharWizard(pid,isM,mem,onDone){
   const {el,close}=openModal(`<div class="wiz"><div class="wz-steps"></div><div class="wz-body"></div><div class="wz-foot"><span class="wz-err"></span><button class="btn" data-back>Назад</button><button class="btn primary" data-next>Далее</button></div></div>`);
   el.classList.add('wide','wizm');
   const body=el.querySelector('.wz-body'),stepsEl=el.querySelector('.wz-steps'),err=el.querySelector('.wz-err');
+  const capV=()=>VTM.cap(D);const RNG=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
   const cntA=()=>{const c={};Object.values(D.attr).forEach(v=>c[v]=(c[v]||0)+1);return c};
   const cntS=()=>{const c={};Object.values(D.skills).forEach(v=>{if(v>0)c[v]=(c[v]||0)+1});return c};
   const baseBp=()=>{const g=VTM.GEN_BP[+D.gen]||[1,3];const ag=VTM.AGES[D.age]||{};return ag.gm?Math.max(g[0],Math.min(g[1],D._bp??g[0])):g[0]};
@@ -420,8 +421,9 @@ function openCharWizard(pid,isM,mem,onDone){
   };
   const flawOk=()=>{const ag=VTM.AGES[D.age]||{};const a=D.adv.filter(x=>!x.flaw&&!x.pred).reduce((s,x)=>s+x.dots,0),f=D.adv.filter(x=>x.flaw&&!x.pred).reduce((s,x)=>s+x.dots,0);return {a,f,na:7+(ag.adv||0),nf:2+(ag.flaw||0)}};
   const valid=()=>{
+    if(step===0&&!D.name.trim())return 'Введите имя';
     if(free)return '';
-    if(step===0){if(!D.name.trim())return 'Введите имя';if(!D.clan)return 'Выберите клан'}
+    if(step===0){if(!D.clan)return 'Выберите клан'}
     if(step===1){const a=Object.values(D.attr).sort((x,y)=>y-x);if(JSON.stringify(a)!==JSON.stringify(VTM.ATTR_SPREAD))return 'Распределите атрибуты: 4, 3, 3, 3, 2, 2, 2, 2, 1'}
     if(step===2){const sp=VTM.SKILL_SPREADS[D.spread].d,c=cntS();if(!Object.keys({...sp,...c}).every(k=>(sp[k]||0)===(c[k]||0)))return 'Навыки не соответствуют выбранному распределению';for(const k of VTM.FREE_SPEC_SKILLS)if(D.skills[k]&&!(D.spec[k]||'').trim())return `Укажите специализацию для навыка «${VTM.SKILL_NAME[k]}»`}
     if(step===3){if(!D.predator)return 'Выберите стиль охоты';if(!predDisc&&!VTM.CLANS[D.clan]?.thin)return 'Выберите дисциплину от стиля охоты';if(predSpec==='')return 'Выберите специализацию от стиля охоты'}
@@ -430,7 +432,7 @@ function openCharWizard(pid,isM,mem,onDone){
     if(step===6){if(!D.conv.length||D.conv.some(c=>!c.c.trim()))return 'Добавьте от 1 до 3 принципов'}
     return '';
   };
-  const ATTR_ROWS=()=>{const c=cntA(),need={4:1,3:3,2:4,1:1};return `<div class="wz-cnt">${[4,3,2,1].map(v=>`<span class="${(c[v]||0)===need[v]?'ok':(c[v]||0)>need[v]?'over':''}">на ${v}: ${c[v]||0}/${need[v]}</span>`).join('')}</div><div class="sh-cols">${VTM.ATTRS.map(([g,gn,l])=>`<div><h4>${gn}</h4>${l.map(([k,n])=>`<div class="trait"><span class="tn">${n}</span><span class="seg">${[1,2,3,4,5].map(v=>`<button data-attr="${k}" data-v="${v}" class="${D.attr[k]===v?'on':''}">${v}</button>`).join('')}</span></div>`).join('')}</div>`).join('')}</div>`};
+  const ATTR_ROWS=()=>{const c=cntA(),need={4:1,3:3,2:4,1:1};return `<div class="wz-cnt">${[4,3,2,1].map(v=>`<span class="${(c[v]||0)===need[v]?'ok':(c[v]||0)>need[v]?'over':''}">на ${v}: ${c[v]||0}/${need[v]}</span>`).join('')}</div><div class="sh-cols">${VTM.ATTRS.map(([g,gn,l])=>`<div><h4>${gn}</h4>${l.map(([k,n])=>`<div class="trait"><span class="tn">${n}</span><span class="seg">${(free?RNG(1,capV()):[1,2,3,4,5]).map(v=>`<button data-attr="${k}" data-v="${v}" class="${D.attr[k]===v?'on':''}">${v}</button>`).join('')}</span></div>`).join('')}</div>`).join('')}</div>`};
   const ageList=()=>Object.entries(VTM.AGES).filter(([,v])=>!v.gm||isM);
   const genList=()=>{const ag=VTM.AGES[D.age];const thin=VTM.CLANS[D.clan]?.thin;if(thin)return [14,15,16];if(free&&isM)return [4,5,6,7,8,9,10,11,12,13];return ag?.gen||[13,12]};
   const draw=()=>{
@@ -446,17 +448,19 @@ function openCharWizard(pid,isM,mem,onDone){
       <div class="wz-g2"><label class="f">Поколение<select data-gen>${genList().map(gg=>`<option value="${gg}" ${+D.gen===gg?'selected':''}>${gg}-е · Сила крови ${VTM.GEN_BP[gg][0]}${VTM.GEN_BP[gg][1]>VTM.GEN_BP[gg][0]?'–'+VTM.GEN_BP[gg][1]:''}</option>`).join('')}</select></label>
       ${ag?.gm?`<label class="f">Сила крови<select data-bp>${R0(g[0],g[1]).map(b=>`<option value="${b}" ${+D.bp===b?'selected':''}>${b}</option>`).join('')}</select></label>`:`<div class="f">Сила крови: <b>${D.bp}</b></div>`}</div>
       ${ag?.gm?`<label class="f">Опыт на развитие<input type="number" data-xp min="0" step="5" value="${D._xp||0}"></label>`:''}
-      <label class="ck"><input type="checkbox" data-free ${free?'checked':''}> Свободное создание (без проверки правил — для готовых или особых персонажей)</label>`}
+      <label class="ck"><input type="checkbox" data-free ${free?'checked':''}> Свободное создание (без проверки правил — для готовых или особых персонажей)</label>
+      ${free?`<div class="wz-free"><b>Свободный режим.</b> Атрибуты, навыки, дисциплины, силы, достоинства и недостатки проставляются как угодно — без обязательных раскладок 4/3/3/3/2…, лимита сил и обязательного стиля охоты. Любые дисциплины доступны, а не только клановые.${ag?.gm?' Для старейшин и мафусаилов включён по умолчанию — снимите галочку, чтобы создавать по правилам.':''}
+        <label class="f" style="margin:10px 0 0">Максимум точек в чертах<select data-wcap>${RNG(5,10).map(v=>`<option value="${v}" ${capV()===v?'selected':''}>${v===5?'5 (официально)':v+' (домашнее правило)'}</option>`).join('')}</select></label></div>`:''}`}
     if(step===1)h=`<p class="muted wz-p">Один атрибут на 4, три на 3, четыре на 2, один на 1. Здоровье = Выносливость + 3, Воля = Самообладание + Упорство.</p>${ATTR_ROWS()}<div class="wz-calc">Здоровье: <b>${VTM.healthMax(D)}</b> · Воля: <b>${VTM.wpMax(D)}</b></div>`;
     if(step===2){const sp=VTM.SKILL_SPREADS[D.spread].d,c=cntS();h=`<div class="spreads">${Object.entries(VTM.SKILL_SPREADS).map(([k,v])=>`<label class="pre"><input type="radio" name="spread" value="${k}" ${D.spread===k?'checked':''}><span><b>${v.name}</b><small>${v.hint}</small></span></label>`).join('')}</div>
       <div class="wz-cnt">${Object.keys(sp).sort((a,b)=>b-a).map(v=>`<span class="${(c[v]||0)===sp[v]?'ok':(c[v]||0)>sp[v]?'over':''}">на ${v}: ${c[v]||0}/${sp[v]}</span>`).join('')}</div>
-      <div class="sh-cols">${VTM.SKILLS.map(([g,gn,l])=>`<div><h4>${gn}</h4>${l.map(([k,n])=>`<div class="trait sk"><span class="tn">${n}</span><span class="seg">${[0,1,2,3,4].map(v=>`<button data-skill="${k}" data-v="${v}" class="${(D.skills[k]||0)===v?'on':''}">${v||'–'}</button>`).join('')}</span>${(VTM.FREE_SPEC_SKILLS.includes(k)&&D.skills[k])?`<input class="spec" data-wspec="${k}" value="${esc(D.spec[k]||'')}" placeholder="обязательная специализация">`:''}</div>`).join('')}</div>`).join('')}</div>
+      <div class="sh-cols">${VTM.SKILLS.map(([g,gn,l])=>`<div><h4>${gn}</h4>${l.map(([k,n])=>`<div class="trait sk"><span class="tn">${n}</span><span class="seg">${(free?RNG(0,capV()):[0,1,2,3,4]).map(v=>`<button data-skill="${k}" data-v="${v}" class="${(D.skills[k]||0)===v?'on':''}">${v||'–'}</button>`).join('')}</span>${(VTM.FREE_SPEC_SKILLS.includes(k)&&D.skills[k])?`<input class="spec" data-wspec="${k}" value="${esc(D.spec[k]||'')}" placeholder="обязательная специализация">`:''}</div>`).join('')}</div>`).join('')}</div>
       <label class="f" style="margin-top:12px">Ещё одна бесплатная специализация<span class="wz-g2"><select data-xspec><option value="">Навык…</option>${Object.entries(D.skills).filter(([,v])=>v>0).map(([k])=>`<option value="${k}" ${D._xs===k?'selected':''}>${VTM.SKILL_NAME[k]}</option>`).join('')}</select><input data-xspecv value="${esc(D._xs?D.spec[D._xs]||'':'')}" placeholder="Например: Ножи"></span></label>`}
     if(step===3)h=`<p class="muted wz-p">Стиль охоты — как персонаж добывает кровь. Даёт специализацию, точку дисциплины, достоинства и недостатки.</p><div class="preds">${Object.entries(VTM.PREDATORS).map(([k,p])=>{const no=(p.noClans||[]).includes(D.clan)||(p.maxBp&&D.bp>p.maxBp);return `<button class="pred ${D.predator===k?'on':''}" data-pred="${k}" ${no?'disabled title="Недоступно этому персонажу по правилам"':''}><b>${p.n} <span class="en">${p.en}</span></b><small>Охота: ${p.pool?`${VTM.traitName(p.pool[0])} + ${VTM.traitName(p.pool[1])}${p.pool2?` или ${VTM.traitName(p.pool2[0])} + ${VTM.traitName(p.pool2[1])}`:''}`:'без броска'}${p.hum?` · Человечность ${p.hum>0?'+':''}${p.hum}`:''}${p.bp?' · Сила крови +1':''}</small><small>${p.adv.map(a=>(a[2]?'− ':'+ ')+a[0]+' '+'●'.repeat(a[1])).join('<br>')}</small><small class="srcl">${esc(VTM.srcText(p.src))}${p.note?' · '+esc(p.note):''}</small></button>`}).join('')}</div>
       ${D.predator?(()=>{const p=VTM.PREDATORS[D.predator];const cl=VTM.CLANS[D.clan];const dd=p.disc.filter(x=>(x!=='bloodsorcery'||['tremere','banuhaqim'].includes(D.clan))&&(x!=='oblivion'||D.predator!=='bagger'||D.clan==='hecata'));return `<div class="wz-g2"><label class="f">Специализация<select data-pspec><option value="">—</option>${p.spec.map(([s,n],i)=>`<option value="${i}" ${predSpec===String(i)?'selected':''}>${VTM.SKILL_NAME[s]} (${n})</option>`).join('')}</select></label>${cl?.thin?'':`<label class="f">Точка дисциплины<select data-pdisc><option value="">—</option>${dd.map(x=>`<option value="${x}" ${predDisc===x?'selected':''}>${VTM.DISC[x]}</option>`).join('')}</select></label>`}</div>${p.discNote?`<p class="muted wz-p">${esc(p.discNote)}</p>`:''}`})():''}`;
-    if(step===4){const cl=VTM.CLANS[D.clan];const pool=cl.any?Object.keys(VTM.DISC).filter(k=>k!=='alchemy'):cl.d;const ex=VTM.extraPowers(D);
+    if(step===4){const cl=VTM.CLANS[D.clan];const pool=cl.any||free?Object.keys(VTM.DISC).filter(k=>k!=='alchemy'||cl.thin):cl.d;const ex=VTM.extraPowers(D);
       h=cl.thin?`<p class="muted wz-p">У слабокровных нет врождённых дисциплин. Алхимию слабокровных берут через достоинство «Алхимик слабой крови».</p>`:`<p class="muted wz-p">${cl.any?'Каитифф выбирает любые две дисциплины':'Выберите две клановые дисциплины'}: одну на 2, другую на 1.${predDisc?` Точка от стиля охоты: ${VTM.DISC[predDisc]} +1.`:''} На каждую точку — одна сила уровня не выше рейтинга.${ex?` Сила крови ${D.bp}: ещё ${ex} ${plural(ex,'сила','силы','сил')} (Gehenna War).`:''}</p>
-      <div class="wdiscs">${[...new Set([...pool,...(predDisc?[predDisc]:[])])].map(k=>{const base=(D.disc[k]||0)-(k===predDisc?1:0);const mine=D.powers.filter(id=>VTM.POWER[id].disc===k);return `<div class="wdisc"><div class="disc-h"><span class="di">${VTM.DISC_ICON[k]}</span><b>${VTM.DISC[k]}</b><span class="seg">${(pool.includes(k)?[0,1,2]:[0]).map(v=>`<button data-wd="${k}" data-v="${v}" class="${base===v?'on':''}">${v}</button>`).join('')}</span>${k===predDisc?'<span class="tag">+1 стиль охоты</span>':''}</div>${D.disc[k]?`<div class="pw">${mine.map(id=>`<span class="pwb">${VTM.POWER[id].l} · ${esc(VTM.POWER[id].n)}<i data-wunpw="${id}">✕</i></span>`).join('')}<button class="pwb add" data-wpw="${k}">+ сила</button></div>`:''}</div>`}).join('')}</div>
+      <div class="wdiscs">${[...new Set([...pool,...(predDisc?[predDisc]:[])])].map(k=>{const base=(D.disc[k]||0)-(k===predDisc?1:0);const mine=D.powers.filter(id=>VTM.POWER[id].disc===k);return `<div class="wdisc"><div class="disc-h"><span class="di">${VTM.DISC_ICON[k]}</span><b>${VTM.DISC[k]}</b><span class="seg">${(free?RNG(0,capV()):pool.includes(k)?[0,1,2]:[0]).map(v=>`<button data-wd="${k}" data-v="${v}" class="${base===v?'on':''}">${v}</button>`).join('')}</span>${k===predDisc?'<span class="tag">+1 стиль охоты</span>':''}</div>${D.disc[k]?`<div class="pw">${mine.map(id=>`<span class="pwb">${VTM.POWER[id].l} · ${esc(VTM.POWER[id].n)}<i data-wunpw="${id}">✕</i></span>`).join('')}<button class="pwb add" data-wpw="${k}">+ сила</button></div>`:''}</div>`}).join('')}</div>
       <div class="wz-cnt"><span class="${D.powers.length===Object.values(D.disc).reduce((s,v)=>s+v,0)+ex?'ok':''}">сил выбрано: ${D.powers.length} из ${Object.values(D.disc).reduce((s,v)=>s+v,0)+ex}</span></div>`}
     if(step===5){const {a,f,na,nf}=flawOk();
       h=`<p class="muted wz-p">Потратьте ${na} точек на достоинства и возьмите ${nf} точки недостатков — сверх тех, что дал стиль охоты. Одно и то же достоинство дважды брать нельзя (кроме отмеченных «можно несколько» — например, разные Союзники или Контакты).</p><div class="wz-cnt"><span class="${a===na?'ok':a>na?'over':''}">достоинства ${a}/${na}</span><span class="${f===nf?'ok':f>nf?'over':''}">недостатки ${f}/${nf}</span></div>
@@ -480,10 +484,11 @@ function openCharWizard(pid,isM,mem,onDone){
     if(t.dataset.xp!==undefined)D._xp=Math.max(0,+t.value||0);
   });
   el.addEventListener('change',e=>{const t=e.target;
-    if(t.name==='age'){D.age=t.value;const ag=VTM.AGES[t.value];if(!VTM.CLANS[D.clan]?.thin)D.gen=ag.gen[0];D._bp=null;applyPred();draw()}
+    if(t.name==='age'){const was=!!VTM.AGES[D.age]?.gm;D.age=t.value;const ag=VTM.AGES[t.value];if(ag.gm){free=true;if(!D.cap||D.cap<5)D.cap=5}else if(was){free=false;D.cap=5}if(!VTM.CLANS[D.clan]?.thin)D.gen=ag.gen[0];D._bp=null;applyPred();draw()}
     if(t.dataset.gen!==undefined){D.gen=+t.value;D._bp=null;applyPred();draw()}
     if(t.dataset.bp!==undefined){D._bp=+t.value;applyPred();draw()}
-    if(t.dataset.free!==undefined){free=t.checked;draw()}
+    if(t.dataset.free!==undefined){free=t.checked;if(!free){D.cap=5;for(const k in D.attr)D.attr[k]=Math.min(5,D.attr[k]);for(const k in D.skills)D.skills[k]=Math.min(4,D.skills[k])}draw()}
+    if(t.dataset.wcap!==undefined){D.cap=+t.value;draw()}
     if(t.dataset.owner!==undefined){npc=t.value==='npc';owner=npc?'':t.value}
     if(t.name==='spread'){D.spread=t.value;draw()}
     if(t.dataset.xspec!==undefined){if(D._xs&&D._xs!==t.value)delete D.spec[D._xs];D._xs=t.value;draw()}
@@ -491,7 +496,7 @@ function openCharWizard(pid,isM,mem,onDone){
     if(t.dataset.pdisc!==undefined){if(predDisc){D.disc[predDisc]=(D.disc[predDisc]||1)-1;if(!D.disc[predDisc])delete D.disc[predDisc];trimPowers()}predDisc=t.value;if(predDisc)D.disc[predDisc]=(D.disc[predDisc]||0)+1}
   });
   const trimPowers=()=>{for(const k of Object.keys(VTM.DISC)){const lim=D.disc[k]||0;D.powers.filter(id=>VTM.POWER[id].disc===k&&VTM.POWER[id].l>lim).forEach(id=>D.powers.splice(D.powers.indexOf(id),1))}
-    const tot=Object.values(D.disc).reduce((s,v)=>s+v,0)+VTM.extraPowers(D);while(D.powers.length>tot)D.powers.pop()};
+    if(free)return;const tot=Object.values(D.disc).reduce((s,v)=>s+v,0)+VTM.extraPowers(D);while(D.powers.length>tot)D.powers.pop()};
   el.addEventListener('click',e=>{const t=e.target.closest('button,[data-go]');if(!t)return;
     if(t.dataset.go!==undefined&&t.tagName==='SPAN'){const to=+t.dataset.go;if(to<step||free){step=to;draw()}return}
     if(t.dataset.clan){if(D.clan!==t.dataset.clan){D.clan=t.dataset.clan;D.disc={};D.powers=[];predDisc='';if(VTM.CLANS[D.clan].thin)D.gen=14;else if(D.gen>13)D.gen=VTM.AGES[D.age].gen[0];D._bp=null;applyPred()}draw();return}
@@ -499,7 +504,7 @@ function openCharWizard(pid,isM,mem,onDone){
     if(t.dataset.skill){const v=+t.dataset.v;if(v)D.skills[t.dataset.skill]=v;else delete D.skills[t.dataset.skill];draw();return}
     if(t.dataset.pred){if(predDisc){D.disc[predDisc]--;if(!D.disc[predDisc])delete D.disc[predDisc];predDisc=''}if(predSpec!==''){const p=VTM.PREDATORS[D.predator];const [s,n]=p.spec[+predSpec];if(D.spec[s]===n)delete D.spec[s];predSpec=''}D.predator=t.dataset.pred;applyPred();trimPowers();draw();return}
     if(t.dataset.wd){const k=t.dataset.wd,v=+t.dataset.v;const extra=k===predDisc?1:0;if(v+extra)D.disc[k]=v+extra;else delete D.disc[k];trimPowers();draw();return}
-    if(t.dataset.wpw){const k=t.dataset.wpw;pickPower({data:D},k,(id,b)=>{const tot=Object.values(D.disc).reduce((s,v)=>s+v,0)+VTM.extraPowers(D);if(D.powers.includes(id)){D.powers.splice(D.powers.indexOf(id),1);b.classList.remove('on')}else if(D.powers.length<tot){D.powers.push(id);b.classList.add('on')}else toast('Сил уже столько, сколько положено');draw()},isM);return}
+    if(t.dataset.wpw){const k=t.dataset.wpw;pickPower({data:D},k,(id,b)=>{const tot=free?Infinity:Object.values(D.disc).reduce((s,v)=>s+v,0)+VTM.extraPowers(D);if(D.powers.includes(id)){D.powers.splice(D.powers.indexOf(id),1);b.classList.remove('on')}else if(D.powers.length<tot){D.powers.push(id);b.classList.add('on')}else toast('Сил уже столько, сколько положено');draw()},isM);return}
     if(t.dataset.wunpw){D.powers.splice(D.powers.indexOf(t.dataset.wunpw),1);draw();return}
     if(t.dataset.wmerit!==undefined){pickMerit(D.adv,m=>{D.adv.push(m);draw()});return}
     if(t.dataset.wadvd!==undefined){D.adv[+t.dataset.wadvd].dots=+t.dataset.v;draw();return}
