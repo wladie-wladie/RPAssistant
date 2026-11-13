@@ -1,0 +1,103 @@
+{
+  "_help": [
+    "RPAssistant character template (Vampire: The Masquerade V5). Fill in the fields and import the file in the Characters tab → ⇅ → Import.",
+    "Names of clans, attributes, skills, Disciplines, powers, rituals, merits and Predator Types can be written in English or Russian, any case.",
+    "Leave out what you do not need. Skills with 0 dots can be omitted. \"merits\": flaw true for flaws; \"note\" for repeatable ones (Allies, Contacts).",
+    "age: Childer, Neonate, Ancilla, Elder, Methuselah. generation: 4–16. blood_potency: 0–10. icon: an emoji for the map token. max_dots: 5 (official) – 10.",
+    "Several characters in one file: {\"characters\": [ {...}, {...} ]}."
+  ],
+  "format": "rpassistant-character",
+  "version": 1,
+  "system": "vtm5",
+  "name": "Marcus Vale",
+  "concept": "Bitter ex-boxer turned debt collector",
+  "clan": "Brujah",
+  "predator": "Alleycat",
+  "generation": 12,
+  "blood_potency": 1,
+  "age": "Neonate",
+  "sire": "Rosa “Red” Delgado",
+  "chronicle": "",
+  "ambition": "Own the club where I was Embraced",
+  "desire": "Make the bouncer apologise",
+  "attributes": {
+    "Strength": 4,
+    "Dexterity": 3,
+    "Stamina": 3,
+    "Charisma": 2,
+    "Manipulation": 2,
+    "Composure": 2,
+    "Intelligence": 1,
+    "Wits": 3,
+    "Resolve": 2
+  },
+  "skills": {
+    "Athletics": 2,
+    "Brawl": 3,
+    "Intimidation": 3,
+    "Streetwise": 2,
+    "Drive": 1,
+    "Firearms": 1,
+    "Insight": 1,
+    "Persuasion": 2,
+    "Awareness": 2,
+    "Leadership": 1,
+    "Subterfuge": 1,
+    "Investigation": 1,
+    "Etiquette": 1,
+    "Larceny": 1,
+    "Stealth": 1
+  },
+  "specialties": {
+    "Brawl": "Grappling",
+    "Intimidation": "Mugging"
+  },
+  "disciplines": {
+    "Potence": 2,
+    "Celerity": 1,
+    "Presence": 1
+  },
+  "powers": [
+    "Lethal Body",
+    "Prowess",
+    "Cat's Grace",
+    "Awe"
+  ],
+  "rituals": [],
+  "merits": [
+    {
+      "name": "Contacts",
+      "dots": 3,
+      "note": "criminal"
+    },
+    {
+      "name": "Resources",
+      "dots": 2
+    },
+    {
+      "name": "Haven",
+      "dots": 2
+    },
+    {
+      "name": "Enemy",
+      "dots": 2,
+      "flaw": true
+    }
+  ],
+  "convictions": [
+    {
+      "conviction": "Never hit someone who can't hit back",
+      "touchstone": "Leo, his kid brother"
+    }
+  ],
+  "humanity": 6,
+  "hunger": 1,
+  "xp": {
+    "total": 15,
+    "spent": 0
+  },
+  "notes": "",
+  "portrait": "",
+  "icon": "🥊",
+  "token_color": "#ef4444"
+}

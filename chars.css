@@ -304,3 +304,10 @@ mark{background:#e3b75b55;color:#fff;border-radius:3px;padding:0 2px}
 .lk-cols{display:flex;gap:5px;flex-wrap:wrap}
 .lk-cols button{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
 .lk-cols button.on{border-color:#fff;box-shadow:0 0 0 2px #e3b75b}
+
+/* импорт / экспорт */
+.cio-pop{position:fixed;z-index:9000;min-width:240px;display:flex;flex-direction:column;padding:6px;border-radius:12px;background:var(--panel,#171b2b);border:1px solid var(--line);box-shadow:0 20px 50px -10px rgba(0,0,0,.7)}
+.cio-pop button{text-align:left;padding:8px 10px;border:0;border-radius:8px;background:none;color:var(--text);cursor:pointer;font:inherit;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cio-pop button:hover{background:rgba(255,255,255,.06)}
+.cio-sep{height:1px;background:var(--line);margin:4px 6px}
+.imp-w{max-height:50vh;overflow:auto;font-size:13px}.imp-w ul{margin:4px 0 10px 18px;color:var(--muted)}

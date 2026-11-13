@@ -243,7 +243,7 @@ const ownerName=(c,mem)=>c.npc?'Персонаж мастера':c.owner_id?(c.o
 /* ---------- вкладка «Персонажи» ---------- */
 async function renderCharsTab(main,pid,isM){
   const S=App.chars;
-  main.innerHTML=`<div class="chars"><aside class="clist"><div class="clist-h"><b>Персонажи</b><button class="btn primary sm" data-new>+ Создать</button></div><div class="cl"></div></aside><section class="csheet"></section></div>`;
+  main.innerHTML=`<div class="chars"><aside class="clist"><div class="clist-h"><b>Персонажи</b><span style="display:flex;gap:6px"><button class="btn sm" data-io title="Импорт, экспорт и шаблон персонажа">⇅</button><button class="btn primary sm" data-new>+ Создать</button></span></div><div class="cl"></div></aside><section class="csheet"></section></div>`;
   const cl=$('.cl',main),cs=$('.csheet',main);let cur=LS.get('rpa_char_'+pid);let mem=isM?await API.members(pid).catch(()=>[]):[];
   const drawList=()=>{
     const L=S.list;if(cur&&!S.get(cur))cur=null;if(!cur&&L.length)cur=(S.mine()[0]||L[0]).id;
@@ -253,6 +253,7 @@ async function renderCharsTab(main,pid,isM){
   const drawSheet=()=>{const c=cur&&S.get(cur);if(!c){cs.innerHTML=`<div class="soon"><div class="panel"><div class="ic">🧛</div><h2>Персонажи</h2><p class="muted">${isM?'Создайте персонажа и назначьте его игроку — или дайте игрокам создать своих. Лист один на двоих: правки игрока сразу видит мастер, а мастер может поправить что угодно.':'Создайте персонажа по правилам Vampire: The Masquerade V5. Мастер увидит лист и сможет его поправить.'}</p><button class="btn primary" data-new>+ Создать персонажа</button></div></div>`;cs.querySelector('[data-new]').onclick=()=>openCharWizard(pid,isM,mem);return}
     renderSheet(cs,c,isM,mem)};
   cl.onclick=e=>{const it=e.target.closest('.cli');if(!it)return;cur=it.dataset.id;LS.set('rpa_char_'+pid,cur);drawList();drawSheet()};
+  main.querySelector('[data-io]').onclick=e=>charIOMenu(e.currentTarget,pid,isM,cur,c=>{if(c){cur=c.id;LS.set('rpa_char_'+pid,cur)}drawList();drawSheet()});
   main.querySelector('[data-new]').onclick=()=>openCharWizard(pid,isM,mem,c=>{cur=c.id;LS.set('rpa_char_'+pid,cur);drawList();drawSheet()});
   let pend=false;
   const off=S.on(id=>{drawList();if(!id||id===cur){const a=document.activeElement;if(a&&cs.contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){if(!pend){pend=true;a.addEventListener('blur',()=>{pend=false;setTimeout(()=>{if(cs.isConnected){drawList();drawSheet()}},50)},{once:true})}}else drawSheet()}});
@@ -635,4 +636,121 @@ async function openSheetModal(id){
   document.addEventListener('keydown',key);
   ['pointerdown','wheel','keydown'].forEach(t=>ov.addEventListener(t,e=>e.stopPropagation()));
   draw();
+}
+
+/* ---------- импорт / экспорт персонажей ---------- */
+const CH_EN={attr:{str:'Strength',dex:'Dexterity',sta:'Stamina',cha:'Charisma',man:'Manipulation',com:'Composure',int:'Intelligence',wit:'Wits',res:'Resolve'},
+  skill:{athletics:'Athletics',brawl:'Brawl',craft:'Craft',drive:'Drive',firearms:'Firearms',larceny:'Larceny',melee:'Melee',stealth:'Stealth',survival:'Survival',animalken:'Animal Ken',etiquette:'Etiquette',insight:'Insight',intimidation:'Intimidation',leadership:'Leadership',performance:'Performance',persuasion:'Persuasion',streetwise:'Streetwise',subterfuge:'Subterfuge',academics:'Academics',awareness:'Awareness',finance:'Finance',investigation:'Investigation',medicine:'Medicine',occult:'Occult',politics:'Politics',science:'Science',technology:'Technology'},
+  clan:{brujah:'Brujah',gangrel:'Gangrel',malkavian:'Malkavian',nosferatu:'Nosferatu',toreador:'Toreador',tremere:'Tremere',ventrue:'Ventrue',banuhaqim:'Banu Haqim',ministry:'The Ministry',lasombra:'Lasombra',hecata:'Hecata',ravnos:'Ravnos',salubri:'Salubri',tzimisce:'Tzimisce',caitiff:'Caitiff',thinblood:'Thin-blood'},
+  age:{childer:'Childer',neonate:'Neonate',ancilla:'Ancilla',elder:'Elder',methuselah:'Methuselah'}};
+const nrm=s=>String(s??'').toLowerCase().replace(/ё/g,'е').replace(/^the\s+/,'').replace(/[^a-zа-я0-9]+/g,'');
+/* словари «любое написание → id» */
+let _chIdx=null;
+function chIdx(){if(_chIdx)return _chIdx;const mk=()=>new Map(),I={attr:mk(),skill:mk(),disc:mk(),clan:mk(),pred:mk(),power:mk(),rite:mk(),merit:mk(),age:mk()};
+  const put=(m,id,...names)=>{for(const n of [id,...names])if(n)m.set(nrm(n),id)};
+  for(const [k,n] of Object.entries(VTM.ATTR_NAME))put(I.attr,k,n,CH_EN.attr[k]);
+  for(const [k,n] of Object.entries(VTM.SKILL_NAME))put(I.skill,k,n,CH_EN.skill[k]);
+  for(const [k,n] of Object.entries(VTM.DISC))put(I.disc,k,n,VTM.DISC_EN[k]);
+  for(const [k,c] of Object.entries(VTM.CLANS))put(I.clan,k,c.n,CH_EN.clan[k]);put(I.clan,'ministry','Ministry','Министерство Сета','Последователи Сета','Setite');
+  for(const [k,p] of Object.entries(VTM.PREDATORS))put(I.pred,k,p.n,p.en);
+  for(const p of Object.values(VTM.POWER))if(p)put(I.power,p.id,p.n,p.en);
+  for(const r of Object.values(VTM.RITE))put(I.rite,r.id,r.n,r.en);
+  for(const m of VTM.MERITS)put(I.merit,m.n,m.n,m.en);
+  for(const [k,a] of Object.entries(VTM.AGES))put(I.age,k,a.n,CH_EN.age[k],CH_EN.age[k]+'s',CH_EN.age[k]==='Ancilla'?'Ancillae':'');
+  return _chIdx=I}
+const EN=()=>typeof I18N!=='undefined'&&I18N.lang==='en';
+/* персонаж → понятный JSON (названия на текущем языке) + точная копия данных */
+function charToJSON(c){const d={...VTM.blank(),...c.data},en=EN();
+  const A=k=>en?CH_EN.attr[k]:VTM.ATTR_NAME[k],Sk=k=>en?CH_EN.skill[k]:VTM.SKILL_NAME[k],Dn=k=>en?VTM.DISC_EN[k]:VTM.DISC[k];
+  const o={format:'rpassistant-character',version:1,system:'vtm5',
+    name:c.name||d.name,concept:d.concept,clan:VTM.CLANS[d.clan]?(en?CH_EN.clan[d.clan]:VTM.CLANS[d.clan].n):'',predator:VTM.PREDATORS[d.predator]?(en?VTM.PREDATORS[d.predator].en:VTM.PREDATORS[d.predator].n):'',
+    generation:+d.gen,blood_potency:+d.bp,age:VTM.AGES[d.age]?(en?CH_EN.age[d.age]:VTM.AGES[d.age].n):'',sire:d.sire,chronicle:d.chronicle,ambition:d.ambition,desire:d.desire,
+    attributes:Object.fromEntries(Object.keys(VTM.ATTR_NAME).map(k=>[A(k),+(d.attr?.[k]||1)])),
+    skills:Object.fromEntries(Object.keys(VTM.SKILL_NAME).filter(k=>d.skills?.[k]).map(k=>[Sk(k),+d.skills[k]])),
+    specialties:Object.fromEntries(Object.entries(d.spec||{}).filter(([k,v])=>v&&VTM.SKILL_NAME[k]).map(([k,v])=>[Sk(k),v])),
+    disciplines:Object.fromEntries(Object.entries(d.disc||{}).filter(([k,v])=>v&&VTM.DISC[k]).map(([k,v])=>[Dn(k),+v])),
+    powers:(d.powers||[]).map(id=>VTM.POWER[id]).filter(Boolean).map(p=>en?p.en:p.n),
+    rituals:(d.rites||[]).map(id=>VTM.RITE[id]).filter(Boolean).map(r=>en?r.en:r.n),
+    merits:(d.adv||[]).map(a=>({name:en&&VTM.MERIT[a.n]?VTM.MERIT[a.n].en:a.n,dots:+a.dots||1,flaw:!!a.flaw,...(a.note?{note:a.note}:{})})),
+    convictions:(d.conv||[]).map(v=>({conviction:v.c,touchstone:v.t})),
+    humanity:+d.humanity,stains:+d.stains||0,skill_spread:d.spread||'balanced',hunger:+d.hunger,health:d.health,willpower:d.wp,xp:d.xp,max_dots:VTM.cap(d),notes:d.notes,portrait:d.portrait||'',icon:d.icon||'',token_color:d.tcolor||''};
+  return o}
+/* понятный JSON → данные листа; warn собирает нераспознанное */
+function jsonToChar(o,warn){
+  if(o&&o._data&&typeof o._data==='object'){const d={...VTM.blank(),...o._data};if(o.name)d.name=o.name;return d}
+  const I=chIdx(),d=VTM.blank(),W=(what,v)=>warn.push(`${what}: «${v}»`);
+  const id=(m,v,what)=>{if(v==null||v==='')return '';const r=m.get(nrm(v));if(!r)W(what,v);return r||''};
+  d.name=String(o.name||'').trim()||'Безымянный';d.concept=o.concept||'';d.sire=o.sire||'';d.chronicle=o.chronicle||'';d.ambition=o.ambition||'';d.desire=o.desire||'';d.notes=o.notes||'';
+  d.clan=id(I.clan,o.clan,'клан');d.predator=id(I.pred,o.predator,'стиль охоты');const ag=id(I.age,o.age,'возраст');if(ag)d.age=ag;
+  if(o.generation)d.gen=Math.max(4,Math.min(16,parseInt(o.generation)||13));if(o.blood_potency!=null)d.bp=Math.max(0,Math.min(10,+o.blood_potency||0));
+  if(o.max_dots)d.cap=Math.max(5,Math.min(10,+o.max_dots));
+  for(const [k,v] of Object.entries(o.attributes||{})){const a=id(I.attr,k,'атрибут');if(a)d.attr[a]=Math.max(0,Math.min(10,+v||0))}
+  for(const [k,v] of Object.entries(o.skills||{})){const a=id(I.skill,k,'навык');if(a&&+v)d.skills[a]=Math.max(0,Math.min(10,+v))}
+  for(const [k,v] of Object.entries(o.specialties||{})){const a=id(I.skill,k,'специализация для навыка');if(a&&v)d.spec[a]=String(v)}
+  for(const [k,v] of Object.entries(o.disciplines||{})){const a=id(I.disc,k,'дисциплина');if(a&&+v)d.disc[a]=Math.max(0,Math.min(10,+v))}
+  for(const p of o.powers||[]){const a=id(I.power,p,'сила');if(a&&!d.powers.includes(a))d.powers.push(a)}
+  for(const p of o.rituals||[]){const a=id(I.rite,p,'ритуал');if(a&&!d.rites.includes(a))d.rites.push(a)}
+  for(const m of o.merits||[]){const name=typeof m==='string'?m:m.name;if(!name)continue;const k=I.merit.get(nrm(name));const cat=k&&VTM.MERIT[k];
+    d.adv.push({n:k||String(name),dots:Math.max(1,Math.min(6,+(m.dots||1))),flaw:cat?cat.flaw:!!m.flaw,...(m.note?{note:String(m.note)}:{})})}
+  d.conv=(o.convictions||[]).slice(0,3).map(v=>typeof v==='string'?{c:v,t:''}:{c:v.conviction||v.c||'',t:v.touchstone||v.t||''});
+  if(o.humanity!=null)d.humanity=Math.max(0,Math.min(10,+o.humanity));if(o.stains!=null)d.stains=+o.stains||0;if(o.hunger!=null)d.hunger=Math.max(0,Math.min(5,+o.hunger));
+  if(o.health&&typeof o.health==='object')d.health={s:+o.health.s||0,a:+o.health.a||0};if(o.willpower&&typeof o.willpower==='object')d.wp={s:+o.willpower.s||0,a:+o.willpower.a||0};
+  if(o.xp&&typeof o.xp==='object')d.xp={total:+o.xp.total||0,spent:+o.xp.spent||0};
+  if(o.skill_spread&&VTM.SKILL_SPREADS[o.skill_spread])d.spread=o.skill_spread;
+  if(o.portrait)d.portrait=String(o.portrait);if(o.icon)d.icon=String(o.icon);if(o.token_color)d.tcolor=String(o.token_color);
+  return d}
+const fileName=s=>String(s||'character').replace(/[\\/:*?"<>|]+/g,'_').slice(0,60);
+function exportChars(list){if(!list.length)return toast('Нет персонажей для экспорта','err');
+  const arr=list.map(charToJSON);
+  if(arr.length===1)download(`${fileName(arr[0].name)}.character.json`,JSON.stringify(arr[0],null,2));
+  else download(`characters-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({format:'rpassistant-characters',version:1,characters:arr},null,2));
+  toast(arr.length===1?'Персонаж сохранён в файл':`Сохранено персонажей: ${arr.length}`)}
+function charTemplate(){const en=EN();
+  const ex=en?{name:'Marcus Vale',concept:'Bitter ex-boxer turned debt collector',clan:'Brujah',predator:'Alleycat',generation:12,blood_potency:1,age:'Neonate',sire:'Rosa “Red” Delgado',chronicle:'',ambition:'Own the club where I was Embraced',desire:'Make the bouncer apologise',
+      attributes:{Strength:4,Dexterity:3,Stamina:3,Charisma:2,Manipulation:2,Composure:2,Intelligence:1,Wits:3,Resolve:2},skills:{Athletics:2,Brawl:3,Intimidation:3,Streetwise:2,Drive:1,Firearms:1,Insight:1,Persuasion:2,Awareness:2,Leadership:1,Subterfuge:1,Investigation:1,Etiquette:1,Larceny:1,Stealth:1},specialties:{Brawl:'Grappling',Intimidation:'Mugging'},
+      disciplines:{Potence:2,Celerity:1,Presence:1},powers:['Lethal Body','Prowess','Cat\'s Grace','Awe'],rituals:[],merits:[{name:'Contacts',dots:3,note:'criminal'},{name:'Resources',dots:2},{name:'Haven',dots:2},{name:'Enemy',dots:2,flaw:true}],
+      convictions:[{conviction:'Never hit someone who can\'t hit back',touchstone:'Leo, his kid brother'}],humanity:6,hunger:1,xp:{total:15,spent:0},notes:'',portrait:'',icon:'🥊',token_color:'#ef4444'}
+    :{name:'Марк Вейл',concept:'Озлобленный бывший боксёр, выбивающий долги',clan:'Бруха',predator:'Налётчик',generation:12,blood_potency:1,age:'Неонаты',sire:'Роза «Рыжая» Дельгадо',chronicle:'',ambition:'Стать хозяином клуба, где меня обратили',desire:'Заставить вышибалу извиниться',
+      attributes:{'Сила':4,'Ловкость':3,'Выносливость':3,'Обаяние':2,'Манипуляция':2,'Самообладание':2,'Интеллект':1,'Смекалка':3,'Упорство':2},skills:{'Атлетика':2,'Драка':3,'Запугивание':3,'Уличное чутьё':2,'Вождение':1,'Стрельба':1,'Проницательность':1,'Убеждение':2,'Наблюдательность':2,'Лидерство':1,'Хитрость':1,'Расследование':1,'Этикет':1,'Воровство':1,'Скрытность':1},specialties:{'Драка':'Захваты','Запугивание':'Грабёж'},
+      disciplines:{'Мощь':2,'Стремительность':1,'Величие':1},powers:['Смертоносность','Сокрушение','Кошачья грация','Благоговение'],rituals:[],merits:[{name:'Контакты',dots:3,note:'преступный мир'},{name:'Ресурсы',dots:2},{name:'Убежище',dots:2},{name:'Враг',dots:2,flaw:true}],
+      convictions:[{conviction:'Никогда не бить тех, кто не может ответить',touchstone:'Лео, младший брат'}],humanity:6,hunger:1,xp:{total:15,spent:0},notes:'',portrait:'',icon:'🥊',token_color:'#ef4444'};
+  const help=en?['RPAssistant character template (Vampire: The Masquerade V5). Fill in the fields and import the file in the Characters tab → ⇅ → Import.',
+      'Names of clans, attributes, skills, Disciplines, powers, rituals, merits and Predator Types can be written in English or Russian, any case.',
+      'Leave out what you do not need. Skills with 0 dots can be omitted. "merits": flaw true for flaws; "note" for repeatable ones (Allies, Contacts).',
+      'age: Childer, Neonate, Ancilla, Elder, Methuselah. generation: 4–16. blood_potency: 0–10. icon: an emoji for the map token. max_dots: 5 (official) – 10.',
+      'Several characters in one file: {"characters": [ {...}, {...} ]}.']
+    :['Шаблон персонажа RPAssistant (Vampire: The Masquerade V5). Заполните поля и импортируйте файл во вкладке «Персонажи» → ⇅ → «Импорт».',
+      'Названия кланов, атрибутов, навыков, дисциплин, сил, ритуалов, достоинств и стилей охоты можно писать по-русски или по-английски, регистр не важен.',
+      'Ненужное можно удалить. Навыки с 0 точек можно не писать. В «merits»: flaw: true — недостаток; note — уточнение для повторяемых (Союзники, Контакты).',
+      'age: Птенцы, Неонаты, Анциллы, Старейшины, Мафусаилы. generation: 4–16. blood_potency: 0–10. icon: эмодзи для фишки на карте. max_dots: 5 (официально) – 10.',
+      'Несколько персонажей в одном файле: {"characters": [ {...}, {...} ]}.'];
+  download(en?'character-template.json':'шаблон-персонажа.json',JSON.stringify({_help:help,format:'rpassistant-character',version:1,system:'vtm5',...ex},null,2));
+}
+function importChars(pid,isM,done){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.multiple=true;
+  inp.onchange=async()=>{const objs=[],bad=[];
+    for(const f of inp.files){try{const j=JSON.parse(await f.text());const list=Array.isArray(j)?j:Array.isArray(j.characters)?j.characters:[j];list.forEach(x=>objs.push(x))}catch(_){bad.push(f.name)}}
+    if(bad.length)toast('Не удалось прочитать: '+bad.join(', '),'err');if(!objs.length)return;
+    const made=[],warns=[];
+    for(const o of objs){if(!o||typeof o!=='object')continue;const w=[];const data=jsonToChar(o,w);
+      const c=await App.chars.create(data,{owner:isM?null:App.user.id,npc:false});if(c){made.push(c);if(w.length)warns.push([c.name,w])}}
+    if(!made.length)return;
+    if(warns.length){const {el,close}=openModal(`<h3>Импортировано: ${made.length}</h3><p class="muted" style="font-size:13px">Часть названий не распознана — проверьте эти места в листе:</p>
+      <div class="imp-w">${warns.map(([n,w])=>`<div><b>${esc(n)}</b><ul>${w.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div><div class="modal-actions"><button class="btn primary" data-close>Понятно</button></div>`);
+      el.querySelector('[data-close]').onclick=close}
+    else toast(made.length===1?`Персонаж «${made[0].name}» импортирован`:`Импортировано персонажей: ${made.length}`);
+    done?.(made[0]);
+  };
+  inp.click();
+}
+function charIOMenu(btn,pid,isM,cur,done){
+  document.querySelector('.cio-pop')?.remove();const S=App.chars;
+  const mine=isM?S.list:S.mine();const c=cur&&S.get(cur);
+  const pop=document.createElement('div');pop.className='cio-pop';
+  pop.innerHTML=`${c&&(isM||c.owner_id===App.user.id)?`<button data-e1>⬇ Экспорт: ${esc(c.name)}</button>`:''}${mine.length>1?`<button data-ea>⬇ Экспорт всех (${mine.length})</button>`:''}
+    <button data-i>⬆ Импорт из файла…</button><div class="cio-sep"></div><button data-t>📄 Скачать шаблон</button>`;
+  document.body.appendChild(pop);const r=btn.getBoundingClientRect();pop.style.left=Math.min(r.left,innerWidth-260)+'px';pop.style.top=(r.bottom+6)+'px';
+  pop.onclick=e=>{const b=e.target.closest('button');if(!b)return;pop.remove();
+    if(b.dataset.e1!==undefined)exportChars([c]);if(b.dataset.ea!==undefined)exportChars(mine);if(b.dataset.i!==undefined)importChars(pid,isM,done);if(b.dataset.t!==undefined)charTemplate()};
+  setTimeout(()=>document.addEventListener('pointerdown',function h(e){if(!pop.contains(e.target)){pop.remove();document.removeEventListener('pointerdown',h)}}),0);
 }
