@@ -49,6 +49,7 @@ async function renderSessionsTab(main,pid,isM){
   const body=$('.ss-body',main);let list=[],plans={};
   const load=async()=>{
     const {data,error}=await sb.from('game_sessions').select('id,project_id,title,starts_at,duration_min,announce,summary,status,started_at,ended_at').eq('project_id',pid).order('starts_at',{ascending:true,nullsFirst:false});
+    if(error&&/game_sessions|42P01|PGRST205|schema cache/i.test((error.message||'')+(error.code||''))){body.innerHTML=`<div class="ss-empty">${isM?'Сессии появятся после обновления базы данных: нужно один раз выполнить <b>supabase/007_sessions.sql</b> в Supabase → SQL Editor.':'Мастер ещё настраивает сессии — загляните чуть позже.'}</div>`;return}
     if(fail(error))return;list=data||[];
     if(isM){const {data:pl}=await sb.from('session_gm_notes').select('session_id,plan').eq('project_id',pid);plans=Object.fromEntries((pl||[]).map(x=>[x.session_id,x.plan]))}
     draw();
