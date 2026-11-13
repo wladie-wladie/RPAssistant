@@ -3,9 +3,12 @@
 
 /* ---------- вкладка персонажей ---------- */
 .chars{display:flex;flex:1;min-height:0;height:100%}
-.clist{width:270px;flex:none;border-right:1px solid var(--line);display:flex;flex-direction:column;background:var(--panel)}
-.clist-h{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}
-.clist-h b{font-family:var(--serif);font-size:20px}
+.clist{width:310px;flex:none;border-right:1px solid var(--line);display:flex;flex-direction:column;background:var(--panel)}
+.clist-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 10px;min-width:0}
+.clist-h>span{flex:none;display:flex;gap:5px}
+.clist-h>span .btn.sm{height:32px;padding:0 10px;white-space:nowrap}
+.clist-h>span .btn.sm:not(.primary){width:34px;padding:0;justify-content:center}
+.clist-h b{font-family:var(--serif);font-size:19px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cl{overflow:auto;flex:1;padding:0 8px 12px}
 .cli{display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:10px;cursor:pointer;transition:background .15s}
 .cli:hover{background:var(--panel2)}.cli.on{background:color-mix(in srgb,var(--blood) 22%,var(--panel2));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--blood) 50%,transparent)}
