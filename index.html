@@ -975,7 +975,7 @@ async function renderProject(pid,tab='board'){
   if(!App.chat||App.chat.pid!==pid){if(App.chat)App.chat.destroy();App.chat=new ChatHub(pid,isM)}
   if(!App.sess||App.sess.pid!==pid){if(App.sess)App.sess.destroy();App.sess=new SessionHub(pid,isM);App.sess.on(()=>drawLivePill())}
   root().innerHTML=headerHTML(`<div class="crumb"><button class="btn ghost sm" data-back>← Проекты</button><span class="pt" title="${esc(p.title)}">${esc(p.title)}</span><span class="sys">${esc(sysName(p))}</span></div>
-    <div class="livepill" hidden></div><div class="spacer"></div><div class="mdock" hidden></div><button class="btn ghost sm fsbtn" data-fs title="Полный экран"></button>${isM?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
+    <div class="livepill" hidden></div><div class="spacer"></div><div class="mdock" hidden></div><button class="btn ghost sm fsbtn" data-fs title="Полный экран"></button>${isM?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab||(tab==='stage'&&k==='sessions')?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
   if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,isM&&tab!=='music'?()=>go('project',pid,'music'):null);
   $('.hdr [data-fs]').innerHTML=FS.icon();$('.hdr [data-fs]').onclick=()=>FS.toggle();drawLivePill();
   if(isM)$('[data-invite]').onclick=()=>inviteModal(p);

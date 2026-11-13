@@ -193,7 +193,7 @@ async function renderStage(main,pid,isM,p){
         <button class="tg ${o.chars?'on':''}" data-ov="chars" title="Панель персонажа у игроков (броски и силы)">🧛</button>
         <button class="tg ${o.dice?'on':''}" data-ov="dice" title="Журнал бросков у игроков">🎲</button></span>
       <span class="sc-g"><button data-music class="${$('.st-mus')&&!$('.st-mus').hidden?'on':''}" title="Музыка, атмосфера и эффекты">🎵</button></span>
-      <span class="sc-g"><button data-proj title="Вкладки проекта — сессия продолжится">☰ Проект</button><button class="end" data-endsess title="Завершить сессию">■ Завершить</button><button data-collapse title="Свернуть панель">▴</button></span>`;
+      <span class="sc-g"><button class="end" data-endsess title="Завершить сессию">■ Завершить</button><button data-collapse title="Свернуть панель">▴</button></span>`;
   };
   const applyAll=()=>{applyBg();applyOverlays();mountScene();drawCtrl()};
   if(isM&&LS.get('rpa_stmus')==='1')setTimeout(()=>{toggleStageMusic(stEl,true);drawCtrl()},0);

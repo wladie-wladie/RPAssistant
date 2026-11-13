@@ -26,8 +26,11 @@
 .ssf textarea{width:100%;resize:vertical;line-height:1.5}
 
 /* режим экрана сессии: без шапки и вкладок */
-body.in-stage .hdr,body.in-stage .ptabs{display:none}
-body.in-stage .pmain{position:fixed;inset:0;z-index:50}
+/* игрок — экран сессии целиком; мастер — в рабочей области под вкладками, чтобы переключаться */
+body.in-stage.stage-player .hdr,body.in-stage.stage-player .ptabs{display:none}
+body.in-stage.stage-player .pmain{position:fixed;inset:0;z-index:50}
+body.in-stage:not(.stage-player) .pmain{overflow:hidden}
+:fullscreen body.in-stage .hdr{}
 body.stage-nodice .dicelog{display:none}
 .stage{position:absolute;inset:0;overflow:hidden;background:#0b0c12}
 .st-bg{position:absolute;inset:0;background:#14161f;background-size:cover!important;background-position:center!important;transition:background .4s}
