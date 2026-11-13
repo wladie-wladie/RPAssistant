@@ -485,6 +485,8 @@ body.lang-en .en{display:none!important}
 
 /* значок фишки персонажа (эмодзи) */
 .tok .tk-c.emo{font-size:calc(var(--sz,60px)*.5)}
+.tk-n.hidn{background:rgba(90,40,120,.85)}
+.tp-rev{display:flex;flex-direction:column;gap:4px;margin:-4px 0 12px}
 </style>
 <link rel="stylesheet" href="chars.css">
 <link rel="stylesheet" href="sessions.css">
@@ -2494,7 +2496,7 @@ class MapView{
   }
   saveFog(){clearTimeout(this.fogT);this.fogT=setTimeout(async()=>{const {error}=await sb.from('maps').update({fog:this.fog,client:CLIENT_ID,updated_at:new Date().toISOString()}).eq('id',this.map.id);if(error)fail(error)},300)}
   async saveSettings(patch){
-    Object.assign(this.S,patch);this.renderLayers();this.renderHead();
+    Object.assign(this.S,patch);this.renderLayers();this.renderHead();this.renderTokens();
     const {error}=await sb.from('maps').update({settings:this.S,client:CLIENT_ID,updated_at:new Date().toISOString()}).eq('id',this.map.id);if(error)fail(error);
   }
 
@@ -2643,6 +2645,11 @@ class MapView{
   /* ---------- фишки ---------- */
   async loadTokens(){const {data,error}=await sb.from('map_tokens').select('*').eq('map_id',this.map.id);if(!error){this.tokens=new Map((data||[]).map(t=>[t.id,t]));this.renderTokens()}}
   /* персонаж фишки: явная привязка или единственный персонаж владельца */
+  /* имя фишки с учётом «до знакомства»: у привязанного персонажа — его alias, у простой фишки — из настроек карты */
+  tokName(t,ch){
+    if(ch){const hid=typeof charHidden==='function'&&charHidden(ch);const real=ch.name||t.name;return {name:hid&&!this.canEdit&&ch.owner_id!==this.me.id?charPubName(ch):real,hidden:hid,pub:hid?charPubName(ch):''}}
+    const a=this.S.tokAlias?.[t.id],hid=!!(a&&a.alias&&String(a.alias).trim()&&!a.revealed);
+    return {name:hid&&!this.canEdit&&t.owner_id!==this.me.id?String(a.alias).trim():t.name,hidden:hid,pub:hid?String(a.alias).trim():''}}
   charOf(t){const S=App.chars;if(!S)return null;if(t.character_id)return S.get(t.character_id)||null;if(!t.owner_id)return null;const own=S.list.filter(c=>c.owner_id===t.owner_id);return own.length===1?own[0]:null}
   canMove(t){return this.canEdit||(t.owner_id===this.me.id&&this.map.shared)}
   renderTokens(){
@@ -2656,11 +2663,11 @@ class MapView{
       el.className='tok'+(mine?' mine':'')+(t.hidden?' hid':'')+(this.selTok===t.id?' sel':'')+(this.canMove(t)?' movable':'');
       const ch=this.charOf(t),lk=ch&&!t.img&&typeof charLook==='function'?charLook(ch):null;
       if(lk&&lk.color)el.style.setProperty('--tc',lk.color);
-      const nm=lk?lk.name||t.name:t.name;
+      const nm0=this.tokName(t,ch);const nm=nm0.name;
       const ini=(nm||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
       const hp=t.hp_max?`<div class="tk-hp"><i style="width:${clamp((t.hp??t.hp_max)/t.hp_max*100,0,100)}%"></i></div>`:'';
       const img=t.img||lk?.img;
-      const html=`<div class="tk-c ${lk?.emoji&&!img?'emo':''}" style="${img?`background-image:url('${esc(img)}')`:''}">${img?'':lk?.emoji?lk.emoji:esc(ini)}</div>${hp}${nm?`<div class="tk-n">${esc(nm)}</div>`:''}`;
+      const html=`<div class="tk-c ${lk?.emoji&&!img?'emo':''}" style="${img?`background-image:url('${esc(img)}')`:''}">${img?'':lk?.emoji?lk.emoji:esc(ini)}</div>${hp}${nm?`<div class="tk-n ${nm0.hidden?'hidn':''}" ${nm0.hidden&&this.canEdit?`title="Игроки видят: ${esc(nm0.pub)}"`:''}>${nm0.hidden&&this.canEdit?'🙈 ':''}${esc(nm)}</div>`:''}`;
       if(el._h!==html){el.innerHTML=html;el._h=html}
     }
   }
@@ -2699,11 +2706,16 @@ class MapView{
   }
   async openTokenPanel(id){
     const t=this.tokens.get(id);if(!t)return;this.selTok=id;this.renderTokens();
+    const linked=t.character_id?App.chars?.get(t.character_id):null;
+    const al=linked?{alias:linked.data.alias||'',revealed:!!linked.data.revealed}:(this.S.tokAlias?.[t.id]||{alias:'',revealed:false});
+    const setAl=p=>{if(linked)App.chars.patch(linked.id,p).then(()=>this.openTokenPanel(t.id));else{const m={...(this.S.tokAlias||{})};m[t.id]={...al,...p};this.saveSettings({tokAlias:m}).then(()=>this.openTokenPanel(t.id))}};
     const mem=await this.ctx.members();
     const P=this.panel;P.hidden=false;
     P.innerHTML=`<div class="tp-h"><b>Фишка</b><button class="tic" data-x title="Закрыть">×</button></div>
       ${App.chars?.list.length?`<label class="f">Персонаж<select name="char"><option value="">— не привязана —</option>${App.chars.list.map(c=>`<option value="${c.id}" ${(t.character_id||this.charOf(t)?.id)===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select><small class="muted" style="font-size:11.5px">Фишка возьмёт портрет или значок персонажа</small></label>`:''}
-      <label class="f">Имя<input name="name" value="${esc(t.name)}" maxlength="40"></label>
+      <label class="f">Имя${linked?' <small class="muted">(настоящее)</small>':''}<input name="name" value="${esc(linked?linked.name:t.name)}" maxlength="40" ${linked?'readonly title="Имя берётся из листа персонажа"':''}></label>
+      <label class="f">Для игроков (до знакомства)<input name="alias" value="${esc(al.alias||'')}" maxlength="60" placeholder="Например: Незнакомец в плаще"></label>
+      ${al.alias&&String(al.alias).trim()?`<div class="tp-rev"><button class="btn sm ${al.revealed?'':'primary'}" data-reveal>${al.revealed?'🙈 Скрыть имя':'👁 Открыть имя игрокам'}</button><small class="muted">${al.revealed?'игроки видят настоящее имя':'игроки видят «'+esc(String(al.alias).trim())+'»'}</small></div>`:'<small class="muted" style="display:block;margin:-6px 0 10px;font-size:11.5px">Пусто — игроки сразу видят настоящее имя</small>'}
       <div class="f">Цвет<div class="colors sm">${TOKEN_COLORS.map(c=>`<button type="button" data-col="${c}" class="${c===t.color?'on':''}" style="background:${c}"></button>`).join('')}</div></div>
       <div class="f">Портрет<div class="row-g"><label class="btn sm">${t.img?'Заменить':'Загрузить'}<input type="file" accept="image/*" hidden data-img></label>${t.img?'<button class="btn sm ghost" data-noimg>Убрать</button>':''}</div></div>
       <label class="f">Размер<select name="size">${[[.5,'Крошечный (½ клетки)'],[1,'Средний (1 клетка)'],[2,'Большой (2×2)'],[3,'Огромный (3×3)'],[4,'Громадный (4×4)']].map(([v,n])=>`<option value="${v}" ${+t.size===v?'selected':''}>${n}</option>`).join('')}</select></label>
@@ -2714,7 +2726,9 @@ class MapView{
     const upd=async patch=>{Object.assign(t,patch);this.renderTokens();const {error}=await sb.from('map_tokens').update({...patch,client:CLIENT_ID,updated_at:new Date().toISOString()}).eq('id',t.id);if(error)fail(error);if('hidden' in patch&&patch.hidden)this.ch?.send({type:'broadcast',event:'tokgone',payload:{id:t.id}})};
     const q=s=>$(s,P);
     q('[data-x]').onclick=()=>this.closeTokenPanel();
-    q('[name=name]').onchange=e=>upd({name:e.target.value.trim()});
+    q('[name=name]').onchange=e=>{if(!linked)upd({name:e.target.value.trim()})};
+    q('[name=alias]').onchange=e=>setAl({alias:e.target.value.trim()});
+    q('[data-reveal]')?.addEventListener('click',()=>setAl({revealed:!al.revealed}));
     q('[name=char]')?.addEventListener('change',e=>{const ch=App.chars.get(e.target.value);upd({character_id:e.target.value||null,...(ch?{name:ch.name,owner_id:ch.owner_id||t.owner_id}:{})}).then(()=>this.openTokenPanel(t.id))});
     $$('[data-col]',P).forEach(b=>b.onclick=()=>{upd({color:b.dataset.col});$$('[data-col]',P).forEach(x=>x.classList.toggle('on',x===b))});
     q('[name=size]').onchange=e=>{const s=+e.target.value,sp=this.snapToken(t.x,t.y,s);upd({size:s,x:sp.x,y:sp.y})};
@@ -2758,7 +2772,7 @@ class MapView{
       .on('postgres_changes',{event:'UPDATE',schema:'public',table:'maps',filter:`id=eq.${id}`},pl=>{
         const r=pl.new;if(!r||r.client===CLIENT_ID)return;
         if(r.items)this.board.applyRemote(r.items);
-        if(JSON.stringify(r.settings)!==JSON.stringify(this.S)){this.S=normSettings(r.settings);this.renderLayers()}
+        if(JSON.stringify(r.settings)!==JSON.stringify(this.S)){this.S=normSettings(r.settings);this.renderLayers();this.renderTokens()}
         if(r.fog&&JSON.stringify(r.fog)!==JSON.stringify(this.fog)){this.fog=r.fog;this.renderFog()}
         this.map.name=r.name;this.map.shared=r.shared;this.renderHead();
       })

@@ -74,12 +74,16 @@ function poolOf(c,a,b,{mods=0,spec=false,surge=false}={}){
   return {n:Math.max(1,n),parts};
 }
 
+/* имя «до знакомства»: пока мастер не открыл имя, игроки видят только alias */
+function charHidden(c){const d=c?.data||{};return !!(d.alias&&String(d.alias).trim()&&!d.revealed)}
+function charPubName(c){return charHidden(c)?String(c.data.alias).trim():(c?.name||'')}
+function charName(c){if(!c)return '';const S=App.chars;if(!charHidden(c)||S?.isM||c.owner_id===App.user?.id)return c.name;return charPubName(c)}
 async function rouseCheck(c,{times=1,level=0,why='Бросок на голод'}={}){
   const S=App.chars;const d=c.data;let hunger=+d.hunger||0;const res=[];const canRe=level&&level<=VTM.bpRow(d)[3];
-  if(hunger>=5){toast('Голод 5 — вампир не может пробудить кровь. Это грозит безумием голода.','err');await S.postRoll({type:'rouse',label:why,char:c.name,dice:[],hungerFrom:5,hungerTo:5,blocked:true},{charId:c.id});return false}
+  if(hunger>=5){toast('Голод 5 — вампир не может пробудить кровь. Это грозит безумием голода.','err');await S.postRoll({type:'rouse',label:why,char:charPubName(c),dice:[],hungerFrom:5,hungerTo:5,blocked:true},{charId:c.id});return false}
   for(let i=0;i<times;i++){let v=VTM.d10(),v2=null;if(v<6&&canRe){v2=VTM.d10();}const ok=v>=6||(v2!==null&&v2>=6);res.push({v,v2,ok});if(!ok)hunger=Math.min(5,hunger+1)}
   const from=+d.hunger||0;if(hunger!==from)await S.patch(c.id,{hunger});
-  await S.postRoll({type:'rouse',label:why,char:c.name,dice:res,hungerFrom:from,hungerTo:hunger,reroll:!!canRe},{charId:c.id});
+  await S.postRoll({type:'rouse',label:why,char:charPubName(c),dice:res,hungerFrom:from,hungerTo:hunger,reroll:!!canRe},{charId:c.id});
   return true;
 }
 
@@ -142,7 +146,7 @@ async function usePower(c,pid){
   const p=VTM.POWER[pid];if(!p)return;
   if(p.r){const ok=await rouseCheck(c,{times:p.r,level:p.l,why:`${p.n} (${VTM.DISC[p.disc]} ${p.l})`});if(!ok)return}
   if(p.pool){const [a,b]=p.pool[0];openRollDialog(App.chars.get(c.id)||c,{a,b,label:p.n,vs:p.vs,desc:`${p.en}${p.d?' — '+p.d:''}${p.pool.length>1?` Другой пул: ${p.pool.slice(1).map(([x,y])=>VTM.traitName(x)+' + '+VTM.traitName(y)).join(', ')}.`:''} · ${VTM.srcText(p.src)}`,power:pid})}
-  else await App.chars.postRoll({type:'power',label:p.n,char:c.name,disc:p.disc,lvl:p.l,desc:p.d||p.en},{charId:c.id});
+  else await App.chars.postRoll({type:'power',label:p.n,char:charPubName(c),disc:p.disc,lvl:p.l,desc:p.d||p.en},{charId:c.id});
 }
 
 /* ---------- отображение бросков ---------- */
@@ -164,7 +168,7 @@ function rollCard(r,full){
   if(!open&&r.data.type==='roll'){const [t]=VTM.RES[r.data.res]||[''];sum=t}
   const mine=r.user_id===App.user.id;
   const canWp=full&&mine&&d.type==='roll'&&!d.wp&&r.character_id&&d.reg.some(v=>v<6);
-  return `<div class="rcard ${d.res||d.type}" data-rid="${r.id}"><div class="rc-h"><b>${esc(d.char||d.who||'')}</b>${d.char&&d.who&&!mine?`<span class="rc-who">${esc(d.who)}</span>`:''}${r.secret?'<span class="rc-sec" title="Скрытый бросок">🔒</span>':''}<span class="rc-t">${new Date(r.created_at||Date.now()).toLocaleTimeString(I18N.loc,{hour:'2-digit',minute:'2-digit'})}</span></div>
+  return `<div class="rcard ${d.res||d.type}" data-rid="${r.id}"><div class="rc-h"><b>${esc((r.character_id&&App.chars?.get(r.character_id)?charName(App.chars.get(r.character_id)):d.char)||d.who||'')}</b>${d.char&&d.who&&!mine?`<span class="rc-who">${esc(d.who)}</span>`:''}${r.secret?'<span class="rc-sec" title="Скрытый бросок">🔒</span>':''}<span class="rc-t">${new Date(r.created_at||Date.now()).toLocaleTimeString(I18N.loc,{hour:'2-digit',minute:'2-digit'})}</span></div>
     <div class="rc-l">${d.type==='rouse'?'🩸 ':d.type==='power'?(VTM.DISC_ICON[d.disc]||'✨')+' ':'🎲 '}${esc(d.label||'')}</div>${d.vs?`<div class="rc-vs">против ${esc(d.vs)}</div>`:''}
     ${open?`<div class="rc-d">${diceHTML(d)}</div>`:""}<div class="rc-r" style="color:${col}">${esc(sum)}</div>${VTM.RES_HINT[d.res]&&full?`<div class="rc-hint">${esc(VTM.RES_HINT[d.res])}</div>`:''}${d.type==='power'&&d.desc?`<div class="rc-hint">${esc(d.desc)}</div>`:''}
     ${canWp?`<button class="btn sm rc-wp" data-wp="${r.id}">Перебросить до 3 кубов за Волю</button>`:''}</div>`;
@@ -247,7 +251,7 @@ async function renderCharsTab(main,pid,isM){
   const cl=$('.cl',main),cs=$('.csheet',main);let cur=LS.get('rpa_char_'+pid);let mem=isM?await API.members(pid).catch(()=>[]):[];
   const drawList=()=>{
     const L=S.list;if(cur&&!S.get(cur))cur=null;if(!cur&&L.length)cur=(S.mine()[0]||L[0]).id;
-    cl.innerHTML=L.length?L.map(c=>{const d=c.data,cn=VTM.CLANS[d.clan];return `<div class="cli ${c.id===cur?'on':''}" data-id="${c.id}">${charAvatar(c,'cli-av')}<div class="cli-b"><b>${esc(c.name)}</b><span>${esc(cn?.n||'Без клана')}${d.predator?' · '+esc(VTM.PREDATORS[d.predator]?.n||''):''}</span><span class="cli-o">${esc(ownerName(c,mem))}</span></div><div class="cli-h" title="Голод">${'●'.repeat(+d.hunger||0)}</div></div>`}).join('')
+    cl.innerHTML=L.length?L.map(c=>{const d=c.data,cn=VTM.CLANS[d.clan];return `<div class="cli ${c.id===cur?'on':''}" data-id="${c.id}">${charAvatar(c,'cli-av')}<div class="cli-b"><b>${esc(charName(c))}${isM&&charHidden(c)?' <span class="hid-tag" title="Игроки видят: '+esc(charPubName(c))+'">🙈</span>':''}</b><span>${esc(cn?.n||'Без клана')}${d.predator?' · '+esc(VTM.PREDATORS[d.predator]?.n||''):''}</span><span class="cli-o">${esc(ownerName(c,mem))}</span></div><div class="cli-h" title="Голод">${'●'.repeat(+d.hunger||0)}</div></div>`}).join('')
       :`<div class="muted" style="padding:14px;font-size:13px">${isM?'Создайте персонажей для игроков или NPC.':'У вас пока нет персонажа. Создайте его — мастер сразу увидит лист.'}</div>`;
   };
   const drawSheet=()=>{const c=cur&&S.get(cur);if(!c){cs.innerHTML=`<div class="soon"><div class="panel"><div class="ic">🧛</div><h2>Персонажи</h2><p class="muted">${isM?'Создайте персонажа и назначьте его игроку — или дайте игрокам создать своих. Лист один на двоих: правки игрока сразу видит мастер, а мастер может поправить что угодно.':'Создайте персонажа по правилам Vampire: The Masquerade V5. Мастер увидит лист и сможет его поправить.'}</p><button class="btn primary" data-new>+ Создать персонажа</button></div></div>`;cs.querySelector('[data-new]').onclick=()=>openCharWizard(pid,isM,mem);return}
@@ -274,7 +278,7 @@ function renderSheet(host,c,isM,mem){
   const extra=VTM.extraPowers(d),totDots=Object.values(d.disc||{}).reduce((s,v)=>s+ +v,0);
   host.innerHTML=`<div class="sheet ${ed?'':'ro'}">
     <div class="sh-top">
-      <button class="sh-av" data-look title="${ed?'Портрет и значок на карте':'Портрет'}">${charAvatar(c,'sh-avi')}</button><div class="sh-name"><input class="nm" data-f="name" value="${esc(d.name||c.name)}" placeholder="Имя персонажа" ${ed?'':'readonly'}><div class="sh-sub">${esc(clan?.n||'Клан не выбран')} · ${esc(String(d.gen||''))}-е поколение${VTM.AGES[d.age]?' · '+esc(VTM.AGES[d.age].n):''} · ${esc(ownerName(c,mem))}</div></div>
+      <button class="sh-av" data-look title="${ed?'Портрет и значок на карте':'Портрет'}">${charAvatar(c,'sh-avi')}</button><div class="sh-name"><input class="nm" data-f="name" value="${esc(isM||c.owner_id===App.user.id?(d.name||c.name):charName(c))}" placeholder="Имя персонажа" ${ed?'':'readonly'}><div class="sh-sub">${esc(clan?.n||'Клан не выбран')} · ${esc(String(d.gen||''))}-е поколение${VTM.AGES[d.age]?' · '+esc(VTM.AGES[d.age].n):''} · ${esc(ownerName(c,mem))}</div>${isM?`<div class="sh-alias"><label>Для игроков<input data-f="alias" value="${esc(d.alias||'')}" placeholder="как видят до знакомства, например: Незнакомец в плаще"></label>${d.alias&&String(d.alias).trim()?`<button class="btn sm ${d.revealed?'':'primary'}" data-reveal>${d.revealed?'🙈 Скрыть имя':'👁 Открыть имя игрокам'}</button><span class="sh-alst">${d.revealed?'игроки видят настоящее имя':'игроки видят «'+esc(String(d.alias).trim())+'»'}</span>`:''}</div>`:''}</div>
       <div class="sh-act"><button class="btn primary" data-roll>🎲 Бросок</button><button class="btn" data-rouse title="Бросок на голод: d10, на 1–5 Голод растёт">🩸 Бросок на голод</button>${isM?`<select data-owner title="Чей персонаж"><option value="">Не назначен</option><option value="npc" ${c.npc?'selected':''}>Персонаж мастера (NPC)</option>${(mem||[]).filter(m=>m.role!=='comaster').map(m=>`<option value="${m.user_id}" ${c.owner_id===m.user_id?'selected':''}>Игрок: ${esc(m.profile?.name||'—')}</option>`).join('')}</select>`:''}${isM||c.created_by===App.user.id?'<button class="btn ghost" data-del title="Удалить персонажа">🗑</button>':''}</div>
     </div>
     <div class="sh-grid info">
@@ -328,6 +332,7 @@ function renderSheet(host,c,isM,mem){
     if(t.tagName==='SELECT'&&t.dataset.f){const k=t.dataset.f;let v=t.value;if(k==='gen'){v=+v;const g=VTM.GEN_BP[v];const b=Math.max(g[0],Math.min(g[1],+d.bp||0));P({gen:v,bp:b})}else P({[k]:v})}
   };
   host.onclick=async e=>{const t=e.target;const cc=S.get(c.id)||c;
+    if(t.closest('[data-reveal]')&&isM){P({revealed:!cc.data.revealed});return}
     if(t.closest('[data-look]')){if(ed)openLookModal(cc);else if(cc.data.portrait)window.open(cc.data.portrait,'_blank');return}
     const dt=t.closest('[data-d]');if(dt&&ed){const w=dt.parentElement,path=w.dataset.dots,cur=+w.dataset.v,n=+dt.dataset.d;let v=n===cur?n-1:n;
       if(w.classList.contains('ro'))return;
@@ -461,6 +466,7 @@ function openCharWizard(pid,isM,mem,onDone){
       ${isM?`<label class="f">Чей персонаж<select data-owner><option value="">Пока без игрока</option><option value="npc" ${npc?'selected':''}>Персонаж мастера (NPC)</option>${(mem||[]).filter(m=>m.role!=='comaster').map(m=>`<option value="${m.user_id}" ${owner===m.user_id?'selected':''}>${esc(m.profile?.name||'Игрок')}</option>`).join('')}</select></label>`:''}
       <div class="f">Клан</div><div class="clans">${Object.entries(VTM.CLANS).map(([k,v])=>`<button class="clan ${D.clan===k?'on':''}" data-clan="${k}"><b>${esc(v.n)}</b><small>${v.any?'любые две дисциплины':v.d.map(x=>VTM.DISC_ICON[x]+' '+VTM.DISC[x]).join(', ')}</small><small class="srcl">${esc(VTM.srcText(v.src))}</small></button>`).join('')}</div>
       ${D.clan?`<div class="bane"><b>Клановый изъян:</b> ${esc(VTM.CLANS[D.clan].bane)}<br><b>Побуждение:</b> ${esc(VTM.CLANS[D.clan].comp)}</div>`:''}
+      ${isM?`<label class="f">Для игроков (до знакомства)<input data-w="alias" value="${esc(D.alias||'')}" placeholder="Например: Незнакомец в плаще — настоящее имя откроете кнопкой в листе или в меню фишки"></label>`:''}
       <div class="f">Внешность</div><div data-wlook>${lookEditor(D,pid,null,false)}</div>
       <div class="f">Время обращения (Море времени)</div><div class="ages">${ageList().map(([k,v])=>`<label class="pre ${v.gm?'gm':''}"><input type="radio" name="age" value="${k}" ${D.age===k?'checked':''}><span><b>${v.n}</b><small>${v.d}${v.xp?` · +${v.xp} опыта`:''}${v.adv?` · +${v.adv} к достоинствам и недостаткам`:''}${v.hum?` · Человечность ${v.hum}`:''}</small></span></label>`).join('')}</div>
       ${ag?.gm?`<p class="muted wz-p">Старейшин и мафусаилов официальные правила V5 не дают создавать игрокам — это персонажи мастера. Поколение и Сила крови — по таблице корбука (с. 213), за каждую точку Силы крови выше 5 — ещё одна сила дисциплины (Gehenna War). Опыт на развитие задайте сами ниже.</p>`:''}
