@@ -1,5 +1,5 @@
 -- RPAssistant: чат проекта (общий и личные сообщения)
--- Выполнить один раз в Supabase → SQL Editor.
+-- Выполнить в Supabase → SQL Editor. Можно запускать повторно — ничего не сломается.
 
 create table if not exists public.chat_messages (
   id uuid primary key default gen_random_uuid(),
@@ -11,6 +11,7 @@ create table if not exists public.chat_messages (
   text text not null check (char_length(text) between 1 and 2000),
   created_at timestamptz not null default now()
 );
+alter table public.chat_messages add column if not exists edited_at timestamptz;
 create index if not exists chat_messages_project_idx on public.chat_messages(project_id, created_at desc);
 
 alter table public.chat_messages enable row level security;
@@ -28,6 +29,11 @@ create policy "chat read" on public.chat_messages for select to authenticated
 drop policy if exists "chat insert" on public.chat_messages;
 create policy "chat insert" on public.chat_messages for insert to authenticated
   with check (author_id = auth.uid() and (public.is_editor(project_id) or public.is_member(project_id)));
+
+-- править можно только свои сообщения
+drop policy if exists "chat update" on public.chat_messages;
+create policy "chat update" on public.chat_messages for update to authenticated
+  using (author_id = auth.uid()) with check (author_id = auth.uid());
 
 drop policy if exists "chat delete" on public.chat_messages;
 create policy "chat delete" on public.chat_messages for delete to authenticated

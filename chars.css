@@ -268,3 +268,9 @@ mark{background:#e3b75b55;color:#fff;border-radius:3px;padding:0 2px}
 .sheetov-b{flex:1;overflow-y:auto;min-height:0}
 .mchar .mc-sheet{font-size:14px}
 @media (max-width:700px){.sheetov{padding:0}.sheetov-box{max-height:100vh;border-radius:0}}
+
+/* плавающие окна (чат, журнал бросков) */
+.fp{resize:both;min-width:280px;min-height:200px;max-width:calc(100vw - 8px)}
+.fp-h{cursor:grab;user-select:none;touch-action:none}.fp-drag .fp-h{cursor:grabbing}
+.fp-drag{opacity:.92;transition:none!important}
+.fp::after{content:'';position:absolute;right:3px;bottom:3px;width:10px;height:10px;border-right:2px solid rgba(255,255,255,.25);border-bottom:2px solid rgba(255,255,255,.25);border-radius:0 0 3px 0;pointer-events:none}

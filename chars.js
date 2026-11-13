@@ -178,13 +178,39 @@ function showRollPopup(r){
   const kill=()=>{w.classList.remove('show');setTimeout(()=>w.remove(),350)};const t=setTimeout(kill,r.user_id===App.user.id?9000:6500);w.onclick=e=>{if(!e.target.closest('button')){clearTimeout(t);kill()}};
   while(host.children.length>3)host.firstElementChild.remove();
 }
+/* плавающее окно: перетаскивание за заголовок, размер — за правый нижний угол, позиция запоминается */
+function floatPanel(panel,head,key){
+  const K='rpa_fp_'+key;let st=null;try{st=JSON.parse(LS.get(K)||'null')}catch(_){st=null}
+  panel.classList.add('fp');head.classList.add('fp-h');
+  if(!head.title)head.title='Перетащите, чтобы передвинуть · двойной щелчок — вернуть на место';
+  const save=()=>LS.set(K,st?JSON.stringify(st):null);
+  const apply=()=>{
+    if(st&&st.w){panel.style.width=st.w+'px';panel.style.height=st.h+'px';panel.style.maxHeight='none'}else{panel.style.width=panel.style.height=panel.style.maxHeight=''}
+    if(st&&st.x!=null){const W=innerWidth,H=innerHeight,w=panel.offsetWidth||320,h=panel.offsetHeight||200;
+      panel.style.position='fixed';panel.style.left=Math.max(0,Math.min(W-Math.min(w,W),st.x))+'px';panel.style.top=Math.max(0,Math.min(H-Math.min(h,H),st.y))+'px';panel.style.bottom='auto';panel.style.right='auto'}
+    else{panel.style.position=panel.style.left=panel.style.top=panel.style.bottom=panel.style.right=''}};
+  let dr=null,rs=false;
+  head.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,select,input,textarea,a'))return;
+    const r=panel.getBoundingClientRect();dr={dx:e.clientX-r.left,dy:e.clientY-r.top};head.setPointerCapture(e.pointerId);panel.classList.add('fp-drag');e.preventDefault()});
+  head.addEventListener('pointermove',e=>{if(!dr)return;st={...(st||{}),x:e.clientX-dr.dx,y:e.clientY-dr.dy};apply()});
+  const end=()=>{if(!dr)return;dr=null;panel.classList.remove('fp-drag');save()};
+  head.addEventListener('pointerup',end);head.addEventListener('pointercancel',end);
+  head.addEventListener('dblclick',e=>{if(e.target.closest('button,select,input'))return;st=null;save();apply()});
+  // изменение размера: нативный уголок (resize:both); запоминаем после отпускания
+  panel.addEventListener('pointerdown',e=>{const r=panel.getBoundingClientRect();if(e.clientX>r.right-22&&e.clientY>r.bottom-22){rs=true;
+    if(!st||st.x==null){st={...(st||{}),x:r.left,y:r.top};apply()}}});
+  addEventListener('pointerup',()=>{if(!rs)return;rs=false;st={...(st||{}),w:panel.offsetWidth,h:panel.offsetHeight};save()});
+  addEventListener('resize',()=>{if(!panel.hidden)apply()});
+  apply();return apply;
+}
 function mountDiceLog(){
   $('.dicelog')?.remove();if(!App.chars)return;
   const el=document.createElement('div');el.className='dicelog';el.innerHTML=`<button class="dl-btn" title="Журнал бросков">🎲<span class="dl-n" hidden></span></button><div class="dl-panel" hidden><div class="dl-h"><b>Журнал бросков</b><button class="btn ghost sm" data-x>✕</button></div><div class="dl-list"></div></div>`;
   document.body.appendChild(el);const S=App.chars;let unseen=0;
   const list=el.querySelector('.dl-list'),panel=el.querySelector('.dl-panel'),n=el.querySelector('.dl-n');
   const draw=()=>{list.innerHTML=S.rolls.length?S.rolls.slice().reverse().map(r=>rollCard(r,true)).join(''):'<div class="muted" style="padding:16px;font-size:13px">Бросков пока не было. Бросайте кубы из листа персонажа или с карты.</div>'};
-  el.querySelector('.dl-btn').onclick=()=>{panel.hidden=!panel.hidden;if(!panel.hidden){unseen=0;n.hidden=true;draw()}};
+  const fp=floatPanel(panel,el.querySelector('.dl-h'),'dice');
+  el.querySelector('.dl-btn').onclick=()=>{panel.hidden=!panel.hidden;if(!panel.hidden){unseen=0;n.hidden=true;draw();fp()}};
   el.querySelector('[data-x]').onclick=()=>panel.hidden=true;
   list.onclick=e=>{const b=e.target.closest('[data-wp]');if(b){b.disabled=true;wpReroll(S.rolls.find(r=>r.id===b.dataset.wp))}};
   const off=S.onRolls(()=>{if(panel.hidden){unseen++;n.textContent=unseen;n.hidden=false}else draw()});
