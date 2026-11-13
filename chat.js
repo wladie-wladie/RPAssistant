@@ -14,8 +14,8 @@ class ChatHub{
       sb.from('chat_messages').select('*').eq('project_id',this.pid).order('created_at',{ascending:false}).limit(150),
       API.members(this.pid).catch(()=>[])]);
     this.members=mem||[];
-    if(r.error){if(/chat_messages|42P01|PGRST205|schema cache/i.test((r.error.message||'')+(r.error.code||'')))this.missing=true;else console.error(r.error);return}
-    this.msgs=(r.data||[]).reverse();this.emit(null);
+    if(r.error){console.error(r.error);this.err=r.error;this.missing=/42P01|PGRST205|PGRST204|schema cache|does not exist|Could not find/i.test((r.error.message||'')+' '+(r.error.code||''));this.emit(null);return}
+    this.err=null;this.missing=false;this.msgs=(r.data||[]).reverse();this.emit(null);
   }
   add(m,live){if(!m||this.msgs.some(x=>x.id===m.id))return;
     // личное чужое сообщение игроку не показываем (RLS отфильтрует и так, это страховка для realtime)
@@ -27,7 +27,7 @@ class ChatHub{
   async send(text,to){
     const rec={project_id:this.pid,author_id:App.user.id,author_name:App.user.name||'',text:text.slice(0,2000),to_id:to&&to!=='gm'?to:null,to_gm:to==='gm'};
     const {data,error}=await sb.from('chat_messages').insert(rec).select('*').single();
-    if(error){if(/chat_messages|42P01|PGRST205|schema cache/i.test((error.message||'')+(error.code||''))){this.missing=true;this.emit(null);return false}fail(error);return false}
+    if(error){console.error(error);if(/42P01|PGRST205|schema cache|does not exist|Could not find/i.test((error.message||'')+' '+(error.code||''))){this.missing=true;this.err=error;this.emit(null);return false}fail(error);return false}
     this.add(data,false);return true;
   }
   async edit(id,text){const t=text.trim().slice(0,2000);if(!t)return false;const {data,error}=await sb.from('chat_messages').update({text:t,edited_at:new Date().toISOString()}).eq('id',id).select('*').single();
@@ -64,7 +64,8 @@ function mountChat(){
   const day=d=>new Date(d).toLocaleDateString('ru',{day:'numeric',month:'long'});
   const target=m=>m.to_gm?'мастеру':m.to_id?(m.to_id===me?'вам':H.nameOf(m.to_id)):'';
   const draw=()=>{
-    if(H.missing){list.innerHTML=`<div class="cw-empty">${H.isM?'Чат заработает после обновления базы данных: нужно один раз выполнить <b>supabase/008_chat.sql</b> в Supabase → SQL Editor.':'Мастер ещё не включил чат.'}</div>`;f.hidden=true;return}
+    if(H.missing||H.err){const e=H.err;list.innerHTML=`<div class="cw-empty">${H.missing?(H.isM?'База данных пока не видит таблицу чата. Выполните <b>supabase/008_chat.sql</b> в Supabase → SQL Editor и нажмите «Проверить снова».':'Мастер ещё не включил чат.'):'Не удалось загрузить чат.'}
+      ${H.isM&&e?`<div class="cw-err">${esc((e.code?e.code+': ':'')+(e.message||String(e)))}</div>`:''}<button class="btn sm" data-retry style="margin-top:10px">Проверить снова</button></div>`;f.hidden=true;return}
     f.hidden=false;
     if(!H.msgs.length){list.innerHTML='<div class="cw-empty">Сообщений пока нет. Напишите первым — увидят все участники; для личного сообщения выберите получателя ниже.</div>';return}
     let last='',prevA=null,prevT=0;
@@ -80,7 +81,7 @@ function mountChat(){
   };
   const atBottom=()=>list.scrollHeight-list.scrollTop-list.clientHeight<40;
   const scrollEnd=()=>{list.scrollTop=list.scrollHeight};
-  const openP=v=>{panel.hidden=!v;el.classList.toggle('open',v);LS.set('rpa_chat_open',v?'1':'0');if(v){unseen=0;n.hidden=true;peek.hidden=true;fp();opts();draw();scrollEnd();setTimeout(()=>ta.focus(),0)}};
+  const openP=v=>{panel.hidden=!v;el.classList.toggle('open',v);LS.set('rpa_chat_open',v?'1':'0');if(v){if(H.missing||H.err)H.load().then(()=>{opts();draw()});unseen=0;n.hidden=true;peek.hidden=true;fp();opts();draw();scrollEnd();setTimeout(()=>ta.focus(),0)}};
   const fp=floatPanel(panel,el.querySelector('.cw-h'),'chat');
   btn.onclick=()=>openP(panel.hidden);
   el.querySelector('[data-x]').onclick=()=>openP(false);
@@ -97,6 +98,7 @@ function mountChat(){
   list.addEventListener('input',e=>{const t=e.target.closest('.cw-ed');if(t){t.style.height='auto';t.style.height=Math.min(160,t.scrollHeight)+'px'}});
   ta.addEventListener('keydown',e=>{if(e.key==='ArrowUp'&&!ta.value){const last=[...H.msgs].reverse().find(m=>m.author_id===me);if(last){e.preventDefault();startEdit(last.id)}}});
   list.onclick=async e=>{
+    if(e.target.closest('[data-retry]')){list.innerHTML='<div class="cw-empty">Проверяю…</div>';await H.load();opts();draw();return}
     const ed=e.target.closest('[data-edit]');if(ed)return startEdit(ed.dataset.edit);const d=e.target.closest('[data-del]');if(d){if(await confirmBox('Удалить сообщение?','Удалить'))H.remove(d.dataset.del);return}
     const r=e.target.closest('[data-reply]');if(r){const id=r.dataset.reply;to=H.members.some(m=>m.user_id===id)?id:(H.isM?'':'gm');LS.set('rpa_chat_to_'+H.pid,to);opts();ta.focus()}};
   // клавиши и колесо внутри чата не должны уходить в доску/карту

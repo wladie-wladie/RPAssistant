@@ -38,3 +38,4 @@ body.stage-nodice .chatw{left:18px}
 .cw-peek b{color:#e3b75b}.cw-peek div{margin-top:2px;overflow-wrap:anywhere}
 .cw-peek.in{animation:cwin .25s ease}
 @keyframes cwin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cw-err{margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(224,71,91,.12);color:#f3a3ae;font:12px/1.4 ui-monospace,Consolas,monospace;text-align:left;overflow-wrap:anywhere}

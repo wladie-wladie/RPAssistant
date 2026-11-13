@@ -42,3 +42,6 @@ create policy "chat delete" on public.chat_messages for delete to authenticated
 do $$ begin
   alter publication supabase_realtime add table public.chat_messages;
 exception when duplicate_object then null; end $$;
+
+-- обновить кэш схемы API, чтобы таблица стала видна сразу
+notify pgrst, 'reload schema';
