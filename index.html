@@ -2021,15 +2021,49 @@ async function resolveLink(raw){
 }
 const probeAudio=src=>new Promise(res=>{const a=new Audio();let done=false;const fin=v=>{if(!done){done=true;a.src='';res(v)}};a.preload='metadata';a.onloadedmetadata=()=>fin(isFinite(a.duration)?a.duration:0);a.onerror=()=>fin(null);setTimeout(()=>fin(0),12000);a.src=src});
 
+/* отдельный канал «Атмосфера»: свой трек, громкость и стоп, играет поверх музыки по кругу */
+class AmbChannel{
+  constructor(eng){this.eng=eng;this.cur=null;this.box=document.createElement('div');this.box.className='mbox';document.body.appendChild(this.box);this.audio=new Audio();this.audio.preload='auto';this.audio.loop=true}
+  get st(){const s=this.eng.state||{};return {track_id:s.amb_track_id||null,playing:!!s.amb_playing,position:+s.amb_position||0,started_at:s.amb_started_at||s.started_at,volume:s.amb_volume??.6}}
+  get track(){const id=this.st.track_id;return id?this.eng.track(id):null}
+  vol(){const e=this.eng;return e.local.muted?0:clamp(this.st.volume*e.local.vol,0,1)}
+  applyVol(){const v=this.vol(),c=this.cur;this.audio.volume=v;if(c?.kind==='yt'&&c.player?.setVolume)c.player.setVolume(v*100);if(c?.kind==='sc'&&c.widget)c.widget.setVolume(v*100)}
+  stopAll(){try{this.audio.pause()}catch(_){}const c=this.cur;if(c?.kind==='yt'){try{c.player.destroy()}catch(_){}}if(c?.kind==='sc'){try{c.widget.pause()}catch(_){}}this.box.innerHTML='';this.cur=null}
+  isPlaying(){const c=this.cur;if(!c)return false;if(c.kind==='yt')return c.player?.getPlayerState?.()===1;if(c.kind==='sc')return !!c.playing;return !this.audio.paused}
+  async sync(){
+    const t=this.track,st=this.st;
+    if(!t){if(this.cur)this.stopAll();return}
+    const key=t.id+'|'+t.src;
+    if(!this.cur||this.cur.key!==key){
+      this.stopAll();const token=this.tok=uid();
+      try{
+        if(t.kind==='youtube'){await ytReady();if(token!==this.tok)return;const div=document.createElement('div');this.box.appendChild(div);const c=this.cur={key,kind:'yt',ready:false};
+          c.player=new YT.Player(div,{width:200,height:113,videoId:t.src,playerVars:{autoplay:0,controls:0,disablekb:1,playsinline:1,rel:0,loop:1,playlist:t.src},events:{onReady:()=>{c.ready=true;this.apply()},onStateChange:e=>{if(e.data===YT.PlayerState.ENDED){c.player.seekTo(0,true);c.player.playVideo()}}}});return}
+        if(t.kind==='soundcloud'){await scReady();if(token!==this.tok)return;const ifr=document.createElement('iframe');ifr.allow='autoplay';ifr.src='https://w.soundcloud.com/player/?url='+encodeURIComponent(t.src)+'&auto_play=false&visual=false';this.box.appendChild(ifr);const c=this.cur={key,kind:'sc',ready:false};c.widget=SC.Widget(ifr);
+          c.widget.bind(SC.Widget.Events.READY,()=>{c.ready=true;this.apply()});c.widget.bind(SC.Widget.Events.PLAY,()=>{c.playing=true});c.widget.bind(SC.Widget.Events.PAUSE,()=>{c.playing=false});c.widget.bind(SC.Widget.Events.FINISH,()=>{c.widget.seekTo(0);c.widget.play()});return}
+        const src=await this.eng.srcFor(t);if(token!==this.tok)return;this.cur={key,kind:'audio',ready:true};this.audio.src=src;this.audio.loop=true;
+      }catch(e){console.error(e);toast('Не удалось включить атмосферу: '+e.message,'err');return}
+    }
+    this.apply();
+  }
+  apply(){
+    const c=this.cur,st=this.st;if(!c||!c.ready)return;this.applyVol();
+    if(st.playing){if(!this.eng.unlocked){this.eng.blocked=true;return}
+      if(!this.isPlaying()){if(c.kind==='yt')c.player.playVideo?.();else if(c.kind==='sc')c.widget.play();else this.audio.play().catch(()=>{this.eng.blocked=true;this.eng.emit()})}}
+    else{if(c.kind==='yt')c.player.pauseVideo?.();else if(c.kind==='sc')c.widget.pause();else this.audio.pause()}
+  }
+  destroy(){this.stopAll();this.audio.src='';this.box.remove()}
+}
 class MusicEngine{
   constructor(pid,canEdit){
     this.pid=pid;this.canEdit=canEdit;this.tracks=[];this.state=null;this.offset=0;this.listeners=new Set();
     this.local={vol:+(LS.get('rpa_myvol')??1),muted:LS.get('rpa_mute')==='1'};
     this.unlocked=false;this.cur=null;this.box=document.createElement('div');this.box.className='mbox';document.body.appendChild(this.box);
     this.audio=new Audio();this.audio.preload='auto';this.audio.onended=()=>this.onEnded();
-    this.unlock=()=>{this.unlocked=true;this.blocked=false;this.sync(true);this.emit()};
+    this.unlock=()=>{this.unlocked=true;this.blocked=false;this.sync(true);this.amb?.apply();this.emit()};
     // звук включается только кнопкой «Включить звук» или когда мастер сам запускает трек — не от любого щелчка по странице
     this.timer=setInterval(()=>this.tick(),1000);
+    this.amb=new AmbChannel(this);this.sfxOn=new Set();this.noAmb=false;
   }
   async init(){
     try{const t0=Date.now();const {data}=await sb.rpc('server_now');const t1=Date.now();if(data)this.offset=new Date(data).getTime()-(t0+t1)/2}catch(_){}
@@ -2039,10 +2073,11 @@ class MusicEngine{
       .on('postgres_changes',{event:'*',schema:'public',table:'music_state',filter:`project_id=eq.${this.pid}`},pl=>{if(pl.new&&pl.new.project_id){if(pl.new.client===CLIENT_ID)return;this.state=pl.new;this.sync()}})
       .on('postgres_changes',{event:'*',schema:'public',table:'tracks',filter:`project_id=eq.${this.pid}`},()=>this.reloadTracks().then(()=>this.emit()))
       .on('broadcast',{event:'sfx'},({payload})=>this.playSfx(payload.id,false))
+      .on('broadcast',{event:'sfxstop'},()=>this.stopSfx(false))
       .subscribe();
     this.sync();
   }
-  destroy(){clearInterval(this.timer);this.stopAll();this.audio.src='';this.box.remove();if(this.ch)sb.removeChannel(this.ch);this.listeners.clear()}
+  destroy(){clearInterval(this.timer);this.stopAll();this.amb.destroy();this.stopSfx(false);this.audio.src='';this.box.remove();if(this.ch)sb.removeChannel(this.ch);this.listeners.clear()}
   on(fn){this.listeners.add(fn);return ()=>this.listeners.delete(fn)}
   emit(){for(const f of this.listeners)try{f()}catch(e){console.error(e)}}
   now(){return Date.now()+this.offset}
@@ -2056,10 +2091,11 @@ class MusicEngine{
     return Math.max(0,p);
   }
   duration(){const c=this.cur;if(!c)return +(this.current?.duration)||0;if(c.kind==='yt'&&c.player?.getDuration)return c.player.getDuration()||+(this.current?.duration)||0;if(c.kind==='sc')return c.dur||+(this.current?.duration)||0;return isFinite(this.audio.duration)?this.audio.duration:(+(this.current?.duration)||0)}
+  sfxVol(){return this.local.muted?0:clamp((this.state?.sfx_volume??.9)*this.local.vol,0,1)}
   outVol(){return this.local.muted?0:clamp((this.state?.volume??.8)*this.local.vol,0,1)}
   setLocalVol(v){this.local.vol=v;LS.set('rpa_myvol',String(v));this.applyVol();this.emit()}
   toggleMute(){this.local.muted=!this.local.muted;LS.set('rpa_mute',this.local.muted?'1':'0');this.applyVol();this.emit()}
-  applyVol(){const v=this.outVol(),c=this.cur;this.audio.volume=v;if(c?.kind==='yt'&&c.player?.setVolume)c.player.setVolume(v*100);if(c?.kind==='sc'&&c.widget)c.widget.setVolume(v*100)}
+  applyVol(){this.amb?.applyVol();for(const a of this.sfxOn||[])a.volume=this.sfxVol();const v=this.outVol(),c=this.cur;this.audio.volume=v;if(c?.kind==='yt'&&c.player?.setVolume)c.player.setVolume(v*100);if(c?.kind==='sc'&&c.widget)c.widget.setVolume(v*100)}
   stopAll(){try{this.audio.pause()}catch(_){}const c=this.cur;if(c?.kind==='yt'){try{c.player.destroy()}catch(_){}}if(c?.kind==='sc'){try{c.widget.pause()}catch(_){}}this.box.innerHTML='';this.cur=null}
   async srcFor(t){
     if(t.kind==='yadisk'){const r=await fetch('https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key='+encodeURIComponent(t.src));const j=await r.json();if(!j.href)throw new Error('Яндекс Диск не отдал файл');return j.href}
@@ -2067,6 +2103,7 @@ class MusicEngine{
   }
   /** приводит воспроизведение к состоянию с сервера */
   async sync(force){
+    this.amb.sync();
     const s=this.state,t=this.current;
     if(!s||!t){if(this.cur)this.stopAll();this.emit();return}
     const loadKey=t.id+'|'+t.src;
@@ -2130,7 +2167,7 @@ class MusicEngine{
   // у YouTube seekTo по не начатому ролику сам запускает его (с начала, если звук ещё не разрешён) — поэтому такой ролик не трогаем
   ytIdle(){const c=this.cur;if(c?.kind!=='yt'||!c.player?.getPlayerState)return false;const st=c.player.getPlayerState();return st===-1||st===5}
   seekTo(t){const c=this.cur;if(!c)return;if(c.kind==='yt'){if(!this.ytIdle())c.player.seekTo?.(t,true);return}else if(c.kind==='sc'){c.widget.seekTo(t*1000);c.pos=t}else{try{this.audio.currentTime=t}catch(_){}}}
-  tick(){if(this.cur&&this.state?.playing&&!this.blocked)this.applyPlay(false);this.emit()}
+  tick(){if(this.cur&&this.state?.playing&&!this.blocked)this.applyPlay(false);if(this.amb.cur&&this.amb.st.playing&&!this.blocked)this.amb.apply();this.emit()}
   onEnded(){
     const s=this.state;if(!s)return;
     if(s.loop){this.seekTo(0);this.applyPlay(true);return}
@@ -2138,15 +2175,26 @@ class MusicEngine{
   }
   saveDuration(t,d){if(!this.canEdit||!d||!isFinite(d)||Math.abs((+t.duration||0)-d)<1)return;t.duration=d;sb.from('tracks').update({duration:d}).eq('id',t.id).then(()=>{})}
   /* ---- управление (мастер) ---- */
-  async write(patch){
+  async write(patch,soft){
     const base=this.state||{project_id:this.pid,track_id:null,playing:false,position:0,volume:.8,loop:true};
     const pos=this.desiredPos();
     const next={...base,project_id:this.pid,position:pos,...patch,started_at:new Date(this.now()).toISOString(),updated_by:App.user.id,client:CLIENT_ID,updated_at:new Date().toISOString()};
-    this.state=next;this.unlocked=true;this.sync(true);
-    const {error}=await sb.from('music_state').upsert({project_id:next.project_id,track_id:next.track_id,playing:next.playing,position:next.position,started_at:next.started_at,volume:next.volume,loop:next.loop,updated_by:next.updated_by,client:next.client,updated_at:next.updated_at});
+    this.state=next;this.unlocked=true;this.sync(!soft);
+    const row={project_id:next.project_id,track_id:next.track_id,playing:next.playing,position:next.position,started_at:next.started_at,volume:next.volume,loop:next.loop,updated_by:next.updated_by,client:next.client,updated_at:next.updated_at};
+    const ext={amb_track_id:next.amb_track_id??null,amb_playing:!!next.amb_playing,amb_position:+next.amb_position||0,amb_started_at:next.amb_started_at||null,amb_volume:next.amb_volume??.6,sfx_volume:next.sfx_volume??.9};
+    let {error}=await sb.from('music_state').upsert(this.noAmb?row:{...row,...ext});
+    if(error&&!this.noAmb&&/amb_|sfx_volume|column|schema cache/i.test(error.message||'')){this.noAmb=true;({error}=await sb.from('music_state').upsert(row));if(!this.ambWarned){this.ambWarned=true;toast('Чтобы атмосфера играла отдельно от музыки, выполните supabase/010_music_channels.sql в Supabase','err')}}
     if(error)fail(error);
   }
-  playTrack(id){const t=this.track(id);if(!t)return;if(t.category==='sfx')return this.playSfx(id,true);this.write({track_id:id,playing:true,position:0})}
+  playTrack(id){const t=this.track(id);if(!t)return;if(t.category==='sfx')return this.playSfx(id,true);if(t.category==='ambient'&&!this.noAmb)return this.writeAmb({amb_track_id:id,amb_playing:true});this.write({track_id:id,playing:true,position:0})}
+  writeAmb(p){this.write({...p,amb_started_at:new Date(this.now()).toISOString()},true)}
+  get ambCurrent(){return this.amb.track}
+  toggleAmb(){if(!this.state?.amb_track_id)return;this.writeAmb({amb_playing:!this.state.amb_playing})}
+  stopAmb(){this.writeAmb({amb_playing:false})}
+  setAmbVolume(v){this.writeAmb({amb_volume:v})}
+  setSfxVolume(v){this.write({sfx_volume:v},true)}
+  stopSfx(send=true){for(const a of this.sfxOn){try{a.pause()}catch(_){}}this.sfxOn.clear();if(send&&this.ch)this.ch.send({type:'broadcast',event:'sfxstop',payload:{}});this.emit()}
+  stopEverything(){this.stopSfx(true);this.write({playing:false,position:0,amb_playing:false})}
   toggle(){if(!this.state?.track_id)return;this.write({playing:!this.state.playing})}
   seek(t){this.write({position:t})}
   setLoop(v){this.write({loop:v})}
@@ -2158,7 +2206,7 @@ class MusicEngine{
     if(send&&this.ch)this.ch.send({type:'broadcast',event:'sfx',payload:{id}});
     if(t.kind!=='file'&&t.kind!=='url'&&t.kind!=='yadisk'){if(send)toast('Эффекты пока проигрываются только из файлов и прямых ссылок','err');return}
     if(send)this.unlocked=true;
-    try{const a=new Audio(await this.srcFor(t));a.volume=this.outVol();await a.play()}catch(_){this.blocked=true;this.emit()}
+    let a=null;try{a=new Audio(await this.srcFor(t));a.volume=this.sfxVol();this.sfxOn.add(a);a.onended=a.onerror=()=>{this.sfxOn.delete(a);this.emit()};await a.play();this.emit()}catch(_){if(a)this.sfxOn.delete(a);this.blocked=true;this.emit()}
   }
 }
 
@@ -2211,8 +2259,9 @@ function renderMusicTab(main,eng,isM){
   const drawList=()=>{
     const list=eng.tracks.filter(t=>(cat==='all'||t.category===cat)&&(!q||t.title.toLowerCase().includes(q)));
     const cur=eng.state?.track_id;
-    tl.innerHTML=list.length?list.map(t=>`<div class="tr ${t.id===cur?'cur':''}" data-id="${t.id}">
-      <button class="tplay" data-play title="${t.category==='sfx'?'Проиграть эффект у всех':'Включить у всех'}" ${isM?'':'disabled'}>${t.id===cur&&eng.state?.playing?'❚❚':'▶'}</button>
+    const amb=eng.state?.amb_track_id,isCur=t=>t.id===cur||t.id===amb,isPl=t=>t.id===cur?eng.state?.playing:t.id===amb&&eng.state?.amb_playing;
+    tl.innerHTML=list.length?list.map(t=>`<div class="tr ${isCur(t)?'cur':''}" data-id="${t.id}">
+      <button class="tplay" data-play title="${t.category==='sfx'?'Проиграть эффект у всех':'Включить у всех'}" ${isM?'':'disabled'}>${isPl(t)?'❚❚':'▶'}</button>
       <div class="tthumb" style="${t.thumb?`background-image:url('${esc(t.thumb)}')`:''}">${t.thumb?'':'♪'}</div>
       <div class="tinfo"><div class="ttitle">${esc(t.title)}</div><div class="tmeta">${KIND_LABEL[t.kind]} · ${CATS[t.category]}${t.duration?' · '+fmtTime(+t.duration):''}</div></div>
       ${isM?`<select data-tcat>${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===t.category?'selected':''}>${v}</option>`).join('')}</select><button class="tic" data-ren title="Переименовать">${ICON.edit}</button><button class="tic" data-del title="Удалить">${ICON.trash}</button>`:''}
@@ -2228,7 +2277,7 @@ function renderMusicTab(main,eng,isM){
   np.oninput=e=>{if(e.target.dataset.myvol!==undefined)eng.setLocalVol(+e.target.value)};
   tl.onclick=async e=>{
     const row=e.target.closest('.tr');if(!row||!isM)return;const t=eng.track(row.dataset.id);if(!t)return;
-    if(e.target.closest('[data-play]')){if(t.id===eng.state?.track_id&&t.category!=='sfx')eng.toggle();else eng.playTrack(t.id);return}
+    if(e.target.closest('[data-play]')){if(t.category==='ambient'&&!eng.noAmb&&t.id===eng.state?.amb_track_id)eng.toggleAmb();else if(t.id===eng.state?.track_id&&t.category!=='sfx')eng.toggle();else eng.playTrack(t.id);return}
     if(e.target.closest('[data-del]')){if(await confirmBox(`Удалить «${t.title}» из библиотеки?`)){if(t.id===eng.state?.track_id)await eng.stop();const {error}=await sb.from('tracks').delete().eq('id',t.id);if(!fail(error)){if(t.kind==='file'){const path=t.src.split('/object/public/music/')[1];if(path)sb.storage.from('music').remove([decodeURIComponent(path)])}await eng.reloadTracks();eng.emit()}}return}
     if(e.target.closest('[data-ren]')){const {el,close}=openModal(`<h3>Название трека</h3><form><label class="f">Название<input name="t" required maxlength="200" value="${esc(t.title)}"></label><div class="modal-actions"><button type="button" class="btn" data-close>Отмена</button><button class="btn primary">Сохранить</button></div></form>`);el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);el.querySelector('form').onsubmit=async ev=>{ev.preventDefault();const {error}=await sb.from('tracks').update({title:ev.target.t.value.trim()}).eq('id',t.id);if(!fail(error)){close();await eng.reloadTracks();eng.emit()}};return}
   };

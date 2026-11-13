@@ -102,7 +102,7 @@ body.stage-nodice .dicelog{display:none}
 .stage .mapboard .tb{top:auto}
 
 /* музыка в сессии */
-.st-mus{position:absolute;right:14px;top:62px;z-index:63;width:340px;height:min(520px,calc(100vh - 140px));display:flex;flex-direction:column;background:var(--panel,#171b2b);border:1px solid var(--line,#2a2f45);border-radius:14px;box-shadow:0 24px 60px -12px rgba(0,0,0,.7);overflow:hidden;font-size:13px}
+.st-mus{position:absolute;right:14px;top:62px;z-index:63;width:360px;height:min(640px,calc(100vh - 140px));display:flex;flex-direction:column;background:var(--panel,#171b2b);border:1px solid var(--line,#2a2f45);border-radius:14px;box-shadow:0 24px 60px -12px rgba(0,0,0,.7);overflow:hidden;font-size:13px}
 .st-mus .smh{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line,#2a2f45)}.st-mus .spacer{flex:1}
 .st-mus .smx{background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px}
 .st-mus .smnp{padding:10px 12px;border-bottom:1px solid var(--line,#2a2f45);display:flex;flex-direction:column;gap:8px}
@@ -130,3 +130,17 @@ body.stage-nodice .dicelog{display:none}
 .smpad.hit{animation:padhit .45s ease}
 @keyframes padhit{0%{background:#e3b75b;color:#1a1408}100%{}}
 .smempty{color:var(--muted);text-align:center;padding:18px 10px;line-height:1.45;display:flex;flex-direction:column;gap:10px;align-items:center}
+
+.mx{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--line,#2a2f45)}
+.mx.on{border-color:rgba(227,183,91,.35);background:rgba(227,183,91,.06)}
+.mxh{display:flex;align-items:center;gap:7px;min-width:0;margin-bottom:6px}.mxh b{font-size:12px;white-space:nowrap}
+.mxt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;font-size:12px;color:var(--text)}
+.mxc{display:flex;align-items:center;gap:4px}
+.mxc button{width:30px;height:28px;border-radius:7px;border:1px solid var(--line,#2a2f45);background:var(--panel2,#1f2438);color:var(--text);cursor:pointer;font-size:12px}
+.mxc button:disabled{opacity:.4;cursor:default}.mxc button.pp{width:36px;background:#e3b75b;color:#1a1408;border-color:transparent;font-weight:700}.mxc button.on{box-shadow:inset 0 0 0 1px rgba(227,183,91,.6);color:#f0cf86}
+.mxall{width:100%;padding:7px;border-radius:8px;border:1px solid rgba(224,71,91,.4);background:rgba(224,71,91,.1);color:#f3a3ae;cursor:pointer;font:inherit;font-size:12px;font-weight:600}
+.mxall:hover{background:rgba(224,71,91,.25);color:#fff}
+
+/* у мастера плеер — в окне 🎵, угловой док не нужен (он закрывал панель) */
+body:not(.stage-player) .stage .st-dock{display:none!important}
+.mxun{width:100%;padding:7px;border-radius:8px;border:0;background:#e3b75b;color:#1a1408;font:inherit;font-size:12px;font-weight:700;cursor:pointer}

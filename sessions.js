@@ -264,12 +264,19 @@ function mountStageMusic(stEl){
     <div class="smlist"></div>`;
   stEl.appendChild(el);
   const np=el.querySelector('.smnp'),list=el.querySelector('.smlist');
-  const drawNP=()=>{const t=eng.current,st=eng.state||{};const pl=!!st.playing;
-    const h=`<div class="smnow ${pl?'on':''}"><span class="eq ${pl?'on':''}"><i></i><i></i><i></i></span><span class="smt">${t?esc(t.title):'<span class="muted">Ничего не играет</span>'}</span>${t?`<small>${esc(CATS[t.category]||'')}</small>`:''}</div>
-      <div class="smctl"><button data-a="prev" title="Предыдущий" ${t?'':'disabled'}>⏮</button><button data-a="pp" class="pp" title="${pl?'Пауза':'Играть'}" ${t?'':'disabled'}>${pl?'❚❚':'▶'}</button><button data-a="next" title="Следующий" ${t?'':'disabled'}>⏭</button><button data-a="stop" title="Стоп" ${t?'':'disabled'}>■</button><button data-a="loop" class="${st.loop?'on':''}" title="Повтор трека">🔁</button>
-        <span class="smv" title="Громкость у всех">🔊<input type="range" min="0" max="1" step="0.01" value="${st.volume??.8}" data-vol></span></div>`;
-    if(np._h!==h){const a=document.activeElement;if(a&&np.contains(a)&&a.dataset.vol!==undefined)return;np.innerHTML=h;np._h=h}};
-  const drawList=()=>{const qq=q.trim().toLowerCase();const ts=eng.tracks.filter(t=>t.category===cat&&(!qq||t.title.toLowerCase().includes(qq)));const cur=eng.state?.track_id,pl=eng.state?.playing;
+  const drawNP=()=>{const st=eng.state||{},t=eng.current,a=eng.noAmb?null:eng.ambCurrent,_b=eng.blocked,pl=!!st.playing,ap=!!st.amb_playing,nsfx=eng.sfxOn.size;
+    const strip=(k,ico,name,title,on,ctl,vol,volKey)=>`<div class="mx ${on?'on':''}"><div class="mxh"><span class="eq ${on?'on':''}"><i></i><i></i><i></i></span><b>${ico} ${name}</b><span class="mxt">${title}</span></div>
+      <div class="mxc">${ctl}<span class="smv" title="Громкость «${name}» у всех">🔊<input type="range" min="0" max="1" step="0.01" value="${vol}" data-${volKey}></span></div></div>`;
+    const h=strip('m','🎵','Музыка',t?esc(t.title):'<span class="muted">тишина</span>',pl&&t,
+        `<button data-a="prev" title="Предыдущий" ${t?'':'disabled'}>⏮</button><button data-a="pp" class="pp" title="${pl?'Пауза':'Играть'}" ${t?'':'disabled'}>${pl?'❚❚':'▶'}</button><button data-a="next" title="Следующий" ${t?'':'disabled'}>⏭</button><button data-a="stop" title="Остановить музыку" ${t?'':'disabled'}>■</button><button data-a="loop" class="${st.loop?'on':''}" title="Повтор трека">🔁</button>`,st.volume??.8,'vol')
+      +(eng.noAmb?'':strip('a','🌧','Атмосфера',a?esc(a.title):'<span class="muted">тишина</span>',ap&&a,
+        `<button data-a="app" class="pp" title="${ap?'Пауза':'Играть'}" ${a?'':'disabled'}>${ap?'❚❚':'▶'}</button><button data-a="astop" title="Остановить атмосферу" ${a&&ap?'':'disabled'}>■</button>`,st.amb_volume??.6,'avol'))
+      +strip('s','💥','Эффекты',nsfx?`звучит: ${nsfx}`:'<span class="muted">—</span>',nsfx>0,
+        `<button data-a="sstop" title="Остановить все эффекты" ${nsfx?'':'disabled'}>■</button>`,st.sfx_volume??.9,'svol')
+      +(eng.blocked?`<button class="mxun" data-a="unlock">🔊 Включить звук у себя</button>`:'')
+      +`<button class="mxall" data-a="all" title="Остановить музыку, атмосферу и эффекты">■ Тишина — остановить всё</button>`;
+    if(np._h!==h){const ae=document.activeElement;if(ae&&np.contains(ae)&&ae.type==='range')return;np.innerHTML=h;np._h=h}};
+  const drawList=()=>{const qq=q.trim().toLowerCase();const ts=eng.tracks.filter(t=>t.category===cat&&(!qq||t.title.toLowerCase().includes(qq)));const cur=cat==='ambient'&&!eng.noAmb?eng.state?.amb_track_id:eng.state?.track_id,pl=cat==='ambient'&&!eng.noAmb?eng.state?.amb_playing:eng.state?.playing;
     let h;
     if(!eng.tracks.length)h=`<div class="smempty">В библиотеке пока пусто. Треки и эффекты добавляются во вкладке «Музыка» — сессия при этом продолжится.<button class="btn sm" data-lib>Открыть библиотеку</button></div>`;
     else if(!ts.length)h=`<div class="smempty">${qq?'Ничего не найдено':'В этом разделе пока нет треков'}</div>`;
@@ -281,11 +288,11 @@ function mountStageMusic(stEl){
     if(b.dataset.x!==undefined){toggleStageMusic(stEl,false);stEl.querySelector('[data-music]')?.classList.remove('on');return}
     if(b.dataset.lib!==undefined){go('project',eng.pid,'music');return}
     if(b.dataset.c){cat=b.dataset.c;LS.set('rpa_stmus_cat',cat);el.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b));drawList();return}
-    const a=b.dataset.a;if(a){if(a==='pp')eng.toggle();if(a==='prev')eng.next(-1);if(a==='next')eng.next(1);if(a==='stop')eng.stop();if(a==='loop')eng.setLoop(!eng.state?.loop);return}
-    if(b.dataset.id){const id=b.dataset.id;if(id===eng.state?.track_id&&cat!=='sfx')eng.toggle();else eng.playTrack(id);if(cat==='sfx'){b.classList.remove('hit');void b.offsetWidth;b.classList.add('hit')}}
+    const a=b.dataset.a;if(a){if(a==='pp')eng.toggle();if(a==='prev')eng.next(-1);if(a==='next')eng.next(1);if(a==='stop')eng.stop();if(a==='loop')eng.setLoop(!eng.state?.loop);if(a==='app')eng.toggleAmb();if(a==='astop')eng.stopAmb();if(a==='sstop')eng.stopSfx(true);if(a==='all')eng.stopEverything();if(a==='unlock')eng.unlock();return}
+    if(b.dataset.id){const id=b.dataset.id;if(cat==='ambient'&&!eng.noAmb&&id===eng.state?.amb_track_id)eng.toggleAmb();else if(id===eng.state?.track_id&&cat!=='sfx')eng.toggle();else eng.playTrack(id);if(cat==='sfx'){b.classList.remove('hit');void b.offsetWidth;b.classList.add('hit')}}
   });
   el.addEventListener('input',e=>{if(e.target.matches('.smq')){q=e.target.value;drawList()}});
-  el.addEventListener('change',e=>{if(e.target.dataset.vol!==undefined)eng.setVolume(+e.target.value)});
+  el.addEventListener('change',e=>{const d=e.target.dataset;if(d.vol!==undefined)eng.setVolume(+e.target.value);if(d.avol!==undefined)eng.setAmbVolume(+e.target.value);if(d.svol!==undefined)eng.setSfxVolume(+e.target.value)});
   ['pointerdown','wheel'].forEach(t=>el.addEventListener(t,e=>e.stopPropagation()));
   el.addEventListener('keydown',e=>e.stopPropagation());
   // клавиши 1–9 — эффекты, пока окно открыто и фокус не в поле ввода
