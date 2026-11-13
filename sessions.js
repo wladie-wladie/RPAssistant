@@ -192,9 +192,11 @@ async function renderStage(main,pid,isM,p){
         <button class="tg ${o.draw?'on':''}" data-ov="draw" title="Игроки рисуют и пишут на доске">✏️</button>
         <button class="tg ${o.chars?'on':''}" data-ov="chars" title="Панель персонажа у игроков (броски и силы)">🧛</button>
         <button class="tg ${o.dice?'on':''}" data-ov="dice" title="Журнал бросков у игроков">🎲</button></span>
+      <span class="sc-g"><button data-music class="${$('.st-mus')&&!$('.st-mus').hidden?'on':''}" title="Музыка, атмосфера и эффекты">🎵</button></span>
       <span class="sc-g"><button data-proj title="Вкладки проекта — сессия продолжится">☰ Проект</button><button class="end" data-endsess title="Завершить сессию">■ Завершить</button><button data-collapse title="Свернуть панель">▴</button></span>`;
   };
   const applyAll=()=>{applyBg();applyOverlays();mountScene();drawCtrl()};
+  if(isM&&LS.get('rpa_stmus')==='1')setTimeout(()=>{toggleStageMusic(stEl,true);drawCtrl()},0);
   if(isM){const {data}=await sb.from('maps').select('id,name,shared').eq('project_id',pid).order('sort').order('created_at');maps=data||[]}
   ctrl?.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const S=st();
     if(b.dataset.expand!==undefined||b.dataset.collapse!==undefined){LS.set('rpa_stctrl',b.dataset.collapse!==undefined?'0':'1');drawCtrl();return}
@@ -202,6 +204,7 @@ async function renderStage(main,pid,isM,p){
     if(b.dataset.scene==='image')return pickImage('Картинка для игроков',url=>save({stage:{...S,scene:'image',image:url}}),S.image);
     if(b.dataset.ov){const o={...S.overlays,[b.dataset.ov]:!S.overlays[b.dataset.ov]};return save({stage:{...S,overlays:o}})}
     if(b.dataset.bg!==undefined)return bgPop(b);
+    if(b.dataset.music!==undefined){toggleStageMusic(stEl);setTimeout(drawCtrl,0);return}
     if(b.dataset.mv&&mv){const map={settings:'[data-settings]',snap:'[data-snap]',fog:'[data-fog]',fogall:'[data-fogall]',fogclear:'[data-fogclear]',ptoks:'[data-ptoks]'};
       mv.head.querySelector(map[b.dataset.mv])?.click();setTimeout(drawCtrl,60);return}
     if(b.dataset.proj!==undefined)return go('project',pid,'board');
@@ -239,7 +242,59 @@ async function renderStage(main,pid,isM,p){
   const off=App.sess.on((live,row)=>{if(!row||row.id!==s.id||row.status!=='live')return;
     const remote=row.client!==CLIENT_ID;const itemsChanged=JSON.stringify(row.items)!==JSON.stringify(s.items);
     s={...s,...row};if(bd&&remote&&itemsChanged)bd.applyRemote(row.items||[]);applyAll()});
-  const dockOff=App.music?mountDock(stEl.querySelector('.st-dock'),App.music,null):null;
+  const dockOff=App.music?mountDock(stEl.querySelector('.st-dock'),App.music,isM?()=>{toggleStageMusic(stEl,true);drawCtrl()}:null):null;
   App.unsub=()=>{off();dockOff?.();if(charOff)charOff();if(mv){mv.destroy();App.mapView=null}App.inStage=false;document.body.classList.remove('stage-nodice','stage-player');$('.st-bgpop')?.remove()};
   applyAll();
 }
+
+/* ---------- музыка и эффекты прямо в сессии (мастер) ---------- */
+function toggleStageMusic(stEl,force){
+  let el=stEl.querySelector('.st-mus');
+  if(!el){el=mountStageMusic(stEl);if(!el)return}
+  const show=force??el.hidden;el.hidden=!show;LS.set('rpa_stmus',show?'1':'0');if(show)el._fp?.();
+}
+function mountStageMusic(stEl){
+  const eng=App.music;if(!eng)return null;
+  const el=document.createElement('div');el.className='st-mus';el.hidden=true;
+  let cat=LS.get('rpa_stmus_cat')||'music',q='';
+  el.innerHTML=`<div class="smh"><b>🎵 Музыка</b><span class="spacer"></span><button class="smx" data-x title="Свернуть">✕</button></div>
+    <div class="smnp"></div>
+    <div class="smtabs">${Object.entries(CATS).map(([k,v])=>`<button data-c="${k}" class="${k===cat?'on':''}">${v}</button>`).join('')}</div>
+    <input class="smq" placeholder="Поиск" type="search">
+    <div class="smlist"></div>`;
+  stEl.appendChild(el);
+  const np=el.querySelector('.smnp'),list=el.querySelector('.smlist');
+  const drawNP=()=>{const t=eng.current,st=eng.state||{};const pl=!!st.playing;
+    const h=`<div class="smnow ${pl?'on':''}"><span class="eq ${pl?'on':''}"><i></i><i></i><i></i></span><span class="smt">${t?esc(t.title):'<span class="muted">Ничего не играет</span>'}</span>${t?`<small>${esc(CATS[t.category]||'')}</small>`:''}</div>
+      <div class="smctl"><button data-a="prev" title="Предыдущий" ${t?'':'disabled'}>⏮</button><button data-a="pp" class="pp" title="${pl?'Пауза':'Играть'}" ${t?'':'disabled'}>${pl?'❚❚':'▶'}</button><button data-a="next" title="Следующий" ${t?'':'disabled'}>⏭</button><button data-a="stop" title="Стоп" ${t?'':'disabled'}>■</button><button data-a="loop" class="${st.loop?'on':''}" title="Повтор трека">🔁</button>
+        <span class="smv" title="Громкость у всех">🔊<input type="range" min="0" max="1" step="0.01" value="${st.volume??.8}" data-vol></span></div>`;
+    if(np._h!==h){const a=document.activeElement;if(a&&np.contains(a)&&a.dataset.vol!==undefined)return;np.innerHTML=h;np._h=h}};
+  const drawList=()=>{const qq=q.trim().toLowerCase();const ts=eng.tracks.filter(t=>t.category===cat&&(!qq||t.title.toLowerCase().includes(qq)));const cur=eng.state?.track_id,pl=eng.state?.playing;
+    let h;
+    if(!eng.tracks.length)h=`<div class="smempty">В библиотеке пока пусто. Треки и эффекты добавляются во вкладке «Музыка» — сессия при этом продолжится.<button class="btn sm" data-lib>Открыть библиотеку</button></div>`;
+    else if(!ts.length)h=`<div class="smempty">${qq?'Ничего не найдено':'В этом разделе пока нет треков'}</div>`;
+    else if(cat==='sfx')h=`<div class="smpads">${ts.map((t,i)=>`<button class="smpad" data-id="${t.id}" title="Проиграть у всех${i<9?' · клавиша '+(i+1):''}">${i<9?`<kbd>${i+1}</kbd>`:''}<span>${esc(t.title)}</span></button>`).join('')}</div>`;
+    else h=ts.map(t=>`<button class="smtr ${t.id===cur?'cur':''}" data-id="${t.id}"><span class="smi">${t.id===cur&&pl?'❚❚':'▶'}</span><span class="smn">${esc(t.title)}</span>${t.duration?`<small>${fmtDur(+t.duration)}</small>`:''}</button>`).join('');
+    if(list._h!==h){list.innerHTML=h;list._h=h}};
+  const draw=()=>{drawNP();drawList()};
+  el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.x!==undefined){toggleStageMusic(stEl,false);stEl.querySelector('[data-music]')?.classList.remove('on');return}
+    if(b.dataset.lib!==undefined){go('project',eng.pid,'music');return}
+    if(b.dataset.c){cat=b.dataset.c;LS.set('rpa_stmus_cat',cat);el.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b));drawList();return}
+    const a=b.dataset.a;if(a){if(a==='pp')eng.toggle();if(a==='prev')eng.next(-1);if(a==='next')eng.next(1);if(a==='stop')eng.stop();if(a==='loop')eng.setLoop(!eng.state?.loop);return}
+    if(b.dataset.id){const id=b.dataset.id;if(id===eng.state?.track_id&&cat!=='sfx')eng.toggle();else eng.playTrack(id);if(cat==='sfx'){b.classList.remove('hit');void b.offsetWidth;b.classList.add('hit')}}
+  });
+  el.addEventListener('input',e=>{if(e.target.matches('.smq')){q=e.target.value;drawList()}});
+  el.addEventListener('change',e=>{if(e.target.dataset.vol!==undefined)eng.setVolume(+e.target.value)});
+  ['pointerdown','wheel'].forEach(t=>el.addEventListener(t,e=>e.stopPropagation()));
+  el.addEventListener('keydown',e=>e.stopPropagation());
+  // клавиши 1–9 — эффекты, пока окно открыто и фокус не в поле ввода
+  const hot=e=>{if(el.hidden||!el.isConnected||e.ctrlKey||e.metaKey||e.altKey)return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)||a?.isContentEditable)return;
+    const n=+e.key;if(n>=1&&n<=9){const sfx=eng.tracks.filter(t=>t.category==='sfx'&&(!q||t.title.toLowerCase().includes(q.trim().toLowerCase())));const t=sfx[n-1];if(t){e.preventDefault();e.stopPropagation();eng.playTrack(t.id);const pad=list.querySelector(`[data-id="${t.id}"]`);if(pad){pad.classList.remove('hit');void pad.offsetWidth;pad.classList.add('hit')}}}};
+  document.addEventListener('keydown',hot,true);
+  const off=eng.on(draw);
+  el._fp=floatPanel(el,el.querySelector('.smh'),'stmusic');
+  const mo=new MutationObserver(()=>{if(!el.isConnected){off();document.removeEventListener('keydown',hot,true);mo.disconnect()}});mo.observe(stEl.parentElement||document.body,{childList:true,subtree:true});
+  draw();return el;
+}
+const fmtDur=s=>{s=Math.round(s||0);const m=Math.floor(s/60);return `${m}:${String(s%60).padStart(2,'0')}`};

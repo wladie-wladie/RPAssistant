@@ -39,3 +39,12 @@ body.stage-nodice .chatw{left:18px}
 .cw-peek.in{animation:cwin .25s ease}
 @keyframes cwin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .cw-err{margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(224,71,91,.12);color:#f3a3ae;font:12px/1.4 ui-monospace,Consolas,monospace;text-align:left;overflow-wrap:anywhere}
+/* ---------- личные заметки ---------- */
+.notew{position:fixed;left:134px;bottom:18px;z-index:8090;font-family:Inter,Manrope,sans-serif}
+body.stage-nodice .notew{left:76px}
+.nw-btn{width:48px;height:48px;border-radius:50%;border:1px solid #5a4a26;background:radial-gradient(circle at 35% 30%,#5a4a26,#1c170c);font-size:21px;cursor:pointer;box-shadow:0 8px 24px -6px rgba(0,0,0,.6);transition:transform .12s}
+.nw-btn:hover{transform:scale(1.06)}.notew.open .nw-btn{box-shadow:0 0 0 2px #e3b75b,0 8px 24px -6px rgba(0,0,0,.6)}
+.nw-panel{position:absolute;left:0;bottom:58px;width:min(560px,calc(100vw - 30px));height:min(600px,calc(100vh - 110px));display:flex;flex-direction:column;background:var(--panel,#171b2b);border:1px solid var(--line,#2a2f45);border-radius:14px;box-shadow:0 24px 60px -12px rgba(0,0,0,.7);overflow:hidden}
+.nw-h{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line,#2a2f45)}.nw-h .spacer{flex:1}
+.nw-st{font-size:11.5px;color:var(--muted,#8b90a8)}.nw-st.ok{color:#7ad08a}.nw-st.warn{color:#e3b75b}
+.nw-t{flex:1;min-height:0;resize:none;border:0;outline:none;background:transparent;color:var(--text,#e8e8f0);padding:14px 16px;font:15px/1.6 Inter,Manrope,sans-serif;background-image:linear-gradient(transparent calc(1.6em - 1px),rgba(255,255,255,.04) 1.6em);background-size:100% 1.6em;background-attachment:local;background-position:0 14px}

@@ -112,3 +112,51 @@ function mountChat(){
   H.ready.then(()=>{opts();if(LS.get('rpa_chat_open')==='1')openP(true)});
   el._off=off;
 }
+
+/* ---------- личные заметки участника (по кампании) ---------- */
+function mountNotes(pid){
+  {const o=$('.notew');if(o){o._off?.();o.remove()}}
+  if(!pid||!App.user)return;
+  const K='rpa_notes_'+pid+'_'+App.user.id;
+  const el=document.createElement('div');el.className='notew';
+  el.innerHTML=`<button class="nw-btn" title="Мои заметки по кампании">📝</button>
+    <div class="nw-panel" hidden><div class="nw-h"><b>Мои заметки</b><span class="nw-st"></span><span class="spacer"></span><button class="btn ghost sm" data-x title="Свернуть">✕</button></div>
+      <textarea class="nw-t" spellcheck="true" placeholder="Записывайте всё важное: имена, улики, долги, кому что обещали… Видите только вы, сохраняется автоматически."></textarea></div>`;
+  document.body.appendChild(el);
+  const btn=el.querySelector('.nw-btn'),panel=el.querySelector('.nw-panel'),ta=el.querySelector('.nw-t'),st=el.querySelector('.nw-st');
+  let remote=true,loaded=false,timer=null,dirty=false,lastSaved='';
+  const status=(t,cls='')=>{st.textContent=t;st.className='nw-st '+cls};
+  const local=()=>{try{return JSON.parse(localStorage.getItem(K)||'null')}catch(_){return null}};
+  const setLocal=v=>{try{localStorage.setItem(K,JSON.stringify({body:v,at:Date.now()}))}catch(_){}};
+  async function load(){
+    const loc=local();
+    const {data,error}=await sb.from('player_notes').select('body,updated_at').eq('project_id',pid).eq('user_id',App.user.id).maybeSingle();
+    if(error){remote=false;console.warn('notes:',error.message);ta.value=loc?.body||'';status('только на этом устройстве','warn')}
+    else{const rb=data?.body||'',rt=data?Date.parse(data.updated_at):0;
+      // если на устройстве есть более свежая несохранённая версия — она главнее
+      if(loc&&loc.at>rt&&loc.body!==rb){ta.value=loc.body;dirty=true;schedule(10)}else{ta.value=rb;setLocal(rb)}
+      lastSaved=rb;status(data?'сохранено':'','ok')}
+    loaded=true;
+  }
+  async function save(){
+    if(!loaded)return;const v=ta.value;setLocal(v);
+    if(!remote){status('сохранено на этом устройстве','warn');dirty=false;return}
+    if(v===lastSaved){dirty=false;status('сохранено','ok');return}
+    status('сохраняю…');
+    const {error}=await sb.from('player_notes').upsert({project_id:pid,user_id:App.user.id,body:v,updated_at:new Date().toISOString()});
+    if(error){console.warn('notes:',error.message);remote=!/player_notes|42P01|PGRST20|schema cache|does not exist|Could not find/i.test((error.message||'')+' '+(error.code||''));status(remote?'не сохранилось — нет связи':'сохранено на этом устройстве','warn');return}
+    lastSaved=v;dirty=false;status('сохранено','ok');
+  }
+  const schedule=(ms=700)=>{clearTimeout(timer);timer=setTimeout(save,ms)};
+  ta.addEventListener('input',()=>{dirty=true;setLocal(ta.value);status('…');schedule()});
+  ta.addEventListener('blur',()=>{if(dirty)save()});
+  const openP=v=>{panel.hidden=!v;el.classList.toggle('open',v);LS.set('rpa_notes_open',v?'1':'0');if(v){fp();if(!loaded)load();setTimeout(()=>ta.focus(),0)}else if(dirty)save()};
+  const fp=floatPanel(panel,el.querySelector('.nw-h'),'notes');
+  btn.onclick=()=>openP(panel.hidden);
+  el.querySelector('[data-x]').onclick=()=>openP(false);
+  ['keydown','wheel','pointerdown','paste','copy','cut'].forEach(t=>el.addEventListener(t,e=>e.stopPropagation()));
+  const flush=()=>{if(dirty){setLocal(ta.value);save()}};
+  addEventListener('beforeunload',flush);
+  el._off=()=>{flush();removeEventListener('beforeunload',flush)};
+  load().then(()=>{if(LS.get('rpa_notes_open')==='1')openP(true)});
+}

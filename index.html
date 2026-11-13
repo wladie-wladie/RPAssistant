@@ -700,6 +700,7 @@ async function go(view,...args){
   if(App.hub&&!(view==='project'&&args[0]===App.hub.pid)){App.hub.destroy();App.hub=null}
   if(App.sess&&!(view==='project'&&args[0]===App.sess.pid)){App.sess.destroy();App.sess=null}
   if(App.chat&&!(view==='project'&&args[0]===App.chat.pid)){App.chat.destroy();App.chat=null;$('.chatw')?.remove()}
+  if(!(view==='project')){const nw=$('.notew');if(nw){nw._off?.();nw.remove()}}
   if(App.chars&&!(view==='project'&&args[0]===App.chars.pid)){App.chars.destroy();App.chars=null;$('.dicelog')?.remove();$('.rollpop')?.remove()}
   document.body.className=(App.user?.role?'role-'+App.user.role:'')+' lang-'+I18N.lang;
   try{
@@ -978,7 +979,7 @@ async function renderProject(pid,tab='board'){
   if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,isM&&tab!=='music'?()=>go('project',pid,'music'):null);
   $('.hdr [data-fs]').innerHTML=FS.icon();$('.hdr [data-fs]').onclick=()=>FS.toggle();drawLivePill();
   if(isM)$('[data-invite]').onclick=()=>inviteModal(p);
-  mountDiceLog();mountChat();
+  mountDiceLog();mountChat();mountNotes(pid);
   bindHeader();
   $('[data-back]').onclick=()=>{LS.set('rpa_nav',null);go('home')};
   $$('[data-tab]').forEach(b=>b.onclick=()=>go('project',pid,b.dataset.tab));
