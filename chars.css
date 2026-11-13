@@ -332,3 +332,10 @@ mark{background:#e3b75b55;color:#fff;border-radius:3px;padding:0 2px}
 .sh-alias input{width:260px;padding:5px 8px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:13px}
 .sh-alst{font-size:11.5px;color:var(--muted)}
 .hid-tag{font-size:11px;opacity:.8}
+/* крупный просмотр значка (Alt + наведение) */
+.bigav{position:fixed;z-index:99999;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;border-radius:16px;background:rgba(12,13,20,.92);border:1px solid rgba(227,183,91,.35);box-shadow:0 30px 70px -10px rgba(0,0,0,.8);animation:bigin .12s ease}
+@keyframes bigin{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.bigav-i{width:280px;height:280px;border-radius:12px;background:#1a1d2b center/cover no-repeat;display:grid;place-items:center}
+.bigav-i span{font-size:150px;line-height:1;color:#fff;font-weight:800;text-shadow:0 4px 18px rgba(0,0,0,.5)}
+.bigav-n{font-weight:700;font-size:15px;color:#f0e6d0;max-width:280px;text-align:center}
+.bigav-img{display:block;max-width:320px;max-height:420px;min-width:160px;border-radius:12px;object-fit:contain;background:#1a1d2b}

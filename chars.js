@@ -775,3 +775,27 @@ function charIOMenu(btn,pid,isM,cur,done){
     if(b.dataset.e1!==undefined)exportChars([c]);if(b.dataset.ea!==undefined)exportChars(mine);if(b.dataset.i!==undefined)importChars(pid,isM,done);if(b.dataset.t!==undefined)charTemplate()};
   setTimeout(()=>document.addEventListener('pointerdown',function h(e){if(!pop.contains(e.target)){pop.remove();document.removeEventListener('pointerdown',h)}}),0);
 }
+
+/* ---------- Alt + наведение на значок персонажа — крупный просмотр ---------- */
+(()=>{
+  const SEL='.tk-c,.cli-av,.sh-avi,.lk-tok,.lk-img';
+  let box=null,lastX=0,lastY=0,cur=null;
+  const hide=()=>{if(box){box.remove();box=null}cur=null};
+  const nameOf=el=>{const tok=el.closest('.tok');if(tok)return tok.querySelector('.tk-n')?.textContent||'';const cli=el.closest('.cli');if(cli)return cli.querySelector('.cli-b b')?.textContent||'';const sh=el.closest('.sheet');if(sh)return sh.querySelector('.nm')?.value||'';return ''};
+  const show=el=>{
+    if(cur===el&&box){place();return}
+    hide();cur=el;
+    const bg=getComputedStyle(el).backgroundImage,m=bg&&bg.match(/url\(["']?(.*?)["']?\)/),url=m?m[1]:null;
+    const tc=getComputedStyle(el).getPropertyValue('--tc')||getComputedStyle(el).backgroundColor;
+    const txt=url?'':(el.textContent||'').trim();
+    box=document.createElement('div');box.className='bigav';
+    box.innerHTML=`${url?`<img class="bigav-img" src="${esc(url)}" alt="">`:`<div class="bigav-i" style="background:${tc||'#3a2230'}"><span>${esc(txt)}</span></div>`}${nameOf(el)?`<div class="bigav-n">${esc(nameOf(el).replace(/^🙈\s*/,''))}</div>`:''}`;
+    document.body.appendChild(box);place();box.querySelector('img')?.addEventListener('load',place);
+  };
+  const place=()=>{if(!box)return;const w=box.offsetWidth,h=box.offsetHeight;let x=lastX+24,y=lastY-h/2;if(x+w>innerWidth-8)x=lastX-w-24;y=Math.max(8,Math.min(innerHeight-h-8,y));box.style.left=x+'px';box.style.top=y+'px'};
+  const check=alt=>{if(!alt)return hide();const el=document.elementFromPoint(lastX,lastY);const av=el&&el.closest(SEL);if(av)show(av);else hide()};
+  addEventListener('mousemove',e=>{lastX=e.clientX;lastY=e.clientY;if(e.altKey)check(true);else if(box)hide()},{passive:true});
+  addEventListener('keydown',e=>{if(e.key==='Alt'){check(true);if(box)e.preventDefault()}});
+  addEventListener('keyup',e=>{if(e.key==='Alt'){if(box)e.preventDefault();hide()}});
+  addEventListener('blur',hide);addEventListener('wheel',()=>{if(box)hide()},{passive:true});
+})();
