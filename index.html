@@ -25,7 +25,7 @@ input,select,textarea{font:inherit;color:var(--text);background:#10141f;border:1
 textarea{padding:10px 12px;height:auto}
 input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
 textarea{resize:vertical;min-height:80px}
-label.f{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13px;margin-bottom:14px}
+label.f,div.f{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13px;margin-bottom:14px}
 label.f b{color:var(--danger);font-weight:400}
 .btn{height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;transition:filter 160ms var(--ease),background 160ms var(--ease),transform 120ms var(--ease)}
 .btn:active{transform:scale(.98)}
@@ -2474,6 +2474,11 @@ class MapView{
     const S=this.S,bg=S.bg||{};
     const {el,close}=openModal(`<h3>Сетка и фон карты</h3><form class="msettings">
       <label class="f">Шаблон<select name="preset"><option value="">— оставить как есть —</option>${Object.entries(MAP_PRESETS).map(([k,p])=>`<option value="${k}">${esc(p.label)}</option>`).join('')}</select></label>
+      <div class="bgbox"><b>Изображение карты</b> <span class="muted">— план здания, схема района или рисунок местности. Ложится на саму карту, под сетку и фишки</span>
+        <div class="row-g" style="margin:8px 0"><label class="btn sm">${bg.src?'Заменить изображение':'Загрузить изображение'}<input type="file" accept="image/*" hidden data-bgfile></label>${bg.src?'<button type="button" class="btn sm ghost" data-bgdel>Убрать фон</button><button type="button" class="btn sm ghost" data-bgfit>Растянуть на всю карту</button>':''}</div>
+        ${bg.src?`<div class="grid3"><label class="f">Ширина фона, клеток<input name="bgw" type="number" step="0.1" min="1" value="${r1(bg.w)}"></label><label class="f">Сдвиг X, клеток<input name="bgx" type="number" step="0.1" value="${r1(bg.x)}"></label><label class="f">Сдвиг Y, клеток<input name="bgy" type="number" step="0.1" value="${r1(bg.y)}"></label></div>
+        <label class="f">Прозрачность фона<input name="bgo" type="range" min="0.1" max="1" step="0.05" value="${bg.opacity??1}"></label><p class="muted" style="font-size:12px;margin:-6px 0 0">Совместите клетки на картинке с сеткой: подберите ширину фона и сдвиг. Изменения видны сразу.</p>`:''}
+      </div>
       <div class="grid3"><label class="f">Сетка<select name="grid"><option value="square" ${S.grid==='square'?'selected':''}>Квадраты</option><option value="hex" ${S.grid==='hex'?'selected':''}>Шестиугольники</option><option value="none" ${S.grid==='none'?'selected':''}>Без сетки</option></select></label>
       <label class="f">Размер клетки<input name="cellM" type="number" min="0.1" step="0.1" value="${S.cellM}"></label>
       <label class="f">Единицы<select name="unit">${['м','фт','км','миль'].map(u=>`<option ${u===S.unit?'selected':''}>${u}</option>`).join('')}</select></label></div>
@@ -2482,11 +2487,6 @@ class MapView{
       <label class="f">Прозрачность сетки<input name="gridOpacity" type="range" min="0" max="1" step="0.05" value="${S.gridOpacity}"></label></div>
       <div class="grid3"><label class="f">Цвет сетки<input name="gridColor" type="color" value="${S.gridColor}"></label><label class="f">Цвет основы<input name="base" type="color" value="${S.base}"></label><div class="f"><span>Вокруг карты</span><div class="outrow">${['#f5f5f5','#2a2622','#12141c','#3b4a3a'].map(c=>`<button type="button" class="osw ${!S.outsideImg&&(S.outside||'#f5f5f5')===c?'on':''}" data-out="${c}" title="${c}" style="background:${c}"></button>`).join('')}<label class="ocw ${!S.outsideImg&&!['#f5f5f5','#2a2622','#12141c','#3b4a3a'].includes(S.outside||'#f5f5f5')?'on':''}" title="Любой цвет"><input name="outside" type="color" value="${S.outside||'#f5f5f5'}"></label></div></div></div>
       <div style="display:flex;flex-wrap:nowrap;gap:8px;margin:-4px 0 12px;align-items:center;white-space:nowrap"><span class="muted" style="font-size:13px">Картинка вокруг:</span><label class="btn sm">${S.outsideImg?'Заменить':'Загрузить'}<input type="file" accept="image/*" hidden data-outfile></label><button type="button" class="btn sm" data-outlib>Из готовых фонов</button>${S.outsideImg?`<span class="othumb" style="background-image:url(&quot;${esc(S.outsideImg)}&quot;)"></span><button type="button" class="btn sm ghost" data-outdel>Убрать</button>`:''}</div>
-      <div class="bgbox"><b>Фоновая картинка</b> <span class="muted">— готовая карта или рисунок местности</span>
-        <div class="row-g" style="margin:8px 0"><label class="btn sm">${bg.src?'Заменить':'Загрузить картинку'}<input type="file" accept="image/*" hidden data-bgfile></label>${bg.src?'<button type="button" class="btn sm ghost" data-bgdel>Убрать фон</button><button type="button" class="btn sm ghost" data-bgfit>Растянуть на всю карту</button>':''}</div>
-        ${bg.src?`<div class="grid3"><label class="f">Ширина фона, клеток<input name="bgw" type="number" step="0.1" min="1" value="${r1(bg.w)}"></label><label class="f">Сдвиг X, клеток<input name="bgx" type="number" step="0.1" value="${r1(bg.x)}"></label><label class="f">Сдвиг Y, клеток<input name="bgy" type="number" step="0.1" value="${r1(bg.y)}"></label></div>
-        <label class="f">Прозрачность фона<input name="bgo" type="range" min="0.1" max="1" step="0.05" value="${bg.opacity??1}"></label><p class="muted" style="font-size:12px;margin:-6px 0 0">Совместите клетки на картинке с сеткой: подберите ширину фона и сдвиг. Изменения видны сразу.</p>`:''}
-      </div>
       <div class="modal-actions"><button type="button" class="btn" data-close>Готово</button></div></form>`);
     el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
     const f=el.querySelector('form');
