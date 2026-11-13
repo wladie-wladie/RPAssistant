@@ -258,3 +258,13 @@ mark{background:#e3b75b55;color:#fff;border-radius:3px;padding:0 2px}
 .sh-hint select{height:26px!important;padding:0 6px!important;font-size:12px!important;margin-left:4px}
 .ages{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important}
 .sh-hint select{width:auto!important;display:inline-block}
+
+/* полный лист поверх экрана */
+.sheetov{position:fixed;inset:0;z-index:900;background:rgba(5,6,10,.6);backdrop-filter:blur(3px);display:flex;justify-content:center;align-items:flex-start;padding:24px;animation:sheetin .18s ease}
+@keyframes sheetin{from{opacity:0}to{opacity:1}}
+.sheetov-box{width:min(1100px,100%);max-height:calc(100vh - 48px);display:flex;flex-direction:column;background:var(--bg,#0f1119);border:1px solid rgba(255,255,255,.1);border-radius:16px;box-shadow:0 40px 100px -20px rgba(0,0,0,.8);overflow:hidden}
+.sheetov-h{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sheetov-h b{font-size:16px}.sheetov-h .muted{font-size:12px}.sheetov-h .spacer{flex:1}
+.sheetov-b{flex:1;overflow-y:auto;min-height:0}
+.mchar .mc-sheet{font-size:14px}
+@media (max-width:700px){.sheetov{padding:0}.sheetov-box{max-height:100vh;border-radius:0}}

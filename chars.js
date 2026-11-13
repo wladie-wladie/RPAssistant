@@ -507,7 +507,7 @@ function mountMapCharPanel(mv){
     const all=pick(),c=cur&&S.get(cur);
     if(!all.length){el.innerHTML=S.isM?'':`<div class="mc-empty">🧛 Создайте персонажа во вкладке «Персонажи», чтобы бросать кубы и применять силы прямо здесь.</div>`;return}
     const d=c.data,known=(d.powers||[]).map(id=>VTM.POWER[id]).filter(Boolean);
-    el.innerHTML=`<div class="mc-h" title="Перетащите, чтобы передвинуть · двойной щелчок — на место"><span class="mc-grip" aria-hidden="true">⠿</span><button class="mc-tg" data-tg title="${open?'Свернуть':'Развернуть'}">${open?'▾':'▸'}</button>${all.length>1?`<select data-mc>${all.map(x=>`<option value="${x.id}" ${x.id===cur?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:`<b>${esc(c.name)}</b>`}<span class="mc-hun" title="Голод">${boxes('hunger',c)}</span></div>
+    el.innerHTML=`<div class="mc-h" title="Перетащите, чтобы передвинуть · двойной щелчок — на место"><span class="mc-grip" aria-hidden="true">⠿</span><button class="mc-tg" data-tg title="${open?'Свернуть':'Развернуть'}">${open?'▾':'▸'}</button>${c?`<button class="mc-tg mc-sheet" data-sheet title="Открыть полный лист персонажа">📜</button>`:''}${all.length>1?`<select data-mc>${all.map(x=>`<option value="${x.id}" ${x.id===cur?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:`<b>${esc(c.name)}</b>`}<span class="mc-hun" title="Голод">${boxes('hunger',c)}</span></div>
     ${open?`<div class="mc-b"><div class="mc-tr"><span title="Здоровье">❤</span>${boxes('health',c)}</div><div class="mc-tr"><span title="Воля">✦</span>${boxes('wp',c)}</div>
       <div class="mc-q">${QUICK_ROLLS.map(([n,a,b,ic])=>`<button data-q="${a}|${b}|${n}" title="${VTM.ATTR_NAME[a]} + ${VTM.SKILL_NAME[b]} = ${VTM.val(d,a)+VTM.val(d,b)}"><span>${ic}</span>${n}<b>${VTM.val(d,a)+VTM.val(d,b)}</b></button>`).join('')}</div>
       ${known.length?`<div class="mc-l">Силы</div><div class="mc-p">${known.map(p=>`<button data-pw="${p.id}" title="${esc(p.d)}${p.vs?' · против '+esc(p.vs):''}"><span>${VTM.DISC_ICON[p.disc]}</span>${esc(p.n)}${p.r?`<i>${'🩸'.repeat(p.r)}</i>`:''}</button>`).join('')}</div>`:''}
@@ -516,6 +516,7 @@ function mountMapCharPanel(mv){
   el.onclick=e=>{const t=e.target;const c=cur&&S.get(cur);
     if(t.closest('[data-tg]')){open=!open;LS.set('rpa_mchar_open',open?'1':'0');draw();return place()}
     if(!c)return;
+    if(t.closest('[data-sheet]'))return openSheetModal(c.id);
     const bx=t.closest('[data-box] i');if(bx&&S.canEdit(c))return S.patch(c.id,cycleBox(c,bx.parentElement.dataset.box,+bx.dataset.i));
     const q=t.closest('[data-q]');if(q){const [a,b,n]=q.dataset.q.split('|');return openRollDialog(c,{a,b,label:n})}
     const pw=t.closest('[data-pw]');if(pw)return usePower(c,pw.dataset.pw);
@@ -540,4 +541,26 @@ function mountMapCharPanel(mv){
   const draw2=()=>{draw();place()};
   const off=S.on(()=>draw2());S.ready.then(draw2);
   return ()=>{off();ro&&ro.disconnect();el.remove()};
+}
+
+/* полный лист персонажа поверх любого экрана (сессия, карта) */
+async function openSheetModal(id){
+  const S=App.chars;if(!S)return;let c=S.get(id);if(!c)return;
+  document.querySelector('.sheetov')?.remove();
+  const ov=document.createElement('div');ov.className='sheetov';
+  ov.innerHTML=`<div class="sheetov-box"><div class="sheetov-h"><b>${esc(c.name)}</b><span class="muted">изменения сразу видят мастер и игрок</span><span class="spacer"></span><button class="btn sm" data-x title="Закрыть (Esc)">✕ Закрыть</button></div><div class="sheetov-b csheet"></div></div>`;
+  document.body.appendChild(ov);
+  const body=ov.querySelector('.sheetov-b');
+  const mem=S.isM?await API.members(c.project_id).catch(()=>[]):[];
+  const draw=()=>{c=S.get(id);if(!c)return close();ov.querySelector('.sheetov-h b').textContent=c.name;const y=body.scrollTop;renderSheet(body,c,S.isM,mem);body.scrollTop=y};
+  let pend=false;
+  const off=S.on(x=>{if(x&&x!==id)return;const a=document.activeElement;
+    if(a&&body.contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){if(!pend){pend=true;a.addEventListener('blur',()=>{pend=false;setTimeout(()=>{if(ov.isConnected)draw()},50)},{once:true})}}else draw()});
+  const key=e=>{if(e.key==='Escape'&&!document.querySelector('.modal-bg'))close()};
+  function close(){off();document.removeEventListener('keydown',key);ov.remove()}
+  ov.querySelector('[data-x]').onclick=close;
+  ov.addEventListener('pointerdown',e=>{if(e.target===ov)close()});
+  document.addEventListener('keydown',key);
+  ['pointerdown','wheel','keydown'].forEach(t=>ov.addEventListener(t,e=>e.stopPropagation()));
+  draw();
 }
