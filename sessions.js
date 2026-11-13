@@ -45,7 +45,7 @@ const relTime=iso=>{if(!iso)return '';const ms=new Date(iso)-Date.now(),m=Math.r
 const toLocalInput=iso=>{if(!iso)return '';const d=new Date(iso);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
 
 async function renderSessionsTab(main,pid,isM){
-  main.innerHTML=`<div class="sessions"><div class="ss-h"><h2>Сессии</h2>${isM?'<button class="btn primary" data-new>+ Запланировать сессию</button>':''}</div><div class="ss-body"><div class="loading"><div class="spin"></div></div></div></div>`;
+  main.innerHTML=`<div class="sessions"><div class="ss-h"><h2>Сессии</h2>${isM?'<span class="row-g" style="gap:8px"><button class="btn" data-bgs title="Подготовить фоны для сессий">🖼 Фоны</button><button class="btn primary" data-new>+ Запланировать сессию</button></span>':''}</div><div class="ss-body"><div class="loading"><div class="spin"></div></div></div></div>`;
   const body=$('.ss-body',main);let list=[],plans={};
   const load=async()=>{
     const {data,error}=await sb.from('game_sessions').select('id,project_id,title,starts_at,duration_min,announce,summary,status,started_at,ended_at').eq('project_id',pid).order('starts_at',{ascending:true,nullsFirst:false});
@@ -79,6 +79,7 @@ async function renderSessionsTab(main,pid,isM){
     if(e.target.closest('[data-del]')){if(await confirmBox(`Удалить сессию «${s.title}»?`)){const {error}=await sb.from('game_sessions').delete().eq('id',s.id);if(!fail(error))load()}return}
   };
   if(isM)main.querySelector('[data-new]').onclick=()=>editSession(pid,null,'',load);
+  if(isM)main.querySelector('[data-bgs]').onclick=()=>manageBgs(pid);
   const off=App.sess?.on(()=>load());App.unsub=()=>off?.();
   load();
 }
@@ -106,6 +107,34 @@ function editSession(pid,s,plan,done){
 
 /* ---------- экран сессии ---------- */
 const STAGE_BG=['#14161f','#0b0b0f','#1d1016','#101b16','#121a2b','#2a2219','#e8e2d4','#ffffff'];
+/* библиотека готовых фонов проекта (хранится служебной записью в map_templates) */
+const BG_KEY='__stage_bgs__';
+const BgLib={
+  async load(pid){const {data,error}=await sb.from('map_templates').select('id,items').eq('project_id',pid).eq('name',BG_KEY);if(error){console.error(error);return []}this.row=(data||[])[0]||null;this.pid=pid;return (this.row?.items||[]).filter(x=>x&&x.src)},
+  async save(pid,list){
+    if(this.pid!==pid)await this.load(pid);
+    if(this.row?.id){const {error}=await sb.from('map_templates').update({items:list}).eq('id',this.row.id);if(fail(error))return false;this.row.items=list;return true}
+    const {data,error}=await sb.from('map_templates').insert({project_id:pid,name:BG_KEY,icon:'🖼',items:list,created_by:App.user.id}).select('id,items').single();if(fail(error))return false;this.row=data||{items:list};return true},
+  async add(pid,src,name){const l=await this.load(pid);if(l.some(x=>x.src===src))return l;l.push({src,name:name||'',at:Date.now()});await this.save(pid,l);return l},
+};
+const bgThumbs=(list,cur,del)=>list.map((x,i)=>`<div class="bgt ${cur===x.src?'on':''}" data-pick="${i}" title="${esc(x.name||'')}" style="background-image:url(&quot;${esc(x.src)}&quot;)">${del?`<button type="button" class="bgx" data-del="${i}" title="Убрать из библиотеки">×</button>`:''}${x.name?`<span>${esc(x.name)}</span>`:''}</div>`).join('');
+async function manageBgs(pid,onPick){
+  let list=await BgLib.load(pid);
+  const {el,close}=openModal(`<h3>Готовые фоны</h3><p class="muted" style="margin:-4px 0 12px;font-size:13px">Загрузите фоны заранее — в сессии они будут под кнопкой «🎨 Фон», выбор в один клик.</p>
+    <div class="bglib big" data-grid></div>
+    <form class="row-g" style="gap:8px;margin-top:12px;flex-wrap:wrap"><label class="btn">Загрузить файлы<input type="file" accept="image/*" multiple hidden data-files></label><input name="u" placeholder="или ссылка на картинку https://…" style="flex:1;min-width:200px"><button class="btn">Добавить</button></form>
+    <div class="modal-actions"><button type="button" class="btn primary" data-close>Готово</button></div>`);
+  const grid=el.querySelector('[data-grid]');
+  const draw=()=>{grid.innerHTML=list.length?bgThumbs(list,null,true):'<div class="muted" style="grid-column:1/-1;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:10px">Пока пусто</div>'};draw();
+  el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+  grid.onclick=async e=>{const d=e.target.closest('[data-del]');if(d){list.splice(+d.dataset.del,1);draw();await BgLib.save(pid,list);return}
+    const t=e.target.closest('[data-pick]');if(t&&onPick){onPick(list[+t.dataset.pick].src);close()}};
+  const fi=el.querySelector('[data-files]');
+  fi.onchange=async()=>{const fs=[...fi.files];if(!fs.length)return;toast(`Загружаю ${fs.length} шт.…`);
+    for(const f of fs){try{const src=await API.upload(pid,f,(f.name.split('.').pop()||'png').toLowerCase());list.push({src,name:f.name.replace(/\.[^.]+$/,'').slice(0,40),at:Date.now()});draw()}catch(err){fail(err)}}
+    await BgLib.save(pid,list);fi.value='';toast('Фоны добавлены')};
+  el.querySelector('form').onsubmit=async e=>{e.preventDefault();const u=e.target.u.value.trim();if(!u)return;if(!list.some(x=>x.src===u)){list.push({src:u,name:'',at:Date.now()});draw();await BgLib.save(pid,list)}e.target.u.value=''};
+}
 async function renderStage(main,pid,isM,p){
   document.body.classList.add('in-stage');document.body.classList.toggle('stage-player',!isM);drawLivePill();
   await App.sess.ready;
@@ -182,11 +211,17 @@ async function renderStage(main,pid,isM,p){
       if(file){const btn=f.querySelector('.primary');btn.disabled=true;try{url=await API.upload(pid,file,(file.name.split('.').pop()||'png').toLowerCase())}catch(err){fail(err);btn.disabled=false;return}}
       if(!url)return;close();cb(url)}};
   const bgPop=btn=>{$('.st-bgpop')?.remove();const b=s.bg||{};const pop=document.createElement('div');pop.className='st-bgpop';
-    pop.innerHTML=`<div class="lbl">Цвет фона</div><div class="r">${STAGE_BG.map(c=>`<button data-c="${c}" class="${b.color===c&&!b.image?'on':''}" style="background:${c}"></button>`).join('')}<label class="cc" title="Свой цвет"><input type="color" value="${b.color||'#14161f'}"></label></div><div class="lbl">Картинка</div><div class="r"><button class="btn sm" data-img>Загрузить или ссылка…</button>${b.image?'<button class="btn sm ghost" data-noimg>Убрать</button>':''}</div>`;
-    stEl.appendChild(pop);const r=btn.getBoundingClientRect(),sr=stEl.getBoundingClientRect();pop.style.top=(r.bottom-sr.top+8)+'px';pop.style.left=Math.max(8,Math.min(r.left-sr.left,sr.width-pop.offsetWidth-8))+'px';
-    pop.onclick=ev=>{const x=ev.target.closest('[data-c],[data-img],[data-noimg]');if(!x)return;
+    const setImg=src=>save({bg:{...(s.bg||{}),image:src}});
+    pop.innerHTML=`<div class="lbl">Цвет фона</div><div class="r">${STAGE_BG.map(c=>`<button data-c="${c}" class="${b.color===c&&!b.image?'on':''}" style="background:${c}"></button>`).join('')}<label class="cc" title="Свой цвет"><input type="color" value="${b.color||'#14161f'}"></label></div>
+      <div class="lbl">Готовые фоны <button class="lnk" data-manage>управлять</button></div><div class="bglib" data-lib><div class="muted" style="grid-column:1/-1;font-size:12px">Загружаю…</div></div>
+      <div class="r" style="margin:8px 0 0"><button class="btn sm" data-img>+ Загрузить или ссылка…</button>${b.image?'<button class="btn sm ghost" data-noimg>Убрать картинку</button>':''}</div>`;
+    stEl.appendChild(pop);const place=()=>{const r=btn.getBoundingClientRect(),sr=stEl.getBoundingClientRect();pop.style.top=(r.bottom-sr.top+8)+'px';pop.style.left=Math.max(8,Math.min(r.left-sr.left,sr.width-pop.offsetWidth-8))+'px'};place();
+    let lib=[];BgLib.load(pid).then(l=>{lib=l;const g=pop.querySelector('[data-lib]');if(!g)return;g.innerHTML=l.length?bgThumbs(l,b.image):'<div class="muted" style="grid-column:1/-1;font-size:12px;line-height:1.4">Пока пусто — загрузите картинку ниже или подготовьте фоны заранее во вкладке «Сессии».</div>';place()});
+    pop.onclick=ev=>{const x=ev.target.closest('[data-c],[data-img],[data-noimg],[data-pick],[data-manage]');if(!x)return;
       if(x.dataset.c){save({bg:{color:x.dataset.c}});pop.remove()}
-      if(x.dataset.img!==undefined){pop.remove();pickImage('Фон доски',url=>save({bg:{...(s.bg||{}),image:url}}),b.image)}
+      if(x.dataset.pick!==undefined){setImg(lib[+x.dataset.pick].src);pop.remove()}
+      if(x.dataset.manage!==undefined){pop.remove();manageBgs(pid,setImg)}
+      if(x.dataset.img!==undefined){pop.remove();pickImage('Фон доски',url=>{setImg(url);BgLib.add(pid,url)},'')}
       if(x.dataset.noimg!==undefined){save({bg:{color:b.color||''}});pop.remove()}};
     pop.querySelector('input[type=color]').onchange=ev=>{save({bg:{color:ev.target.value}});pop.remove()};
     setTimeout(()=>document.addEventListener('pointerdown',function h(ev){if(!pop.contains(ev.target)&&ev.target!==btn){pop.remove();document.removeEventListener('pointerdown',h)}}),0)};

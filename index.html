@@ -2711,7 +2711,7 @@ function renderMapsTab(main,pid,isM){
   let maps=[],view=null,templates=[],members=null;
   const T={pid,
     templates:()=>templates,
-    async reloadTemplates(){if(!isM)return;const {data}=await sb.from('map_templates').select('*').eq('project_id',pid).order('created_at');templates=data||[];view?.board.renderToolPop()},
+    async reloadTemplates(){if(!isM)return;const {data}=await sb.from('map_templates').select('*').eq('project_id',pid).order('created_at');templates=(data||[]).filter(t=>t.name!=='__stage_bgs__');view?.board.renderToolPop()},
     async members(){if(!members)members=await API.members(pid).catch(()=>[]);return members},
     async reload(){
       const {data,error}=await sb.from('maps').select('id,name,settings,shared,updated_at').eq('project_id',pid).order('sort').order('created_at');
