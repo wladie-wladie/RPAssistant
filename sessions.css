@@ -41,7 +41,7 @@ body.stage-nodice .dicelog{display:none}
 @keyframes stin{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
 .st-msg{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}
 /* игрокам на карте — без шапки карты */
-body.stage-player .stage .maphead{display:none}
+.stage .maphead{display:none!important}
 .stage .maphead [data-back]{display:none}
 .stage .mapwrap .mapstage{top:0}
 /* угол: полный экран, звук, меню игрока */
@@ -80,8 +80,6 @@ body.stage-player .stage .maphead{display:none}
 .stage .hint:not(.show){display:none!important}
 .stage .ro-badge,.stage .robadge{display:none!important}
 .stage .hint{display:none!important}
-body:not(.stage-player) .stage[data-scene=map] .st-scene{top:58px}
-.stage[data-scene=map] .maphead{padding-right:60px}
 .st-ctrl select{min-width:140px}
 
 /* библиотека фонов */
@@ -97,3 +95,8 @@ body:not(.stage-player) .stage[data-scene=map] .st-scene{top:58px}
 
 .stc.stx{width:auto;padding:0 12px;font-size:13px;font-weight:600;gap:6px;white-space:nowrap}
 .stc.stx:hover{background:rgba(224,71,91,.85);border-color:transparent}
+
+/* кнопки карты в панели мастера */
+.st-ctrl .sc-g button.ic{min-width:34px;padding:0 8px;font-size:15px}
+.st-ctrl .sc-g button.ic.on{background:rgba(227,183,91,.18);color:#f0cf86;box-shadow:inset 0 0 0 1px rgba(227,183,91,.45)}
+.stage .mapboard .tb{top:auto}

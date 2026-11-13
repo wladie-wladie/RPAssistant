@@ -161,7 +161,7 @@ async function renderStage(main,pid,isM,p){
     if(S.scene==='map'&&S.map_id){
       const {data:m}=await sb.from('maps').select('*').eq('id',S.map_id).maybeSingle();
       if(!m){sceneEl.innerHTML='<div class="st-msg">Карта недоступна</div>';return}
-      mv=new MapView(sceneEl,m,{canEdit:isM,pid,templates:()=>[],reloadTemplates:()=>{},members:()=>API.members(pid).catch(()=>[]),onBack:()=>{},onListChange:()=>{}});App.mapView=mv;
+      mv=new MapView(sceneEl,m,{canEdit:isM,pid,templates:()=>[],reloadTemplates:()=>{},members:()=>API.members(pid).catch(()=>[]),onBack:()=>{},onListChange:()=>{}});App.mapView=mv;drawCtrl();
     }else if(S.scene==='image'&&S.image){
       sceneEl.innerHTML=`<div class="st-img"><img src="${esc(S.image)}" alt="" referrerpolicy="no-referrer"></div>`;
     }else{
@@ -183,7 +183,13 @@ async function renderStage(main,pid,isM,p){
       <span class="sc-g"><span class="sc-l">Игрокам</span>
         <button class="${S.scene==='board'?'on':''}" data-scene="board" title="Показать общую доску">▦ Доска</button>
         <select data-map title="Показать карту"><option value="">🗺 Карта…</option>${maps.map(m=>`<option value="${m.id}" ${S.scene==='map'&&S.map_id===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select></span>
-      <span class="sc-g"><button data-bg title="Фон доски">🎨 Фон</button></span>
+      ${S.scene==='map'&&mv?`<span class="sc-g"><span class="sc-l">Карта</span>
+        <button class="ic" data-mv="settings" title="Сетка, размер и фон карты">⚙</button>
+        <button class="ic ${mv.S.snap?'on':''}" data-mv="snap" title="Прилипание к клеткам">🧲</button>
+        <button class="ic ${mv.fog.enabled?'on':''}" data-mv="fog" title="Туман войны: игроки видят только открытые области">🌫</button>
+        ${mv.fog.enabled?`<button class="ic" data-mv="fogall" title="Скрыть всю карту туманом">⬛</button><button class="ic" data-mv="fogclear" title="Убрать туман целиком">⬜</button>`:''}
+        <button class="ic" data-mv="ptoks" title="Поставить фишки всем игрокам, у кого их ещё нет">👤＋</button></span>`
+      :`<span class="sc-g"><button data-bg title="Фон доски">🎨 Фон</button></span>`}
       <span class="sc-g"><span class="sc-l">Могут</span>
         <button class="tg ${o.draw?'on':''}" data-ov="draw" title="Игроки рисуют и пишут на доске">✏️</button>
         <button class="tg ${o.chars?'on':''}" data-ov="chars" title="Панель персонажа у игроков (броски и силы)">🧛</button>
@@ -198,6 +204,8 @@ async function renderStage(main,pid,isM,p){
     if(b.dataset.scene==='image')return pickImage('Картинка для игроков',url=>save({stage:{...S,scene:'image',image:url}}),S.image);
     if(b.dataset.ov){const o={...S.overlays,[b.dataset.ov]:!S.overlays[b.dataset.ov]};return save({stage:{...S,overlays:o}})}
     if(b.dataset.bg!==undefined)return bgPop(b);
+    if(b.dataset.mv&&mv){const map={settings:'[data-settings]',snap:'[data-snap]',fog:'[data-fog]',fogall:'[data-fogall]',fogclear:'[data-fogclear]',ptoks:'[data-ptoks]'};
+      mv.head.querySelector(map[b.dataset.mv])?.click();setTimeout(drawCtrl,60);return}
     if(b.dataset.proj!==undefined)return go('project',pid,'board');
     if(b.dataset.endsess!==undefined){if(await confirmBox(`Завершить сессию «${s.title}»? У игроков закроется экран сессии.`,'Завершить'))await endSession(s.id);return}
   });
