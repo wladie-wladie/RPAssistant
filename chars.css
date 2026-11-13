@@ -278,3 +278,29 @@ mark{background:#e3b75b55;color:#fff;border-radius:3px;padding:0 2px}
 .wz-free{margin-top:10px;padding:12px 14px;border-radius:10px;background:rgba(227,183,91,.08);border:1px solid rgba(227,183,91,.3);font-size:13px;line-height:1.45;color:var(--text)}
 .wz-free b{color:#e3b75b}.wz-free select{width:auto!important;min-width:220px}
 .wiz .seg{flex-wrap:wrap}
+
+/* внешность персонажа */
+.cli-av,.sh-avi{background:var(--tc,#3a2230) center/cover no-repeat;display:grid;place-items:center;color:#fff;font-weight:700}
+.cli-av{flex:none}
+.sh-av{flex:none;width:64px;height:64px;padding:0;border:2px solid rgba(227,183,91,.5);border-radius:50%;background:none;cursor:pointer;overflow:hidden;margin-right:4px;transition:border-color .15s}
+.sh-av:hover{border-color:#e3b75b}
+.sh-avi{width:100%;height:100%;border-radius:50%;font-size:26px}
+.sh-top{align-items:center}
+.lk{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;padding:12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);margin-bottom:12px}
+.lk-por{display:flex;flex-direction:column;gap:8px;align-items:center}
+.lk-img{width:120px;height:150px;border-radius:12px;background:#1a1d2b center/cover no-repeat;border:1px solid var(--line);display:grid;place-items:center;font-size:42px;opacity:.95}
+.lk-img span{opacity:.35}
+.lk-btns{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:170px}
+.lk-icon{flex:1;min-width:240px;display:flex;flex-direction:column;gap:8px}
+.lk-l{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.lk-tok{width:44px;height:44px;border-radius:50%;background:var(--tc) center/cover no-repeat;border:3px solid var(--tc);box-shadow:0 0 0 2px rgba(0,0,0,.5),0 4px 12px rgba(0,0,0,.5);display:grid;place-items:center;color:#fff;font-weight:700;font-size:20px}
+.lk-opts{display:flex;gap:6px}
+.lk-opts button{padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer;font:inherit;font-size:12.5px}
+.lk-opts button.on,.lk-emo button.on{border-color:#e3b75b;background:rgba(227,183,91,.15)}
+.lk-opts button:disabled{opacity:.4;cursor:default}
+.lk-emo{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:4px;max-height:118px;overflow-y:auto}
+.lk-emo button{height:34px;border-radius:8px;border:1px solid transparent;background:var(--panel2);cursor:pointer;font-size:18px;padding:0}
+.lk-emo button:hover{border-color:var(--line)}
+.lk-cols{display:flex;gap:5px;flex-wrap:wrap}
+.lk-cols button{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.lk-cols button.on{border-color:#fff;box-shadow:0 0 0 2px #e3b75b}

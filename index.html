@@ -482,6 +482,9 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator:hover{background:r
 .langbtn:hover b:not(.on){color:var(--text)}
 .auth-lang{position:absolute;top:18px;right:18px;z-index:5}
 body.lang-en .en{display:none!important}
+
+/* значок фишки персонажа (эмодзи) */
+.tok .tk-c.emo{font-size:calc(var(--sz,60px)*.5)}
 </style>
 <link rel="stylesheet" href="chars.css">
 <link rel="stylesheet" href="sessions.css">
@@ -2444,6 +2447,7 @@ class MapView{
     this.L.fx=document.createElementNS('http://www.w3.org/2000/svg','svg');this.L.fx.setAttribute('class','ml-fx');w.appendChild(this.L.fx);
     this.renderLayers();this.renderHead();
     this._mc=App.inStage?null:mountMapCharPanel(this);
+    this._chOff=App.chars?App.chars.on(()=>this.renderTokens()):null;
     this.inflight=false;this.again=false;
     this.loadTokens().then(()=>this.subscribe());
     if(!view)requestAnimationFrame(()=>this.board.fit(1));
@@ -2456,7 +2460,7 @@ class MapView{
     const s=Math.max(1,Math.round(size)),off=(s%2)?CELL/2:0;
     return {x:Math.round((x-off)/CELL)*CELL+off,y:Math.round((y-off)/CELL)*CELL+off};
   }
-  destroy(){clearTimeout(this.fogT);this._mc?.();if(this.ch)sb.removeChannel(this.ch);this.board.destroy();this.host.innerHTML=''}
+  destroy(){clearTimeout(this.fogT);this._mc?.();this._chOff?.();if(this.ch)sb.removeChannel(this.ch);this.board.destroy();this.host.innerHTML=''}
 
   /* ---------- слои ---------- */
   renderLayers(){
@@ -2637,6 +2641,8 @@ class MapView{
 
   /* ---------- фишки ---------- */
   async loadTokens(){const {data,error}=await sb.from('map_tokens').select('*').eq('map_id',this.map.id);if(!error){this.tokens=new Map((data||[]).map(t=>[t.id,t]));this.renderTokens()}}
+  /* персонаж фишки: явная привязка или единственный персонаж владельца */
+  charOf(t){const S=App.chars;if(!S)return null;if(t.character_id)return S.get(t.character_id)||null;if(!t.owner_id)return null;const own=S.list.filter(c=>c.owner_id===t.owner_id);return own.length===1?own[0]:null}
   canMove(t){return this.canEdit||(t.owner_id===this.me.id&&this.map.shared)}
   renderTokens(){
     const L=this.L.tok;if(!L)return;
@@ -2645,11 +2651,15 @@ class MapView{
       let el=this.tokEls.get(t.id);
       if(!el){el=document.createElement('div');el.className='tok';el.dataset.tok=t.id;L.appendChild(el);this.tokEls.set(t.id,el);this.bindToken(el)}
       const s=(+t.size||1)*CELL,mine=t.owner_id===this.me.id;
-      el.style.cssText=`left:${t.x-s/2}px;top:${t.y-s/2}px;width:${s}px;height:${s}px;z-index:${mine&&!this.canEdit?100004:100000};--tc:${t.color};`;
+      el.style.cssText=`left:${t.x-s/2}px;top:${t.y-s/2}px;width:${s}px;height:${s}px;--sz:${s}px;z-index:${mine&&!this.canEdit?100004:100000};--tc:${t.color};`;
       el.className='tok'+(mine?' mine':'')+(t.hidden?' hid':'')+(this.selTok===t.id?' sel':'')+(this.canMove(t)?' movable':'');
-      const ini=(t.name||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+      const ch=this.charOf(t),lk=ch&&!t.img&&typeof charLook==='function'?charLook(ch):null;
+      if(lk&&lk.color)el.style.setProperty('--tc',lk.color);
+      const nm=lk?lk.name||t.name:t.name;
+      const ini=(nm||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
       const hp=t.hp_max?`<div class="tk-hp"><i style="width:${clamp((t.hp??t.hp_max)/t.hp_max*100,0,100)}%"></i></div>`:'';
-      const html=`<div class="tk-c" style="${t.img?`background-image:url('${esc(t.img)}')`:''}">${t.img?'':esc(ini)}</div>${hp}${t.name?`<div class="tk-n">${esc(t.name)}</div>`:''}`;
+      const img=t.img||lk?.img;
+      const html=`<div class="tk-c ${lk?.emoji&&!img?'emo':''}" style="${img?`background-image:url('${esc(img)}')`:''}">${img?'':lk?.emoji?lk.emoji:esc(ini)}</div>${hp}${nm?`<div class="tk-n">${esc(nm)}</div>`:''}`;
       if(el._h!==html){el.innerHTML=html;el._h=html}
     }
   }
@@ -2674,7 +2684,7 @@ class MapView{
   }
   async addToken(p,extra={}){
     const n=this.tokens.size,sp=this.snapToken(p.x,p.y,extra.size||1);
-    const row={map_id:this.map.id,project_id:this.ctx.pid,name:extra.name??`NPC ${n+1}`,color:extra.color||TOKEN_COLORS[(n+1)%TOKEN_COLORS.length],x:sp.x,y:sp.y,size:extra.size||1,owner_id:extra.owner_id||null,client:CLIENT_ID};
+    const row={map_id:this.map.id,project_id:this.ctx.pid,name:extra.name??`NPC ${n+1}`,color:extra.color||TOKEN_COLORS[(n+1)%TOKEN_COLORS.length],x:sp.x,y:sp.y,size:extra.size||1,owner_id:extra.owner_id||null,client:CLIENT_ID,...(extra.character_id?{character_id:extra.character_id}:{})};
     const {data,error}=await sb.from('map_tokens').insert(row).select().single();if(fail(error))return;
     this.tokens.set(data.id,data);this.renderTokens();if(!extra.silent)this.openTokenPanel(data.id);return data;
   }
@@ -2683,7 +2693,7 @@ class MapView{
     if(!mem.length)return toast('В игре пока нет игроков — пригласите их кнопкой «Пригласить»','err');
     const have=new Set([...this.tokens.values()].map(t=>t.owner_id));
     const c=this.board.centerWorld();let k=0;
-    for(const m of mem){if(have.has(m.user_id))continue;await this.addToken({x:c.x+(k%4)*CELL,y:c.y+Math.floor(k/4)*CELL},{name:m.profile?.name||'Игрок',owner_id:m.user_id,color:TOKEN_COLORS[k%TOKEN_COLORS.length],silent:true});k++}
+    for(const m of mem){if(have.has(m.user_id))continue;const ch=App.chars?.list.find(x=>x.owner_id===m.user_id);await this.addToken({x:c.x+(k%4)*CELL,y:c.y+Math.floor(k/4)*CELL},{name:ch?.name||m.profile?.name||'Игрок',owner_id:m.user_id,character_id:ch?.id||null,color:ch?.data?.tcolor||TOKEN_COLORS[k%TOKEN_COLORS.length],silent:true});k++}
     toast(k?`Добавлено фишек: ${k}. Игроки смогут двигать свои фишки, когда карта открыта.`:'У всех игроков уже есть фишки на этой карте');
   }
   async openTokenPanel(id){
@@ -2691,6 +2701,7 @@ class MapView{
     const mem=await this.ctx.members();
     const P=this.panel;P.hidden=false;
     P.innerHTML=`<div class="tp-h"><b>Фишка</b><button class="tic" data-x title="Закрыть">×</button></div>
+      ${App.chars?.list.length?`<label class="f">Персонаж<select name="char"><option value="">— не привязана —</option>${App.chars.list.map(c=>`<option value="${c.id}" ${(t.character_id||this.charOf(t)?.id)===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select><small class="muted" style="font-size:11.5px">Фишка возьмёт портрет или значок персонажа</small></label>`:''}
       <label class="f">Имя<input name="name" value="${esc(t.name)}" maxlength="40"></label>
       <div class="f">Цвет<div class="colors sm">${TOKEN_COLORS.map(c=>`<button type="button" data-col="${c}" class="${c===t.color?'on':''}" style="background:${c}"></button>`).join('')}</div></div>
       <div class="f">Портрет<div class="row-g"><label class="btn sm">${t.img?'Заменить':'Загрузить'}<input type="file" accept="image/*" hidden data-img></label>${t.img?'<button class="btn sm ghost" data-noimg>Убрать</button>':''}</div></div>
@@ -2703,6 +2714,7 @@ class MapView{
     const q=s=>$(s,P);
     q('[data-x]').onclick=()=>this.closeTokenPanel();
     q('[name=name]').onchange=e=>upd({name:e.target.value.trim()});
+    q('[name=char]')?.addEventListener('change',e=>{const ch=App.chars.get(e.target.value);upd({character_id:e.target.value||null,...(ch?{name:ch.name,owner_id:ch.owner_id||t.owner_id}:{})}).then(()=>this.openTokenPanel(t.id))});
     $$('[data-col]',P).forEach(b=>b.onclick=()=>{upd({color:b.dataset.col});$$('[data-col]',P).forEach(x=>x.classList.toggle('on',x===b))});
     q('[name=size]').onchange=e=>{const s=+e.target.value,sp=this.snapToken(t.x,t.y,s);upd({size:s,x:sp.x,y:sp.y})};
     q('[name=owner]').onchange=e=>upd({owner_id:e.target.value||null});
