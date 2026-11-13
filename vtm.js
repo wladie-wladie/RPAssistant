@@ -576,8 +576,9 @@ VTM.blank=()=>({name:'',concept:'',clan:'',sire:'',predator:'',gen:13,bp:1,age:'
 VTM.val=(c,k)=>{if(!c)return 0;if(k in VTM.ATTR_NAME)return +(c.attr?.[k]||0);if(k in VTM.SKILL_NAME)return +(c.skills?.[k]||0);if(k in VTM.DISC)return +(c.disc?.[k]||0);if(k==='humanity')return +(c.humanity||0);if(k==='bp')return +(c.bp||0);return 0};
 VTM.traitName=k=>VTM.ATTR_NAME[k]||VTM.SKILL_NAME[k]||VTM.DISC[k]||({humanity:'Человечность',bp:'Сила крови'})[k]||k;
 VTM.cap=c=>Math.max(5,Math.min(10,+(c?.cap||5)));
-/* дисциплины старейшин и мафусаилов: без официального потолка 5 — до 10 точек */
-VTM.discCap=c=>VTM.AGES[c?.age]?.gm?10:VTM.cap(c);
+/* по V5 дисциплины не бывают выше 5 даже у древних (сила растёт через Силу крови: бонус к броскам и +1 сила за точку выше 5 — Gehenna War).
+   Выше 5 — только если мастер включил домашнее правило «Предел точек» в листе. */
+VTM.discCap=c=>VTM.cap(c);
 VTM.healthMax=c=>VTM.val(c,'sta')+3+((c.powers||[]).includes('resilience')?VTM.val(c,'fortitude'):0);
 VTM.wpMax=c=>VTM.val(c,'com')+VTM.val(c,'res');
 VTM.bpRow=c=>VTM.BP[Math.max(0,Math.min(10,+(c.bp||0)))];
