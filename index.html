@@ -469,6 +469,12 @@ label.f b{color:var(--danger);font-weight:400}
 input[type=date],input[type=time],input[type=datetime-local],input[type=month],input[type=week]{color-scheme:dark;cursor:pointer}
 input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator,input[type=datetime-local]::-webkit-calendar-picker-indicator{opacity:.85;cursor:pointer;padding:4px;border-radius:6px}
 input[type=datetime-local]::-webkit-calendar-picker-indicator:hover{background:rgba(255,255,255,.08)}
+.msettings .outrow{display:flex;gap:6px;align-items:center;height:42px}
+.msettings .osw{width:28px;height:28px;border-radius:50%;padding:0;border:0;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.msettings .osw.on,.msettings .ocw.on{box-shadow:0 0 0 2px #e3b75b}
+.msettings .ocw{width:28px;height:28px;border-radius:50%;overflow:hidden;cursor:pointer;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);flex:none}
+.msettings .ocw input{opacity:0;width:100%;height:100%;cursor:pointer;padding:0;border:0}
+.msettings .othumb{width:44px;height:28px;border-radius:6px;background:center/cover;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
 </style>
 <link rel="stylesheet" href="chars.css">
 <link rel="stylesheet" href="sessions.css">
@@ -2398,7 +2404,7 @@ class MapView{
   /* ---------- слои ---------- */
   renderLayers(){
     const S=this.S,W=this.W(),H=this.H(),L=this.L;
-    this.board.root.style.background=S.outside||'';
+    {const r=this.board.root.style;r.backgroundColor=S.outside||'';r.backgroundImage=S.outsideImg?`url("${S.outsideImg.replace(/"/g,'%22')}")`:'';r.backgroundSize=S.outsideImg?'cover':'';r.backgroundPosition=S.outsideImg?'center':''}
     L.base.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;background:${S.base};box-shadow:0 0 0 2px rgba(60,45,30,.35),0 18px 50px rgba(40,30,20,.25);pointer-events:none;z-index:-6`;
     if(S.bg&&S.bg.src){const b=S.bg;L.bg.src=b.src;L.bg.style.cssText=`position:absolute;left:${b.x*CELL}px;top:${b.y*CELL}px;width:${b.w*CELL}px;height:auto;opacity:${b.opacity??1};pointer-events:none;z-index:-5;max-width:none`;L.bg.hidden=false}else{L.bg.hidden=true;L.bg.removeAttribute('src')}
     const op=S.gridOpacity,col=S.gridColor,id='g'+this.map.id.slice(0,8);
@@ -2474,7 +2480,8 @@ class MapView{
       <div class="grid3"><label class="f">Клеток по ширине<input name="cols" type="number" min="5" max="300" value="${S.cols}"></label>
       <label class="f">Клеток по высоте<input name="rows" type="number" min="5" max="300" value="${S.rows}"></label>
       <label class="f">Прозрачность сетки<input name="gridOpacity" type="range" min="0" max="1" step="0.05" value="${S.gridOpacity}"></label></div>
-      <div class="grid3"><label class="f">Цвет сетки<input name="gridColor" type="color" value="${S.gridColor}"></label><label class="f">Цвет основы<input name="base" type="color" value="${S.base}"></label><label class="f">Цвет вокруг карты<span class="row-g" style="gap:6px;align-items:center"><input name="outside" type="color" value="${S.outside||'#f5f5f5'}" style="flex:1">${['#f5f5f5','#2a2622','#12141c','#3b4a3a'].map(c=>`<button type="button" class="swatch-mini" data-out="${c}" title="${c}" style="width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.25);background:${c};padding:0;cursor:pointer"></button>`).join('')}</span></label></div>
+      <div class="grid3"><label class="f">Цвет сетки<input name="gridColor" type="color" value="${S.gridColor}"></label><label class="f">Цвет основы<input name="base" type="color" value="${S.base}"></label><div class="f"><span>Вокруг карты</span><div class="outrow">${['#f5f5f5','#2a2622','#12141c','#3b4a3a'].map(c=>`<button type="button" class="osw ${!S.outsideImg&&(S.outside||'#f5f5f5')===c?'on':''}" data-out="${c}" title="${c}" style="background:${c}"></button>`).join('')}<label class="ocw ${!S.outsideImg&&!['#f5f5f5','#2a2622','#12141c','#3b4a3a'].includes(S.outside||'#f5f5f5')?'on':''}" title="Любой цвет"><input name="outside" type="color" value="${S.outside||'#f5f5f5'}"></label></div></div></div>
+      <div style="display:flex;flex-wrap:nowrap;gap:8px;margin:-4px 0 12px;align-items:center;white-space:nowrap"><span class="muted" style="font-size:13px">Картинка вокруг:</span><label class="btn sm">${S.outsideImg?'Заменить':'Загрузить'}<input type="file" accept="image/*" hidden data-outfile></label><button type="button" class="btn sm" data-outlib>Из готовых фонов</button>${S.outsideImg?`<span class="othumb" style="background-image:url(&quot;${esc(S.outsideImg)}&quot;)"></span><button type="button" class="btn sm ghost" data-outdel>Убрать</button>`:''}</div>
       <div class="bgbox"><b>Фоновая картинка</b> <span class="muted">— готовая карта или рисунок местности</span>
         <div class="row-g" style="margin:8px 0"><label class="btn sm">${bg.src?'Заменить':'Загрузить картинку'}<input type="file" accept="image/*" hidden data-bgfile></label>${bg.src?'<button type="button" class="btn sm ghost" data-bgdel>Убрать фон</button><button type="button" class="btn sm ghost" data-bgfit>Растянуть на всю карту</button>':''}</div>
         ${bg.src?`<div class="grid3"><label class="f">Ширина фона, клеток<input name="bgw" type="number" step="0.1" min="1" value="${r1(bg.w)}"></label><label class="f">Сдвиг X, клеток<input name="bgx" type="number" step="0.1" value="${r1(bg.x)}"></label><label class="f">Сдвиг Y, клеток<input name="bgy" type="number" step="0.1" value="${r1(bg.y)}"></label></div>
@@ -2489,7 +2496,12 @@ class MapView{
       this.saveSettings(p);
     };
     f.oninput=e=>{if(e.target.name==='preset')return;apply()};
-    el.querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>{f.outside.value=b.dataset.out;apply()});
+    el.querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>{f.outside.value=b.dataset.out;this.saveSettings({outside:b.dataset.out,outsideImg:null});close();this.settingsModal()});
+    f.outside.onchange=()=>{this.saveSettings({outside:f.outside.value,outsideImg:null});close();this.settingsModal()};
+    const of=el.querySelector('[data-outfile]');
+    of.onchange=async()=>{const file=of.files[0];if(!file)return;toast('Загружаю картинку…');try{const {blob,ext}=await loadImage(file);const src=await API.upload(this.ctx.pid,blob,ext);await this.saveSettings({outsideImg:src});close();this.settingsModal()}catch(e){toast('Не удалось загрузить картинку','err')}};
+    el.querySelector('[data-outlib]').onclick=()=>{close();manageBgs(this.ctx.pid,src=>{this.saveSettings({outsideImg:src});this.settingsModal()})};
+    el.querySelector('[data-outdel]')?.addEventListener('click',()=>{this.saveSettings({outsideImg:null});close();this.settingsModal()});
     f.preset.onchange=()=>{const p=MAP_PRESETS[f.preset.value];if(!p)return;for(const k of ['grid','cellM','unit','cols','rows','base'])if(f[k])f[k].value=p[k];apply()};
     const bf=el.querySelector('[data-bgfile]');
     bf.onchange=async()=>{const file=bf.files[0];if(!file)return;toast('Загружаю фон…');try{const {blob,ext,w,h}=await loadImage(file);const src=await API.upload(this.ctx.pid,blob,ext);const bw=this.S.cols;await this.saveSettings({bg:{src,x:0,y:0,w:bw,ratio:h/w,opacity:1}});close();this.settingsModal();toast('Фон загружен — при необходимости подгоните его под сетку')}catch(e){toast('Не удалось загрузить картинку','err')}};
