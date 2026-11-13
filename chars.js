@@ -300,7 +300,7 @@ function renderSheet(host,c,isM,mem){
     <h3 class="sh-h">Дисциплины <small class="hsub">сил: ${known.length} из ${totDots+extra}${extra?` (+${extra} за Силу крови выше 5, Gehenna War)`:''}</small></h3>
     <div class="discs">${discKeys.length?discKeys.map(k=>{const v=VTM.val(d,k),pw=known.filter(p=>p.disc===k),rt=rites.filter(r=>(k==='bloodsorcery'&&r.id.startsWith('rit'))||(k==='oblivion'&&r.id.startsWith('cer')));
       return `<div class="disc"><div class="disc-h"><span class="di">${VTM.DISC_ICON[k]}</span><b>${VTM.DISC[k]}</b><small class="en">${VTM.DISC_EN[k]}</small>${clan?.d?.includes(k)?'<span class="tag">клановая</span>':''}${dots('disc.'+k,v,VTM.discCap(d),!ed)}</div>
-      <div class="pw">${pw.map(p=>`<button class="pwb" data-pw="${p.id}" title="${esc(p.en)}${p.d?' — '+esc(p.d):''}${p.vs?' · против: '+esc(p.vs):''} · ${esc(VTM.srcText(p.src))}"><span class="lv">${p.l}</span>${esc(p.n)}${p.r?`<span class="rc">${'🩸'.repeat(p.r)}</span>`:''}${ed?`<i data-unpw="${p.id}" title="Убрать силу">✕</i>`:''}</button>`).join('')}${ed&&v>0?`<button class="pwb add" data-addpw="${k}">+ сила</button>`:''}</div>
+      <div class="pw">${pw.map(p=>`<button class="pwb" data-pw="${p.id}" title="${esc(p.en)} — ${esc((typeof I18N!=='undefined'&&I18N.lang==='en')?p.d:(VTM.POW_FULL?.[p.id]?.t||p.d))}${p.vs?' · против: '+esc(p.vs):''} · ${esc(VTM.srcText(p.src))}"><span class="lv">${p.l}</span>${esc(p.n)}${p.r?`<span class="rc">${'🩸'.repeat(p.r)}</span>`:''}${ed?`<i data-unpw="${p.id}" title="Убрать силу">✕</i>`:''}</button>`).join('')}${ed&&v>0?`<button class="pwb add" data-addpw="${k}">+ сила</button>`:''}</div>
       ${(k==='bloodsorcery'||k==='oblivion')&&v>0?`<div class="rites"><span class="rl">${k==='bloodsorcery'?'Ритуалы':'Церемонии'}</span>${rt.map(r=>`<button class="pwb rite" data-rite="${r.id}" title="${esc(r.en)} · ${esc(VTM.srcText(r.src))}"><span class="lv">${r.l}</span>${esc(r.n)}${ed?`<i data-unrite="${r.id}" title="Убрать">✕</i>`:''}</button>`).join('')}${ed?`<button class="pwb add" data-addrite="${k}">+ ${k==='bloodsorcery'?'ритуал':'церемония'}</button>`:''}</div>`:''}</div>`}).join(''):'<div class="muted">Выберите клан, чтобы увидеть клановые дисциплины.</div>'}
       ${ed?`<div class="disc-add">${sel('_adddisc',[['','+ Добавить дисциплину…'],...Object.entries(VTM.DISC).filter(([k])=>!discKeys.includes(k)).map(([k,n])=>[k,n])],'')}</div>`:''}</div>
     ${clan?`<div class="bane"><b>Клановый изъян (тяжесть ${VTM.baneSeverity(d)}):</b> ${esc(clan.bane)}<br><b>Побуждение:</b> ${esc(clan.comp)} <span class="srcl">${esc(VTM.srcText(clan.src))}</span></div>`:''}
@@ -357,19 +357,34 @@ function renderSheet(host,c,isM,mem){
 }
 
 /* выбор силы: уровень не выше рейтинга (и не выше 5), амальгамы — при нужной второй дисциплине */
+/* подробная карточка силы: как работает */
+function powerCard(p,d,isM){
+  const F=VTM.POW_FULL?.[p.id],en=typeof I18N!=='undefined'&&I18N.lang==='en';
+  const amOk=!d||VTM.amalgamOk(d,p),lv=d?Math.min(5,VTM.val(d,p.disc)):5;
+  const chip=(k,v,cls='')=>v?`<div class="pc-r ${cls}"><span>${k}</span><b>${v}</b></div>`:'';
+  const txt=en?(p.d||''):(F?.t||p.d||'');
+  return `<div class="pc"><div class="pc-h"><span class="pc-lv">${p.l}</span><div><b>${esc(p.n)}</b><small>${esc(p.en)} · ${VTM.DISC_ICON[p.disc]} ${esc(VTM.DISC[p.disc])}${p.branch?' · '+esc(p.branch):''}</small></div></div>
+    <div class="pc-g">${chip('Цена',esc(p.cost==='бесплатно'?'бесплатно':p.cost+(p.r?` (${p.r} ${p.r===1?'бросок':'броска'} на голод)`:'')))}${chip('Длительность',F?.d&&!en?esc(F.d):'')}
+      ${chip('Пул',p.pool?p.pool.map(([a,b])=>esc(VTM.traitName(a))+' + '+esc(VTM.traitName(b))).join(' / '):'без броска')}${chip('Против',p.vs?esc(p.vs):'')}
+      ${p.am?chip('Амальгама',esc(VTM.amText(p))+(amOk?' ✓':' — нет'),amOk?'':'bad'):''}${d&&p.l>lv?chip('Доступно','нужен уровень '+p.l,'bad'):''}</div>
+    ${txt?`<p class="pc-t">${esc(txt)}</p>`:''}<div class="pc-s">${esc(VTM.srcText(p.src))}</div></div>`;
+}
 function pickPower(c,disc,onPick,isM){
   const d=c.data,v=VTM.val(d,disc),have=new Set(d.powers||[]),maxL=Math.min(5,v);
   const branches=disc==='oblivion';
-  const row=p=>{const amOk=VTM.amalgamOk(d,p),lvOk=p.l<=maxL;return `<button class="pwi ${have.has(p.id)?'on':''}" data-p="${p.id}" ${lvOk&&(amOk||isM)?'':'disabled'}><span class="lv">${p.l}</span><div><b>${esc(p.n)}</b> <span class="en">${esc(p.en)}</span>${p.am?` <span class="tag ${amOk?'':'warn'}">амальгама: ${esc(VTM.amText(p))}</span>`:''}${p.branch?` <span class="tag">${esc(p.branch)}</span>`:''}
+  const row=p=>{const amOk=VTM.amalgamOk(d,p),lvOk=p.l<=maxL;return `<button class="pwi ${have.has(p.id)?'on':''} ${lvOk&&(amOk||isM)?'':'dis'}" data-p="${p.id}" ${lvOk&&(amOk||isM)?'':'aria-disabled="true"'}><span class="lv">${p.l}</span><div><b>${esc(p.n)}</b> <span class="en">${esc(p.en)}</span>${p.am?` <span class="tag ${amOk?'':'warn'}">амальгама: ${esc(VTM.amText(p))}</span>`:''}${p.branch?` <span class="tag">${esc(p.branch)}</span>`:''}
     <small>${p.d?esc(p.d)+' · ':''}${p.pool?`пул: ${p.pool.map(([a,b])=>VTM.traitName(a)+' + '+VTM.traitName(b)).join(' / ')}`:'без броска'}${p.vs?` против ${esc(p.vs)}`:''} · ${esc(p.cost)}</small><small class="srcl">${esc(VTM.srcText(p.src))}</small></div></button>`};
   const {el,close}=openModal(`<h3>${VTM.DISC_ICON[disc]} ${VTM.DISC[disc]} — выбор силы</h3><p class="muted" style="margin-top:-6px;font-size:13px">Доступны силы уровня не выше ${maxL}. На каждую точку дисциплины — одна сила${VTM.extraPowers(d)?`, плюс ${VTM.extraPowers(d)} доп. за Силу крови выше 5 (Gehenna War)`:''}. Амальгамы требуют вторую дисциплину${isM?' (мастер может выдать без неё)':''}.</p>
-    <input class="pwsearch" placeholder="Поиск по названию (рус./англ.)" data-q><div class="pwlist"></div><div class="modal-actions"><button class="btn" data-close>Готово</button></div>`);
+    <input class="pwsearch" placeholder="Поиск по названию (рус./англ.)" data-q><div class="pwwrap"><div class="pwlist"></div><aside class="pwdet"><div class="pwdet-e">Наведите на силу, чтобы увидеть, как она работает</div></aside></div><div class="modal-actions"><button class="btn" data-close>Готово</button></div>`);
   el.classList.add('wide');
-  const list=el.querySelector('.pwlist');
+  const list=el.querySelector('.pwlist'),det=el.querySelector('.pwdet');
+  let shown=null;const show=id=>{if(id===shown)return;shown=id;const p=VTM.POWER[id];if(p)det.innerHTML=powerCard(p,d,isM)};
+  list.addEventListener('mouseover',e=>{const b=e.target.closest('[data-p]');if(b)show(b.dataset.p)});
+  list.addEventListener('focusin',e=>{const b=e.target.closest('[data-p]');if(b)show(b.dataset.p)});
   const draw=q=>{q=(q||'').toLowerCase();const ps=VTM.POWERS[disc].filter(p=>!q||p.n.toLowerCase().includes(q)||p.en.toLowerCase().includes(q));
     list.innerHTML=[1,2,3,4,5].map(l=>{const ls=ps.filter(p=>p.l===l);return ls.length?`<div class="pwlv">Уровень ${l}</div>${ls.map(row).join('')}`:''}).join('')};
   draw();el.querySelector('[data-q]').oninput=e=>draw(e.target.value);
-  list.onclick=e=>{const b=e.target.closest('[data-p]');if(!b||b.disabled)return;const id=b.dataset.p;
+  list.onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;show(b.dataset.p);if(b.classList.contains('dis'))return;const id=b.dataset.p;
     if(onPick){onPick(id,b);return}
     const cur=App.chars.get(c.id).data.powers||[];const has=cur.includes(id);
     App.chars.patch(c.id,{powers:has?cur.filter(x=>x!==id):[...cur,id]});b.classList.toggle('on',!has)};
