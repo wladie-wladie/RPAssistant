@@ -189,7 +189,12 @@ label.f b{color:var(--danger);font-weight:400}
 .eq i{width:3px;height:4px;background:var(--acc);border-radius:1px}
 .eq.on i{animation:eq .9s ease-in-out infinite}.eq.on i:nth-child(2){animation-delay:.2s}.eq.on i:nth-child(3){animation-delay:.45s}
 @keyframes eq{0%,100%{height:4px}50%{height:14px}}
-.music{flex:1;overflow:auto;padding:28px 40px;display:flex;flex-direction:column;gap:18px;max-width:1100px}
+.music{flex:1;overflow:auto;padding:24px 32px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);grid-auto-rows:min-content;gap:18px;align-content:start;width:100%}
+.music>.np{grid-column:1/-1}
+.music>.lib:only-of-type{grid-column:1/-1}
+.music.solo>.lib{grid-column:1/-1}
+@media (max-width:1100px){.music{grid-template-columns:1fr}.music>*{grid-column:1/-1}}
+.music .mlink{flex-wrap:wrap}.music .mlink input{min-width:240px}
 .np{background:linear-gradient(135deg,#1c2036,#151827);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;gap:18px;align-items:center;min-height:120px}
 .np-art{width:96px;height:96px;flex:none;border-radius:12px;background:#262c44 center/cover;display:grid;place-items:center;font-size:34px;color:var(--acc)}
 .np-main{flex:1;min-width:0}
@@ -2149,7 +2154,7 @@ function mountDock(el,eng,goMusic){
 /* ---------- вкладка «Музыка» ---------- */
 function renderMusicTab(main,eng,isM){
   let cat=LS.get('rpa_mcat')||'all',q='';
-  main.innerHTML=`<div class="music">
+  main.innerHTML=`<div class="music ${isM?'':'solo'}">
     <section class="np"></section>
     ${isM?`<section class="madd panel">
       <h2>Добавить трек</h2>

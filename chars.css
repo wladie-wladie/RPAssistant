@@ -30,7 +30,7 @@
 .sh-grid.info input,.sh-grid.info select{text-transform:none;letter-spacing:0}
 @media (max-width:900px){.sh-grid.info{grid-template-columns:repeat(2,1fr)}}
 .sh-tracks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 26px;padding:14px 16px;border-radius:12px;background:linear-gradient(180deg,#1d1016,#171b2b);border:1px solid #3b2029}
-.tr{display:flex;flex-direction:column;gap:6px}.tr>span{font-size:12px;color:#d8b7bd;text-transform:uppercase;letter-spacing:.07em}.tr small{color:var(--muted);text-transform:none;letter-spacing:0;margin-left:6px}
+.shtr{display:flex;flex-direction:column;gap:6px}.shtr>span{font-size:12px;color:#d8b7bd;text-transform:uppercase;letter-spacing:.07em}.shtr small{color:var(--muted);text-transform:none;letter-spacing:0;margin-left:6px}
 .sh-hint{font-size:12px;color:var(--muted);margin:8px 2px 0}
 .sh-h{font:600 20px var(--serif);margin:24px 0 10px;color:var(--bone);display:flex;align-items:center;gap:10px}
 .sh-h::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#5a2531,transparent)}
@@ -51,7 +51,7 @@ span.tn{cursor:default}
 .boxes.hum i.on{background:#cfc6b3;border-color:#efe6d3}.boxes.hum i.stain{background:repeating-linear-gradient(135deg,#55212b 0 3px,#2a0f15 3px 6px);border-color:#a03a4a}
 .boxes.hum i.on.stain{background:repeating-linear-gradient(135deg,#cfc6b3 0 3px,#8a3340 3px 6px)}
 .stn{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-left:8px}.stn button{width:22px;height:22px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}
-.tr .boxes.hum{display:inline-flex}
+.shtr .boxes.hum{display:inline-flex}
 .hunger{display:inline-flex;gap:6px}.hunger i{width:18px;height:24px;cursor:pointer;background:#2a1a1f;clip-path:path('M9 0C9 0 0 11 0 16a9 8 0 0 0 18 0C18 11 9 0 9 0Z');transition:background .2s,transform .1s}
 .hunger i.on{background:radial-gradient(circle at 40% 60%,#ff6b7a,#a3091d 70%)}.hunger i:hover{transform:scale(1.12)}
 .discs{display:flex;flex-direction:column;gap:10px}
@@ -234,3 +234,27 @@ mark{background:#e3b75b55;color:#fff;border-radius:3px;padding:0 2px}
 .mc-h{cursor:grab;touch-action:none;user-select:none}
 .mchar.drag{box-shadow:0 22px 50px -10px rgba(0,0,0,.7);opacity:.97}.mchar.drag .mc-h{cursor:grabbing}
 .mc-grip{color:var(--muted);font-size:13px;line-height:1;letter-spacing:-1px;opacity:.7}
+/* источники, англ. названия, каталоги */
+.en{color:var(--muted);font-weight:400;font-size:.82em}
+.disc-h .en{margin-left:-4px}
+.src,.srcl{color:#8f98b8;font-size:11px}
+.srcl{display:block;margin-top:2px}
+.bane .srcl{display:inline;margin-left:6px}
+.hsub{font:400 13px Inter,sans-serif;color:var(--muted)}
+.shtr.wide{grid-column:1/-1}
+.feed{color:#c9a7ad;font-size:11.5px;margin-top:2px}
+.rites{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}.rites .rl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-right:4px}
+.pwb.rite{border-color:#3d3560;background:#1a1730}
+.pwlv{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:10px 2px 2px}
+.pwsearch{width:100%;height:36px;margin-bottom:8px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:0 12px;font:inherit}
+.tag.warn{background:#4a2a10;color:#ffc58a}
+.mtabs{display:flex;gap:4px;margin-bottom:8px}.mtabs button{border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}.mtabs button.on{background:var(--blood);border-color:var(--blood);color:#fff}
+.pwi .lv.dots{width:auto;min-width:22px;padding:0 6px;border-radius:11px;font-size:11px}
+.mcustom{display:flex;flex-direction:column;gap:8px;padding:6px 2px}
+.adv .advnote{flex:0 1 140px;font-size:12px!important;color:#e6c8a0}
+.adv button.x,.conv button.x{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;font:inherit;font-size:11px;padding:3px 7px;cursor:pointer}
+.adv .seg button{width:26px}
+.pre.gm span b::after{content:' · мастер';color:var(--blood2);font-size:11px;font-weight:600}
+.sh-hint select{height:26px!important;padding:0 6px!important;font-size:12px!important;margin-left:4px}
+.ages{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important}
+.sh-hint select{width:auto!important;display:inline-block}
