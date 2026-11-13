@@ -1,0 +1,85 @@
+/* RPAssistant — сессии и экран сессии */
+.fsbtn{width:34px;padding:0;display:grid;place-items:center}.fsbtn svg,.stc svg{width:18px;height:18px}
+.livepill .lp{background:#3a0f17;border:1px solid #7a1626;color:#ffd9de;gap:8px;display:inline-flex;align-items:center;max-width:320px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.livepill .lp i,.ss-t .dot,.sc-t .dot,.sc-pill .dot{width:8px;height:8px;border-radius:50%;background:#ff4d5e;box-shadow:0 0 0 0 rgba(255,77,94,.6);animation:livepulse 1.6s infinite;display:inline-block;flex:none}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(255,77,94,.55)}70%{box-shadow:0 0 0 8px rgba(255,77,94,0)}100%{box-shadow:0 0 0 0 rgba(255,77,94,0)}}
+
+/* вкладка «Сессии» */
+.sessions{flex:1;overflow:auto;padding:24px 32px 60px}
+.ss-h{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1100px;margin:0 auto 6px}
+.ss-h h2{font:700 30px var(--serif);margin:0}
+.ss-body{max-width:1100px;margin:0 auto}
+.ss-body h3{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:22px 0 10px;font-weight:600}
+.ss-card{display:flex;gap:16px;align-items:flex-start;padding:16px 18px;border-radius:14px;background:var(--panel);border:1px solid var(--line);margin-bottom:10px}
+.ss-card.live{border-color:#7a1626;background:linear-gradient(180deg,#2a0d14,var(--panel))}
+.ss-card.done{opacity:.85}
+.ss-date{width:58px;flex:none;text-align:center;border-radius:12px;background:var(--panel2);padding:8px 0}
+.ss-date b{display:block;font:700 26px var(--serif);line-height:1}.ss-date span{font-size:12px;color:var(--muted);text-transform:uppercase}
+.ss-main{flex:1;min-width:0}
+.ss-t{font:700 20px var(--serif);display:flex;align-items:center;gap:9px}
+.ss-when{color:var(--muted);font-size:13px;margin-top:2px}.ss-when .rel{color:var(--acc)}
+.ss-ann{margin-top:8px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.ss-sum{margin-top:8px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;color:#d8d2c4}
+.ss-plan{margin-top:8px;font-size:13px}.ss-plan summary{cursor:pointer;color:#e3b75b}.ss-plan div{white-space:pre-wrap;margin-top:6px;padding:10px 12px;border-radius:8px;background:var(--panel2);line-height:1.5}
+.ss-act{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ss-empty{padding:18px;border:1px dashed var(--line);border-radius:12px;font-size:14px}
+.ssf textarea{width:100%;resize:vertical;line-height:1.5}
+
+/* режим экрана сессии: без шапки и вкладок */
+body.in-stage .hdr,body.in-stage .ptabs{display:none}
+body.in-stage .pmain{position:fixed;inset:0;z-index:50}
+body.stage-nodice .dicelog{display:none}
+.stage{position:absolute;inset:0;overflow:hidden;background:#0b0c12}
+.st-bg{position:absolute;inset:0;background:#14161f;background-size:cover!important;background-position:center!important;transition:background .4s}
+.st-scene{position:absolute;inset:0}
+.st-scene>.board,.st-scene>.mapwrap{position:absolute;inset:0}
+.stage .stageboard,.stage .stageboard .vp{background:transparent!important}
+.stage .st-bg.img+.st-scene .stageboard .vp{background-image:none!important}
+.stage.light .stageboard .tb{box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.st-img{position:absolute;inset:0;display:grid;place-items:center;padding:24px;background:rgba(0,0,0,.55);animation:stin .4s ease}
+.st-img img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 30px 80px -20px rgba(0,0,0,.8)}
+@keyframes stin{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
+.st-msg{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}
+/* игрокам на карте — без шапки карты */
+body.stage-player .stage .maphead{display:none}
+.stage .maphead [data-back]{display:none}
+.stage .mapwrap .mapstage{top:0}
+/* угол: полный экран, звук, меню игрока */
+.st-corner{position:absolute;right:14px;top:14px;z-index:60;display:flex;gap:6px;align-items:center;opacity:.55;transition:opacity .2s}
+.st-corner:hover,.st-corner:has(.unlock){opacity:1}
+.stc{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(15,17,26,.75);backdrop-filter:blur(6px);color:#e8e5dc;cursor:pointer;display:grid;place-items:center;font-size:18px}
+.stc:hover{background:rgba(30,33,48,.95)}
+.st-dock{position:static;background:rgba(15,17,26,.75);backdrop-filter:blur(6px);border-radius:10px;padding:0 6px;height:36px;border:1px solid rgba(255,255,255,.12)}
+.st-menu{position:absolute;right:14px;top:58px;z-index:61;display:flex;flex-direction:column;min-width:200px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 20px 50px -10px rgba(0,0,0,.7)}
+.st-menu button{text-align:left;background:none;border:0;color:var(--text);font:inherit;font-size:14px;padding:9px 12px;border-radius:8px;cursor:pointer}.st-menu button:hover{background:var(--panel2)}
+/* панель мастера — тонкая полоса сверху */
+.st-ctrl{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:4px;align-items:center;padding:5px 6px;border-radius:14px;background:rgba(15,17,26,.88);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);box-shadow:0 12px 34px -10px rgba(0,0,0,.6);max-width:calc(100% - 140px);flex-wrap:wrap;justify-content:center;font-family:Inter,Manrope,sans-serif}
+.st-ctrl.min{padding:3px}
+.st-ctrl button,.st-ctrl select{height:32px;border:0;border-radius:9px;background:transparent;color:#d9d6ce;font:inherit;font-size:13px;padding:0 10px;cursor:pointer;white-space:nowrap}
+.st-ctrl select{background:rgba(255,255,255,.06);max-width:170px}
+.st-ctrl button:hover{background:rgba(255,255,255,.08)}.st-ctrl button.on{background:#e3b75b;color:#1a1408;font-weight:600}
+.st-ctrl button.tg{width:34px;padding:0;font-size:16px;opacity:.45}.st-ctrl button.tg.on{opacity:1;background:rgba(227,183,91,.22);color:#fff}
+.st-ctrl button.end{color:#ff8a96}.st-ctrl button.end:hover{background:#3a0f17}
+.sc-g{display:flex;align-items:center;gap:2px;padding:0 4px;border-left:1px solid rgba(255,255,255,.08)}
+.sc-l{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8f8a80;margin:0 4px}
+.sc-t{display:flex;align-items:center;gap:7px;font:600 13px Inter,sans-serif;color:#fff;padding:0 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-pill{display:flex;align-items:center;gap:8px}
+.st-bgpop{position:absolute;top:46px;z-index:62;width:260px;padding:12px;border-radius:12px;background:#1e1e1e;border:1px solid #333;box-shadow:0 20px 50px -10px rgba(0,0,0,.7)}
+.st-bgpop .lbl{font-size:11px;color:#9a9a9a;margin:2px 0 6px}.st-bgpop .r{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.st-bgpop button[data-c]{width:26px!important;height:26px!important;padding:0!important;border-radius:50%!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.st-bgpop button[data-c].on{box-shadow:0 0 0 2px #e3b75b}
+.st-bgpop .cc{width:26px;height:26px;border-radius:50%;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);cursor:pointer;position:relative}
+.st-bgpop .cc input{opacity:0;width:100%;height:100%;cursor:pointer}
+.st-bgpop .btn{height:30px!important}
+/* панель персонажа на экране сессии выше нижней панели инструментов */
+.stage .mchar{bottom:76px}
+.stage .board>.hint:not(.show),.stage .board .bhint{display:none}
+.st-ctrl{flex-wrap:nowrap;max-width:calc(100% - 120px);overflow-x:auto;scrollbar-width:none}
+.st-ctrl::-webkit-scrollbar{display:none}
+.st-ctrl button,.st-ctrl select{padding:0 8px}
+.stage .hint:not(.show){display:none!important}
+.stage .ro-badge,.stage .robadge{display:none!important}
+.stage .hint{display:none!important}
+body:not(.stage-player) .stage[data-scene=map] .st-scene{top:58px}
+.stage[data-scene=map] .maphead{padding-right:60px}
+.st-ctrl select{min-width:140px}

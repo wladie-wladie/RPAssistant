@@ -468,12 +468,14 @@ label.f b{color:var(--danger);font-weight:400}
 .item.shape .txt{font-family:Inter,Manrope,sans-serif}
 </style>
 <link rel="stylesheet" href="chars.css">
+<link rel="stylesheet" href="sessions.css">
 </head>
 <body>
 <div id="app"></div>
 <script src="vtm.js"></script>
 <script src="chars.js"></script>
 <script src="rules.js"></script>
+<script src="sessions.js"></script>
 <script>
 'use strict';
 const APP_VERSION='0.1.0';
@@ -678,6 +680,7 @@ async function go(view,...args){
   if(App.mapView){App.mapView.destroy();App.mapView=null}App.mapsTab=null;
   if(App.music&&!(view==='project'&&args[0]===App.music.pid)){App.music.destroy();App.music=null}
   if(App.hub&&!(view==='project'&&args[0]===App.hub.pid)){App.hub.destroy();App.hub=null}
+  if(App.sess&&!(view==='project'&&args[0]===App.sess.pid)){App.sess.destroy();App.sess=null}
   if(App.chars&&!(view==='project'&&args[0]===App.chars.pid)){App.chars.destroy();App.chars=null;$('.dicelog')?.remove();$('.rollpop')?.remove()}
   document.body.className=App.user?.role?'role-'+App.user.role:'';
   try{
@@ -942,14 +945,18 @@ async function renderProject(pid,tab='board'){
   const isOwner=p.owner_id===App.user.id;
   const myRole=isOwner?'owner':await API.myRole(pid);
   const isM=isOwner||myRole==='comaster';
-  const tabs=isM?[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['sessions','Сессии',1],['notes','Заметки',1],['settings','Настройки']]
-    :isM?[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['sessions','Сессии',1],['notes','Заметки',1],['info','Об игре']]:[['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['info','Об игре']];
+  const tabs=isM?[['sessions','Сессии'],['board','Доска'],['maps','Карты'],['chars','Персонажи'],['rules','Правила'],['music','Музыка'],['notes','Заметки',1],['settings','Настройки']]
+    :[['sessions','Сессии'],['chars','Персонажи'],['rules','Правила'],['info','Об игре']];
+  // у игроков нет доски, карт и музыки — они приходят через экран сессии
+  if(!isM&&['board','maps','music','settings'].includes(tab)){tab='sessions';LS.set('rpa_nav',JSON.stringify([pid,tab]))}
   if(!App.hub||App.hub.pid!==pid){if(App.hub)App.hub.destroy();App.hub=new ProjectHub(pid,isM)}
   if(!App.chars||App.chars.pid!==pid){if(App.chars)App.chars.destroy();App.chars=new CharStore(pid,isM)}
   if(!App.music||App.music.pid!==pid){if(App.music)App.music.destroy();App.music=new MusicEngine(pid,isM);App.music.init().catch(e=>console.error(e))}
+  if(!App.sess||App.sess.pid!==pid){if(App.sess)App.sess.destroy();App.sess=new SessionHub(pid,isM);App.sess.on(()=>drawLivePill())}
   root().innerHTML=headerHTML(`<div class="crumb"><button class="btn ghost sm" data-back>← Проекты</button><span class="pt" title="${esc(p.title)}">${esc(p.title)}</span><span class="sys">${esc(sysName(p))}</span></div>
-    <div class="spacer"></div><div class="mdock" hidden></div>${isM?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
-  if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,tab!=='music'?()=>go('project',pid,'music'):null);
+    <div class="livepill" hidden></div><div class="spacer"></div><div class="mdock" hidden></div><button class="btn ghost sm fsbtn" data-fs title="Полный экран"></button>${isM?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
+  if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,isM&&tab!=='music'?()=>go('project',pid,'music'):null);
+  $('.hdr [data-fs]').innerHTML=FS.icon();$('.hdr [data-fs]').onclick=()=>FS.toggle();drawLivePill();
   if(isM)$('[data-invite]').onclick=()=>inviteModal(p);
   mountDiceLog();
   bindHeader();
@@ -996,6 +1003,8 @@ async function renderProject(pid,tab='board'){
   if(tab==='maps'){renderMapsTab(main,pid,isM);return}
   if(tab==='chars'){renderCharsTab(main,pid,isM);return}
   if(tab==='rules'){renderRulesTab(main,pid,isM);return}
+  if(tab==='sessions'){renderSessionsTab(main,pid,isM);return}
+  if(tab==='stage'){renderStage(main,pid,isM,p);return}
   const SOON={
     chars:['🧙','Персонажи','Листы персонажей игроков и NPC с характеристиками по правилам выбранной системы.'],
     sessions:['📅','Сессии','Планирование встреч, журнал прошедших сессий и заметки по итогам.'],
@@ -2364,7 +2373,7 @@ class MapView{
     this.L.fog=document.createElement('canvas');this.L.fog.className='ml-fog';this.L.fog.style.zIndex=this.canEdit?99990:100002;w.appendChild(this.L.fog);
     this.L.fx=document.createElementNS('http://www.w3.org/2000/svg','svg');this.L.fx.setAttribute('class','ml-fx');w.appendChild(this.L.fx);
     this.renderLayers();this.renderHead();
-    this._mc=mountMapCharPanel(this);
+    this._mc=App.inStage?null:mountMapCharPanel(this);
     this.inflight=false;this.again=false;
     this.loadTokens().then(()=>this.subscribe());
     if(!view)requestAnimationFrame(()=>this.board.fit(1));
@@ -2681,7 +2690,7 @@ class ProjectHub{
   constructor(pid,canEdit){this.pid=pid;this.canEdit=canEdit;this.ch=sb.channel('proj:'+pid,{config:{broadcast:{self:false}}})
     .on('broadcast',{event:'follow'},({payload:p})=>{if(this.canEdit)return;LS.set('rpa_map_'+pid,p.mapId);
       if(App.mapsTab&&App.mapsTab.pid===pid){App.mapsTab.open(p.mapId,true);toast(`Мастер открыл карту «${p.name}»`)}
-      else toastAction(`Мастер зовёт на карту «${p.name}»`,'Открыть',()=>go('project',pid,'maps'))})
+      })
     .on('broadcast',{event:'maps'},()=>{if(App.mapsTab&&App.mapsTab.pid===pid)App.mapsTab.reload()})
     .subscribe()}
   follow(mapId,name){this.ch.send({type:'broadcast',event:'follow',payload:{mapId,name}})}
