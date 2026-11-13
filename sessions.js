@@ -154,8 +154,7 @@ async function renderStage(main,pid,isM,p){
       <span class="sc-t" title="${esc(s.title)}"><i class="dot"></i>${esc(s.title)}</span>
       <span class="sc-g"><span class="sc-l">Игрокам</span>
         <button class="${S.scene==='board'?'on':''}" data-scene="board" title="Показать общую доску">▦ Доска</button>
-        <select data-map title="Показать карту"><option value="">🗺 Карта…</option>${maps.map(m=>`<option value="${m.id}" ${S.scene==='map'&&S.map_id===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select>
-        <button class="${S.scene==='image'?'on':''}" data-scene="image" title="Показать картинку на весь экран">🖼 Картинка</button></span>
+        <select data-map title="Показать карту"><option value="">🗺 Карта…</option>${maps.map(m=>`<option value="${m.id}" ${S.scene==='map'&&S.map_id===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select></span>
       <span class="sc-g"><button data-bg title="Фон доски">🎨 Фон</button></span>
       <span class="sc-g"><span class="sc-l">Могут</span>
         <button class="tg ${o.draw?'on':''}" data-ov="draw" title="Игроки рисуют и пишут на доске">✏️</button>
