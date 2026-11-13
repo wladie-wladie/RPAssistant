@@ -60,8 +60,8 @@ function mountChat(){
     sel.innerHTML=o.map(([v,t])=>`<option value="${v}" ${v===to?'selected':''}>${esc(t)}</option>`).join('');
     f.classList.toggle('priv',!!to);
   };
-  const time=d=>new Date(d).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-  const day=d=>new Date(d).toLocaleDateString('ru',{day:'numeric',month:'long'});
+  const time=d=>new Date(d).toLocaleTimeString(I18N.loc,{hour:'2-digit',minute:'2-digit'});
+  const day=d=>new Date(d).toLocaleDateString(I18N.loc,{day:'numeric',month:'long'});
   const target=m=>m.to_gm?'мастеру':m.to_id?(m.to_id===me?'вам':H.nameOf(m.to_id)):'';
   const draw=()=>{
     if(H.missing||H.err){const e=H.err;list.innerHTML=`<div class="cw-empty">${H.missing?(H.isM?'База данных пока не видит таблицу чата. Выполните <b>supabase/008_chat.sql</b> в Supabase → SQL Editor и нажмите «Проверить снова».':'Мастер ещё не включил чат.'):'Не удалось загрузить чат.'}

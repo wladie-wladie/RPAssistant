@@ -6,6 +6,7 @@
 <title>RPAssistant</title>
 <meta name="theme-color" content="#12162a">
 <link rel="manifest" href="manifest.webmanifest">
+<script src="i18n.js"></script>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -52,7 +53,7 @@ label.f b{color:var(--danger);font-weight:400}
 .auth-hero li{display:flex;gap:10px;align-items:center}
 .auth-hero li i{width:28px;height:28px;border-radius:8px;background:rgba(227,183,91,.14);color:var(--gold);display:grid;place-items:center;font-style:normal}
 .auth-hero .deco{position:absolute;right:-70px;bottom:-70px;width:380px;opacity:.13;z-index:0}
-.auth-side{display:flex;align-items:center;justify-content:center;padding:32px}
+.auth-side{display:flex;align-items:center;justify-content:center;padding:32px;position:relative}
 .auth-card{animation:rise 420ms var(--ease) both;width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .role-switch{display:grid;grid-template-columns:1fr 1fr;background:#10141f;border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:22px}
 .role-switch button{border:0;background:transparent;color:var(--muted);height:40px;transition:background 200ms var(--ease),color 200ms var(--ease);border-radius:7px;font:inherit;font-weight:600;cursor:pointer}
@@ -475,6 +476,12 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator:hover{background:r
 .msettings .ocw{width:28px;height:28px;border-radius:50%;overflow:hidden;cursor:pointer;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);flex:none}
 .msettings .ocw input{opacity:0;width:100%;height:100%;cursor:pointer;padding:0;border:0}
 .msettings .othumb{width:44px;height:28px;border-radius:6px;background:center/cover;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.langbtn{display:inline-flex;align-items:center;gap:0;height:28px;padding:2px;border-radius:8px;border:1px solid var(--line);background:transparent;cursor:pointer;margin-right:10px;flex:none}
+.langbtn b{font:600 11px/1 Inter,sans-serif;letter-spacing:.06em;padding:6px 7px;border-radius:6px;color:var(--muted)}
+.langbtn b.on{background:var(--gold,#e3b75b);color:#1a1408}
+.langbtn:hover b:not(.on){color:var(--text)}
+.auth-lang{position:absolute;top:18px;right:18px;z-index:5}
+body.lang-en .en{display:none!important}
 </style>
 <link rel="stylesheet" href="chars.css">
 <link rel="stylesheet" href="sessions.css">
@@ -694,7 +701,7 @@ async function go(view,...args){
   if(App.sess&&!(view==='project'&&args[0]===App.sess.pid)){App.sess.destroy();App.sess=null}
   if(App.chat&&!(view==='project'&&args[0]===App.chat.pid)){App.chat.destroy();App.chat=null;$('.chatw')?.remove()}
   if(App.chars&&!(view==='project'&&args[0]===App.chars.pid)){App.chars.destroy();App.chars=null;$('.dicelog')?.remove();$('.rollpop')?.remove()}
-  document.body.className=App.user?.role?'role-'+App.user.role:'';
+  document.body.className=(App.user?.role?'role-'+App.user.role:'')+' lang-'+I18N.lang;
   try{
     if(view==='auth')return renderAuth();
     if(view==='onboard')return renderOnboard();
@@ -756,9 +763,9 @@ function renderAuth(){
   const code=LS.get('rpa_invite');
   if(code)inviteInfo(code).then(i=>{if(!i)return;inv=i;role=i.kind==='comaster'?'master':'player';LS.set('rpa_role',role);mode='register';draw()});
   const draw=()=>{
-    document.body.className='role-'+role;
+    document.body.className='role-'+role+' lang-'+I18N.lang;
     root().innerHTML=`<div class="auth">${heroHTML()}
-      <div class="auth-side"><div class="auth-card">
+      <div class="auth-side">${I18N.btn('auth-lang')}<div class="auth-card">
         ${inv?`<div class="invbanner"><span>Вас пригласили ${inv.kind==='comaster'?'сомастером':'в игру'}</span><b>${esc(inv.title)}</b><small>${esc(inv.system||'')} · мастер ${esc(inv.owner||'')}</small></div>`:''}
         <div class="role-switch"><button data-role="master" class="${role==='master'?'on':''}">Мастер игры</button><button data-role="player" class="${role==='player'?'on':''}">Игрок</button></div>
         <h2>${mode==='login'?'Вход':'Регистрация'} ${role==='master'?'мастера':'игрока'}</h2>
@@ -818,7 +825,7 @@ function renderOnboard(){
   const code=LS.get('rpa_invite');if(code)inviteInfo(code).then(i=>{if(i){role=i.kind==='comaster'?'master':'player';draw()}});
   const u=App.user||{};
   const draw=()=>{
-    document.body.className='role-'+role;
+    document.body.className='role-'+role+' lang-'+I18N.lang;
     root().innerHTML=`<div class="auth">${heroHTML()}<div class="auth-side"><div class="auth-card">
       <h2>Добро пожаловать!</h2><p class="sub">Остался один шаг — расскажите, кто вы в этой истории. Роль выбирается один раз.</p>
       <div class="role-cards">
@@ -840,7 +847,7 @@ async function logout(){destroyBoard();if(App.mapView){App.mapView.destroy();App
 function headerHTML(mid=''){
   const u=App.user;
   return `<header class="hdr"><div class="logo" data-home title="К проектам">RP<span>Assistant</span></div>${mid}<div class="spacer"></div>
-  <div class="me"><span class="badge ${u.role}">${u.role==='master'?'Мастер':'Игрок'}</span>${u.avatar_url?`<img class="ava" src="${esc(u.avatar_url)}" referrerpolicy="no-referrer" alt="">`:''}<span class="me-name" data-rename title="Изменить имя">${esc(u.name)}</span><button class="btn ghost sm" data-logout>Выйти</button></div></header>`;
+  <div class="me">${I18N.btn()}<span class="badge ${u.role}">${u.role==='master'?'Мастер':'Игрок'}</span>${u.avatar_url?`<img class="ava" src="${esc(u.avatar_url)}" referrerpolicy="no-referrer" alt="">`:''}<span class="me-name" data-rename title="Изменить имя">${esc(u.name)}</span><button class="btn ghost sm" data-logout>Выйти</button></div></header>`;
 }
 function bindHeader(){
   $('[data-home]').onclick=()=>{LS.set('rpa_nav',null);go('home')};

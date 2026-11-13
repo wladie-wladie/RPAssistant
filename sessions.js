@@ -39,7 +39,7 @@ function drawLivePill(){
 }
 
 /* ---------- вкладка «Сессии» ---------- */
-const fmtDate=iso=>{if(!iso)return 'Дата не назначена';const d=new Date(iso);return d.toLocaleDateString('ru',{weekday:'long',day:'numeric',month:'long'})+', '+d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})};
+const fmtDate=iso=>{if(!iso)return 'Дата не назначена';const d=new Date(iso);return d.toLocaleDateString(I18N.loc,{weekday:'long',day:'numeric',month:'long'})+', '+d.toLocaleTimeString(I18N.loc,{hour:'2-digit',minute:'2-digit'})};
 const relTime=iso=>{if(!iso)return '';const ms=new Date(iso)-Date.now(),m=Math.round(Math.abs(ms)/60000);const h=Math.round(m/60),d=Math.round(h/24);
   const t=m<60?`${m} ${plural(m,'минуту','минуты','минут')}`:h<36?`${h} ${plural(h,'час','часа','часов')}`:`${d} ${plural(d,'день','дня','дней')}`;return ms>0?'через '+t:t+' назад'};
 const toLocalInput=iso=>{if(!iso)return '';const d=new Date(iso);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
@@ -55,9 +55,9 @@ async function renderSessionsTab(main,pid,isM){
     draw();
   };
   const card=(s,kind)=>`<div class="ss-card ${kind}" data-id="${s.id}">
-    <div class="ss-date"><b>${s.starts_at?new Date(s.starts_at).getDate():'—'}</b><span>${s.starts_at?new Date(s.starts_at).toLocaleDateString('ru',{month:'short'}):''}</span></div>
+    <div class="ss-date"><b>${s.starts_at?new Date(s.starts_at).getDate():'—'}</b><span>${s.starts_at?new Date(s.starts_at).toLocaleDateString(I18N.loc,{month:'short'}):''}</span></div>
     <div class="ss-main"><div class="ss-t">${kind==='live'?'<span class="dot"></span>':''}${esc(s.title)}</div>
-      <div class="ss-when">${kind==='live'?`Идёт с ${new Date(s.started_at).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}`:esc(fmtDate(s.starts_at))}${s.starts_at&&kind==='plan'?` · <span class="rel">${relTime(s.starts_at)}</span>`:''}${s.duration_min&&kind!=='done'?` · ~${Math.round(s.duration_min/6)/10} ч`:''}</div>
+      <div class="ss-when">${kind==='live'?`Идёт с ${new Date(s.started_at).toLocaleTimeString(I18N.loc,{hour:'2-digit',minute:'2-digit'})}`:esc(fmtDate(s.starts_at))}${s.starts_at&&kind==='plan'?` · <span class="rel">${relTime(s.starts_at)}</span>`:''}${s.duration_min&&kind!=='done'?` · ~${Math.round(s.duration_min/6)/10} ч`:''}</div>
       ${s.announce?`<div class="ss-ann">${esc(s.announce)}</div>`:''}
       ${kind==='done'&&s.summary?`<div class="ss-sum"><b>Итоги:</b> ${esc(s.summary)}</div>`:''}
       ${isM&&plans[s.id]?`<details class="ss-plan"><summary>План мастера</summary><div>${esc(plans[s.id])}</div></details>`:''}
