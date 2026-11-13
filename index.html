@@ -466,6 +466,9 @@ label.f b{color:var(--danger);font-weight:400}
 .marquee{border-color:#0D99FF;background:rgba(13,153,255,.08)}
 .item.text .txt{font-family:Inter,Manrope,sans-serif}
 .item.shape .txt{font-family:Inter,Manrope,sans-serif}
+input[type=date],input[type=time],input[type=datetime-local],input[type=month],input[type=week]{color-scheme:dark;cursor:pointer}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator,input[type=datetime-local]::-webkit-calendar-picker-indicator{opacity:.85;cursor:pointer;padding:4px;border-radius:6px}
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover{background:rgba(255,255,255,.08)}
 </style>
 <link rel="stylesheet" href="chars.css">
 <link rel="stylesheet" href="sessions.css">
@@ -2775,5 +2778,6 @@ if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
   }).catch(()=>{});
 }
 </script>
+<script>document.addEventListener('click',e=>{const i=e.target;if(i instanceof HTMLInputElement&&/^(date|time|datetime-local|month|week)$/.test(i.type)&&!i.disabled&&!i.readOnly&&i.showPicker){try{i.showPicker()}catch(_){}}});</script>
 </body>
 </html>
