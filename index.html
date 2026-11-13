@@ -2394,6 +2394,7 @@ class MapView{
   /* ---------- слои ---------- */
   renderLayers(){
     const S=this.S,W=this.W(),H=this.H(),L=this.L;
+    this.board.root.style.background=S.outside||'';
     L.base.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;background:${S.base};box-shadow:0 0 0 2px rgba(60,45,30,.35),0 18px 50px rgba(40,30,20,.25);pointer-events:none;z-index:-6`;
     if(S.bg&&S.bg.src){const b=S.bg;L.bg.src=b.src;L.bg.style.cssText=`position:absolute;left:${b.x*CELL}px;top:${b.y*CELL}px;width:${b.w*CELL}px;height:auto;opacity:${b.opacity??1};pointer-events:none;z-index:-5;max-width:none`;L.bg.hidden=false}else{L.bg.hidden=true;L.bg.removeAttribute('src')}
     const op=S.gridOpacity,col=S.gridColor,id='g'+this.map.id.slice(0,8);
@@ -2469,7 +2470,7 @@ class MapView{
       <div class="grid3"><label class="f">Клеток по ширине<input name="cols" type="number" min="5" max="300" value="${S.cols}"></label>
       <label class="f">Клеток по высоте<input name="rows" type="number" min="5" max="300" value="${S.rows}"></label>
       <label class="f">Прозрачность сетки<input name="gridOpacity" type="range" min="0" max="1" step="0.05" value="${S.gridOpacity}"></label></div>
-      <div class="grid3"><label class="f">Цвет сетки<input name="gridColor" type="color" value="${S.gridColor}"></label><label class="f">Цвет основы<input name="base" type="color" value="${S.base}"></label><div></div></div>
+      <div class="grid3"><label class="f">Цвет сетки<input name="gridColor" type="color" value="${S.gridColor}"></label><label class="f">Цвет основы<input name="base" type="color" value="${S.base}"></label><label class="f">Цвет вокруг карты<span class="row-g" style="gap:6px;align-items:center"><input name="outside" type="color" value="${S.outside||'#f5f5f5'}" style="flex:1">${['#f5f5f5','#2a2622','#12141c','#3b4a3a'].map(c=>`<button type="button" class="swatch-mini" data-out="${c}" title="${c}" style="width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.25);background:${c};padding:0;cursor:pointer"></button>`).join('')}</span></label></div>
       <div class="bgbox"><b>Фоновая картинка</b> <span class="muted">— готовая карта или рисунок местности</span>
         <div class="row-g" style="margin:8px 0"><label class="btn sm">${bg.src?'Заменить':'Загрузить картинку'}<input type="file" accept="image/*" hidden data-bgfile></label>${bg.src?'<button type="button" class="btn sm ghost" data-bgdel>Убрать фон</button><button type="button" class="btn sm ghost" data-bgfit>Растянуть на всю карту</button>':''}</div>
         ${bg.src?`<div class="grid3"><label class="f">Ширина фона, клеток<input name="bgw" type="number" step="0.1" min="1" value="${r1(bg.w)}"></label><label class="f">Сдвиг X, клеток<input name="bgx" type="number" step="0.1" value="${r1(bg.x)}"></label><label class="f">Сдвиг Y, клеток<input name="bgy" type="number" step="0.1" value="${r1(bg.y)}"></label></div>
@@ -2479,11 +2480,12 @@ class MapView{
     el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
     const f=el.querySelector('form');
     const apply=()=>{
-      const p={grid:f.grid.value,cellM:Math.max(.1,+f.cellM.value||1.5),unit:f.unit.value,cols:clamp(+f.cols.value||30,5,300),rows:clamp(+f.rows.value||20,5,300),gridOpacity:+f.gridOpacity.value,gridColor:f.gridColor.value,base:f.base.value};
+      const p={grid:f.grid.value,cellM:Math.max(.1,+f.cellM.value||1.5),unit:f.unit.value,cols:clamp(+f.cols.value||30,5,300),rows:clamp(+f.rows.value||20,5,300),gridOpacity:+f.gridOpacity.value,gridColor:f.gridColor.value,base:f.base.value,outside:f.outside.value};
       if(S.bg&&f.bgw)p.bg={...S.bg,w:Math.max(1,+f.bgw.value),x:+f.bgx.value,y:+f.bgy.value,opacity:+f.bgo.value};
       this.saveSettings(p);
     };
     f.oninput=e=>{if(e.target.name==='preset')return;apply()};
+    el.querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>{f.outside.value=b.dataset.out;apply()});
     f.preset.onchange=()=>{const p=MAP_PRESETS[f.preset.value];if(!p)return;for(const k of ['grid','cellM','unit','cols','rows','base'])if(f[k])f[k].value=p[k];apply()};
     const bf=el.querySelector('[data-bgfile]');
     bf.onchange=async()=>{const file=bf.files[0];if(!file)return;toast('Загружаю фон…');try{const {blob,ext,w,h}=await loadImage(file);const src=await API.upload(this.ctx.pid,blob,ext);const bw=this.S.cols;await this.saveSettings({bg:{src,x:0,y:0,w:bw,ratio:h/w,opacity:1}});close();this.settingsModal();toast('Фон загружен — при необходимости подгоните его под сетку')}catch(e){toast('Не удалось загрузить картинку','err')}};
