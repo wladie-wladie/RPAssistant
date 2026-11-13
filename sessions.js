@@ -184,7 +184,7 @@ async function renderStage(main,pid,isM,p){
       if(!url)return;close();cb(url)}};
   const bgPop=btn=>{$('.st-bgpop')?.remove();const b=s.bg||{};const pop=document.createElement('div');pop.className='st-bgpop';
     pop.innerHTML=`<div class="lbl">Цвет фона</div><div class="r">${STAGE_BG.map(c=>`<button data-c="${c}" class="${b.color===c&&!b.image?'on':''}" style="background:${c}"></button>`).join('')}<label class="cc" title="Свой цвет"><input type="color" value="${b.color||'#14161f'}"></label></div><div class="lbl">Картинка</div><div class="r"><button class="btn sm" data-img>Загрузить или ссылка…</button>${b.image?'<button class="btn sm ghost" data-noimg>Убрать</button>':''}</div>`;
-    ctrl.appendChild(pop);const r=btn.getBoundingClientRect(),cr=ctrl.getBoundingClientRect();pop.style.left=(r.left-cr.left)+'px';
+    stEl.appendChild(pop);const r=btn.getBoundingClientRect(),sr=stEl.getBoundingClientRect();pop.style.top=(r.bottom-sr.top+8)+'px';pop.style.left=Math.max(8,Math.min(r.left-sr.left,sr.width-pop.offsetWidth-8))+'px';
     pop.onclick=ev=>{const x=ev.target.closest('[data-c],[data-img],[data-noimg]');if(!x)return;
       if(x.dataset.c){save({bg:{color:x.dataset.c}});pop.remove()}
       if(x.dataset.img!==undefined){pop.remove();pickImage('Фон доски',url=>save({bg:{...(s.bg||{}),image:url}}),b.image)}
