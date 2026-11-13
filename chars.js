@@ -245,24 +245,58 @@ function cycleBox(c,kind,i){
 const ownerName=(c,mem)=>c.npc?'Персонаж мастера':c.owner_id?(c.owner_id===App.user.id?'Вы':(mem||[]).find(m=>m.user_id===c.owner_id)?.profile?.name||'Игрок'):'Не назначен';
 
 /* ---------- вкладка «Персонажи» ---------- */
+/* категории персонажей: список хранится служебной записью проекта, у персонажа — data.group */
+const CG_KEY='__char_groups__';
+const CharGroups={
+  async load(pid){const {data,error}=await sb.from('map_templates').select('id,items').eq('project_id',pid).eq('name',CG_KEY);if(error){console.warn(error);return this.list=[]}this.row=(data||[])[0]||null;this.pid=pid;return this.list=(this.row?.items||[]).filter(x=>x&&x.name)},
+  async save(pid,list){this.list=list;
+    if(this.row?.id){const {error}=await sb.from('map_templates').update({items:list}).eq('id',this.row.id);return !fail(error)}
+    const {data,error}=await sb.from('map_templates').insert({project_id:pid,name:CG_KEY,icon:'📁',items:list,created_by:App.user.id}).select('id,items').single();if(fail(error))return false;this.row=data;return true},
+  list:[],
+};
 async function renderCharsTab(main,pid,isM){
   const S=App.chars;
-  main.innerHTML=`<div class="chars"><aside class="clist"><div class="clist-h"><b>Персонажи</b><span style="display:flex;gap:6px"><button class="btn sm" data-io title="Импорт, экспорт и шаблон персонажа">⇅</button><button class="btn primary sm" data-new>+ Создать</button></span></div><div class="cl"></div></aside><section class="csheet"></section></div>`;
+  main.innerHTML=`<div class="chars"><aside class="clist"><div class="clist-h"><b>Персонажи</b><span style="display:flex;gap:6px">${isM?'<button class="btn sm" data-grp title="Новая категория">📁</button>':''}<button class="btn sm" data-io title="Импорт, экспорт и шаблон персонажа">⇅</button><button class="btn primary sm" data-new>+ Создать</button></span></div><div class="cl"></div></aside><section class="csheet"></section></div>`;
   const cl=$('.cl',main),cs=$('.csheet',main);let cur=LS.get('rpa_char_'+pid);let mem=isM?await API.members(pid).catch(()=>[]):[];
+  const COLL='rpa_cgc_'+pid;let coll=new Set((LS.get(COLL)||'').split('|').filter(Boolean));
+  const item=c=>{const d=c.data,cn=VTM.CLANS[d.clan];return `<div class="cli ${c.id===cur?'on':''}" data-id="${c.id}" ${isM?'draggable="true"':''}>${charAvatar(c,'cli-av')}<div class="cli-b"><b>${esc(charName(c))}${isM&&charHidden(c)?' <span class="hid-tag" title="Игроки видят: '+esc(charPubName(c))+'">🙈</span>':''}</b><span>${esc(cn?.n||'Без клана')}${d.predator?' · '+esc(VTM.PREDATORS[d.predator]?.n||''):''}</span><span class="cli-o">${esc(ownerName(c,mem))}</span></div><div class="cli-h" title="Голод">${'●'.repeat(+d.hunger||0)}</div></div>`};
   const drawList=()=>{
     const L=S.list;if(cur&&!S.get(cur))cur=null;if(!cur&&L.length)cur=(S.mine()[0]||L[0]).id;
-    cl.innerHTML=L.length?L.map(c=>{const d=c.data,cn=VTM.CLANS[d.clan];return `<div class="cli ${c.id===cur?'on':''}" data-id="${c.id}">${charAvatar(c,'cli-av')}<div class="cli-b"><b>${esc(charName(c))}${isM&&charHidden(c)?' <span class="hid-tag" title="Игроки видят: '+esc(charPubName(c))+'">🙈</span>':''}</b><span>${esc(cn?.n||'Без клана')}${d.predator?' · '+esc(VTM.PREDATORS[d.predator]?.n||''):''}</span><span class="cli-o">${esc(ownerName(c,mem))}</span></div><div class="cli-h" title="Голод">${'●'.repeat(+d.hunger||0)}</div></div>`}).join('')
-      :`<div class="muted" style="padding:14px;font-size:13px">${isM?'Создайте персонажей для игроков или NPC.':'У вас пока нет персонажа. Создайте его — мастер сразу увидит лист.'}</div>`;
+    if(!L.length&&!CharGroups.list.length){cl.innerHTML=`<div class="muted" style="padding:14px;font-size:13px">${isM?'Создайте персонажей для игроков или NPC.':'У вас пока нет персонажа. Создайте его — мастер сразу увидит лист.'}</div>`;return}
+    const PL='__players__',isPl=c=>!!c.owner_id&&!c.npc;
+    const names=[...CharGroups.list.map(g=>g.name)];for(const c of L){const g=(c.data.group||'').trim();if(g&&!isPl(c)&&!names.includes(g))names.push(g)}
+    const sec=(name,arr,real)=>{const k=name||'∅',cc=coll.has(k);return `<div class="cg ${cc?'coll':''} ${name===PL?'cg-pl':''}" data-g="${esc(name)}"><div class="cg-h" data-gh="${esc(name)}"><span class="cg-ar">${cc?'▸':'▾'}</span><b>${name===PL?'🎭 Персонажи игроков':esc(name||'Без категории')}</b><span class="cg-n">${arr.length}</span>${isM&&real?`<span class="cg-act"><button data-gren="${esc(name)}" title="Переименовать">✎</button><button data-gdel="${esc(name)}" title="Удалить категорию (персонажи останутся)">✕</button></span>`:''}</div>${cc?'':`<div class="cg-b">${arr.map(item).join('')||'<div class="cg-e">Перетащите сюда персонажей</div>'}</div>`}</div>`};
+    const pl=L.filter(isPl),rest=L.filter(c=>!isPl(c));
+    if(!isM){cl.innerHTML=L.map(item).join('');return}
+    if(!names.length&&!pl.length){cl.innerHTML=L.map(item).join('');return}
+    cl.innerHTML=(pl.length?sec(PL,pl,false):'')+names.map(n=>sec(n,rest.filter(c=>(c.data.group||'').trim()===n),true)).join('')+(rest.some(c=>!names.includes((c.data.group||'').trim()))||!pl.length?sec('',rest.filter(c=>!names.includes((c.data.group||'').trim())),false):'');
   };
   const drawSheet=()=>{const c=cur&&S.get(cur);if(!c){cs.innerHTML=`<div class="soon"><div class="panel"><div class="ic">🧛</div><h2>Персонажи</h2><p class="muted">${isM?'Создайте персонажа и назначьте его игроку — или дайте игрокам создать своих. Лист один на двоих: правки игрока сразу видит мастер, а мастер может поправить что угодно.':'Создайте персонажа по правилам Vampire: The Masquerade V5. Мастер увидит лист и сможет его поправить.'}</p><button class="btn primary" data-new>+ Создать персонажа</button></div></div>`;cs.querySelector('[data-new]').onclick=()=>openCharWizard(pid,isM,mem);return}
     renderSheet(cs,c,isM,mem)};
-  cl.onclick=e=>{const it=e.target.closest('.cli');if(!it)return;cur=it.dataset.id;LS.set('rpa_char_'+pid,cur);drawList();drawSheet()};
+  const moveTo=(id,g)=>{const c=S.get(id);if(!c)return;if(g==='__players__'||(c.owner_id&&!c.npc)){toast('Персонажи игроков всегда в своей категории — чтобы перенести, снимите назначение игроку');return}if((c.data.group||'')===g)return;S.patch(id,{group:g})};
+  cl.onclick=async e=>{
+    const ren=e.target.closest('[data-gren]');if(ren){e.stopPropagation();const o=ren.dataset.gren,n=(prompt('Новое название категории',o)||'').trim();if(!n||n===o)return;
+      await CharGroups.save(pid,CharGroups.list.map(g=>g.name===o?{...g,name:n}:g));if(coll.has(o)){coll.delete(o);coll.add(n);LS.set(COLL,[...coll].join('|'))}
+      for(const c of S.list)if((c.data.group||'').trim()===o)await S.patch(c.id,{group:n});drawList();return}
+    const del=e.target.closest('[data-gdel]');if(del){e.stopPropagation();const o=del.dataset.gdel;if(!await confirmBox(`Удалить категорию «${o}»? Персонажи из неё переедут в «Без категории».`,'Удалить'))return;
+      await CharGroups.save(pid,CharGroups.list.filter(g=>g.name!==o));for(const c of S.list)if((c.data.group||'').trim()===o)await S.patch(c.id,{group:''});drawList();return}
+    const gh=e.target.closest('[data-gh]');if(gh){const k=gh.dataset.gh||'∅';coll.has(k)?coll.delete(k):coll.add(k);LS.set(COLL,[...coll].join('|'));drawList();return}
+    const it=e.target.closest('.cli');if(!it)return;cur=it.dataset.id;LS.set('rpa_char_'+pid,cur);drawList();drawSheet()};
+  if(isM){
+    main.querySelector('[data-grp]').onclick=async()=>{const n=(prompt('Название категории (например: NPC города, Шабаш, Союзники)')||'').trim();if(!n)return;
+      if(CharGroups.list.some(g=>g.name===n))return toast('Такая категория уже есть');await CharGroups.save(pid,[...CharGroups.list,{name:n}]);
+      if(cur&&S.get(cur)&&!S.get(cur).data.group&&await confirmBox(`Переместить «${S.get(cur).name}» в «${n}»?`,'Переместить'))moveTo(cur,n);drawList()};
+    cl.addEventListener('dragstart',e=>{const it=e.target.closest('.cli');if(!it)return;e.dataTransfer.setData('text/rpa-char',it.dataset.id);e.dataTransfer.effectAllowed='move';it.classList.add('drag')});
+    cl.addEventListener('dragend',e=>{cl.querySelectorAll('.drag,.dov').forEach(x=>x.classList.remove('drag','dov'))});
+    cl.addEventListener('dragover',e=>{const g=e.target.closest('.cg');if(!g||!e.dataTransfer.types.includes('text/rpa-char'))return;e.preventDefault();cl.querySelectorAll('.dov').forEach(x=>x!==g&&x.classList.remove('dov'));g.classList.add('dov')});
+    cl.addEventListener('drop',e=>{const g=e.target.closest('.cg');const id=e.dataTransfer.getData('text/rpa-char');if(!g||!id)return;e.preventDefault();g.classList.remove('dov');moveTo(id,g.dataset.g||'')});
+  }
   main.querySelector('[data-io]').onclick=e=>charIOMenu(e.currentTarget,pid,isM,cur,c=>{if(c){cur=c.id;LS.set('rpa_char_'+pid,cur)}drawList();drawSheet()});
   main.querySelector('[data-new]').onclick=()=>openCharWizard(pid,isM,mem,c=>{cur=c.id;LS.set('rpa_char_'+pid,cur);drawList();drawSheet()});
   let pend=false;
   const off=S.on(id=>{drawList();if(!id||id===cur){const a=document.activeElement;if(a&&cs.contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){if(!pend){pend=true;a.addEventListener('blur',()=>{pend=false;setTimeout(()=>{if(cs.isConnected){drawList();drawSheet()}},50)},{once:true})}}else drawSheet()}});
   App.unsub=()=>off();
-  await S.ready;drawList();drawSheet();
+  await S.ready;await CharGroups.load(pid);drawList();drawSheet();
 }
 
 const genOpts=(isM,thin)=>VTM.GENERATIONS.filter(([g])=>isM?true:(thin?g>=14:g>=10&&g<=13)).map(([g,n])=>[g,n]);
@@ -278,7 +312,7 @@ function renderSheet(host,c,isM,mem){
   const extra=VTM.extraPowers(d),totDots=Object.values(d.disc||{}).reduce((s,v)=>s+ +v,0);
   host.innerHTML=`<div class="sheet ${ed?'':'ro'}">
     <div class="sh-top">
-      <button class="sh-av" data-look title="${ed?'Портрет и значок на карте':'Портрет'}">${charAvatar(c,'sh-avi')}</button><div class="sh-name"><input class="nm" data-f="name" value="${esc(isM||c.owner_id===App.user.id?(d.name||c.name):charName(c))}" placeholder="Имя персонажа" ${ed?'':'readonly'}><div class="sh-sub">${esc(clan?.n||'Клан не выбран')} · ${esc(String(d.gen||''))}-е поколение${VTM.AGES[d.age]?' · '+esc(VTM.AGES[d.age].n):''} · ${esc(ownerName(c,mem))}</div>${isM?`<div class="sh-alias"><label>Для игроков<input data-f="alias" value="${esc(d.alias||'')}" placeholder="как видят до знакомства, например: Незнакомец в плаще"></label>${d.alias&&String(d.alias).trim()?`<button class="btn sm ${d.revealed?'':'primary'}" data-reveal>${d.revealed?'🙈 Скрыть имя':'👁 Открыть имя игрокам'}</button><span class="sh-alst">${d.revealed?'игроки видят настоящее имя':'игроки видят «'+esc(String(d.alias).trim())+'»'}</span>`:''}</div>`:''}</div>
+      <button class="sh-av" data-look title="${ed?'Портрет и значок на карте':'Портрет'}">${charAvatar(c,'sh-avi')}</button><div class="sh-name"><input class="nm" data-f="name" value="${esc(isM||c.owner_id===App.user.id?(d.name||c.name):charName(c))}" placeholder="Имя персонажа" ${ed?'':'readonly'}><div class="sh-sub">${esc(clan?.n||'Клан не выбран')} · ${esc(String(d.gen||''))}-е поколение${VTM.AGES[d.age]?' · '+esc(VTM.AGES[d.age].n):''} · ${esc(ownerName(c,mem))}</div>${isM?`<div class="sh-alias"><label>Категория<select data-f="group"><option value="">— без категории —</option>${[...new Set([...CharGroups.list.map(g=>g.name),...(d.group?[d.group]:[])])].map(g=>`<option ${g===d.group?'selected':''}>${esc(g)}</option>`).join('')}</select></label><label>Для игроков<input data-f="alias" value="${esc(d.alias||'')}" placeholder="как видят до знакомства, например: Незнакомец в плаще"></label>${d.alias&&String(d.alias).trim()?`<button class="btn sm ${d.revealed?'':'primary'}" data-reveal>${d.revealed?'🙈 Скрыть имя':'👁 Открыть имя игрокам'}</button><span class="sh-alst">${d.revealed?'игроки видят настоящее имя':'игроки видят «'+esc(String(d.alias).trim())+'»'}</span>`:''}</div>`:''}</div>
       <div class="sh-act"><button class="btn primary" data-roll>🎲 Бросок</button><button class="btn" data-rouse title="Бросок на голод: d10, на 1–5 Голод растёт">🩸 Бросок на голод</button>${isM?`<select data-owner title="Чей персонаж"><option value="">Не назначен</option><option value="npc" ${c.npc?'selected':''}>Персонаж мастера (NPC)</option>${(mem||[]).filter(m=>m.role!=='comaster').map(m=>`<option value="${m.user_id}" ${c.owner_id===m.user_id?'selected':''}>Игрок: ${esc(m.profile?.name||'—')}</option>`).join('')}</select>`:''}${isM||c.created_by===App.user.id?'<button class="btn ghost" data-del title="Удалить персонажа">🗑</button>':''}</div>
     </div>
     <div class="sh-grid info">
