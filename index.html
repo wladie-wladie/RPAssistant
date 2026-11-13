@@ -472,6 +472,7 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator:hover{background:r
 </style>
 <link rel="stylesheet" href="chars.css">
 <link rel="stylesheet" href="sessions.css">
+<link rel="stylesheet" href="chat.css">
 </head>
 <body>
 <div id="app"></div>
@@ -479,6 +480,7 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator:hover{background:r
 <script src="chars.js"></script>
 <script src="rules.js"></script>
 <script src="sessions.js"></script>
+<script src="chat.js"></script>
 <script>
 'use strict';
 const APP_VERSION='0.1.0';
@@ -684,6 +686,7 @@ async function go(view,...args){
   if(App.music&&!(view==='project'&&args[0]===App.music.pid)){App.music.destroy();App.music=null}
   if(App.hub&&!(view==='project'&&args[0]===App.hub.pid)){App.hub.destroy();App.hub=null}
   if(App.sess&&!(view==='project'&&args[0]===App.sess.pid)){App.sess.destroy();App.sess=null}
+  if(App.chat&&!(view==='project'&&args[0]===App.chat.pid)){App.chat.destroy();App.chat=null;$('.chatw')?.remove()}
   if(App.chars&&!(view==='project'&&args[0]===App.chars.pid)){App.chars.destroy();App.chars=null;$('.dicelog')?.remove();$('.rollpop')?.remove()}
   document.body.className=App.user?.role?'role-'+App.user.role:'';
   try{
@@ -955,13 +958,14 @@ async function renderProject(pid,tab='board'){
   if(!App.hub||App.hub.pid!==pid){if(App.hub)App.hub.destroy();App.hub=new ProjectHub(pid,isM)}
   if(!App.chars||App.chars.pid!==pid){if(App.chars)App.chars.destroy();App.chars=new CharStore(pid,isM)}
   if(!App.music||App.music.pid!==pid){if(App.music)App.music.destroy();App.music=new MusicEngine(pid,isM);App.music.init().catch(e=>console.error(e))}
+  if(!App.chat||App.chat.pid!==pid){if(App.chat)App.chat.destroy();App.chat=new ChatHub(pid,isM)}
   if(!App.sess||App.sess.pid!==pid){if(App.sess)App.sess.destroy();App.sess=new SessionHub(pid,isM);App.sess.on(()=>drawLivePill())}
   root().innerHTML=headerHTML(`<div class="crumb"><button class="btn ghost sm" data-back>← Проекты</button><span class="pt" title="${esc(p.title)}">${esc(p.title)}</span><span class="sys">${esc(sysName(p))}</span></div>
     <div class="livepill" hidden></div><div class="spacer"></div><div class="mdock" hidden></div><button class="btn ghost sm fsbtn" data-fs title="Полный экран"></button>${isM?`<button class="btn primary sm invbtn" data-invite>${ICON.invite} Пригласить</button>`:''}`)+`<nav class="tabs ptabs">${tabs.map(([k,l,s])=>`<button data-tab="${k}" class="${k===tab?'on':''}">${l}${s?'<i>скоро</i>':''}</button>`).join('')}</nav><main class="pmain"></main>`;
   if(App.dockOff)App.dockOff();App.dockOff=mountDock($('.mdock'),App.music,isM&&tab!=='music'?()=>go('project',pid,'music'):null);
   $('.hdr [data-fs]').innerHTML=FS.icon();$('.hdr [data-fs]').onclick=()=>FS.toggle();drawLivePill();
   if(isM)$('[data-invite]').onclick=()=>inviteModal(p);
-  mountDiceLog();
+  mountDiceLog();mountChat();
   bindHeader();
   $('[data-back]').onclick=()=>{LS.set('rpa_nav',null);go('home')};
   $$('[data-tab]').forEach(b=>b.onclick=()=>go('project',pid,b.dataset.tab));
@@ -2706,7 +2710,8 @@ function toastAction(msg,label,fn){const t=document.createElement('div');t.class
 
 /* ---------- вкладка «Карты» ---------- */
 function renderMapsTab(main,pid,isM){
-  main.innerHTML=`<div class="maps"><aside class="mlist"><div class="mlist-h"><b>Карты</b>${isM?'<button class="btn primary sm" data-newmap>+ Новая</button>':''}</div><div class="ml"></div></aside><section class="mmain"></section></div>`;
+  main.innerHTML=`<div class="maps"><aside class="mlist"><div class="mlist-h"><b>Карты</b>${isM?'<span style="display:flex;gap:6px;flex-wrap:nowrap"><button class="btn sm" data-bglib title="Готовые фоны для сессий">🖼 Фоны</button><button class="btn primary sm" data-newmap>+ Новая</button></span>':''}</div><div class="ml"></div></aside><section class="mmain"></section></div>`;
+  if(isM)main.querySelector('[data-bglib]').onclick=()=>manageBgs(pid);
   const ml=$('.ml',main),mm=$('.mmain',main);
   let maps=[],view=null,templates=[],members=null;
   const T={pid,

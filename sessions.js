@@ -45,7 +45,7 @@ const relTime=iso=>{if(!iso)return '';const ms=new Date(iso)-Date.now(),m=Math.r
 const toLocalInput=iso=>{if(!iso)return '';const d=new Date(iso);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
 
 async function renderSessionsTab(main,pid,isM){
-  main.innerHTML=`<div class="sessions"><div class="ss-h"><h2>Сессии</h2>${isM?'<span class="row-g" style="gap:8px"><button class="btn" data-bgs title="Подготовить фоны для сессий">🖼 Фоны</button><button class="btn primary" data-new>+ Запланировать сессию</button></span>':''}</div><div class="ss-body"><div class="loading"><div class="spin"></div></div></div></div>`;
+  main.innerHTML=`<div class="sessions"><div class="ss-h"><h2>Сессии</h2>${isM?'<button class="btn primary" data-new>+ Запланировать сессию</button>':''}</div><div class="ss-body"><div class="loading"><div class="spin"></div></div></div></div>`;
   const body=$('.ss-body',main);let list=[],plans={};
   const load=async()=>{
     const {data,error}=await sb.from('game_sessions').select('id,project_id,title,starts_at,duration_min,announce,summary,status,started_at,ended_at').eq('project_id',pid).order('starts_at',{ascending:true,nullsFirst:false});
@@ -79,7 +79,6 @@ async function renderSessionsTab(main,pid,isM){
     if(e.target.closest('[data-del]')){if(await confirmBox(`Удалить сессию «${s.title}»?`)){const {error}=await sb.from('game_sessions').delete().eq('id',s.id);if(!fail(error))load()}return}
   };
   if(isM)main.querySelector('[data-new]').onclick=()=>editSession(pid,null,'',load);
-  if(isM)main.querySelector('[data-bgs]').onclick=()=>manageBgs(pid);
   const off=App.sess?.on(()=>load());App.unsub=()=>off?.();
   load();
 }
@@ -141,7 +140,7 @@ async function renderStage(main,pid,isM,p){
   const {data:liveRow}=await sb.from('game_sessions').select('*').eq('project_id',pid).eq('status','live').maybeSingle();
   let s=liveRow||null;App.sess.live=s;
   if(!s){main.innerHTML=`<div class="soon"><div class="panel"><div class="ic">🎭</div><h2>Сессия не идёт</h2><p class="muted">${isM?'Начните сессию во вкладке «Сессии».':'Когда мастер начнёт сессию, экран откроется сам.'}</p><button class="btn primary" data-back>${isM?'К сессиям':'Назад'}</button></div></div>`;main.querySelector('[data-back]').onclick=()=>go('project',pid,'sessions');return}
-  main.innerHTML=`<div class="stage"><div class="st-bg"></div><div class="st-scene"></div>${isM?'<div class="st-ctrl"></div>':''}<div class="st-corner"><div class="mdock st-dock" hidden></div><button class="stc" data-fs></button>${isM?'':'<button class="stc" data-menu title="Ещё">⋯</button>'}</div></div>`;
+  main.innerHTML=`<div class="stage"><div class="st-bg"></div><div class="st-scene"></div>${isM?'<div class="st-ctrl"></div>':''}<div class="st-corner"><div class="mdock st-dock" hidden></div><button class="stc" data-fs></button>${isM?'':'<button class="stc" data-menu title="Ещё">⋯</button><button class="stc stx" data-leave title="Выйти из экрана сессии в меню проекта. Вернуться — кнопка «Идёт сессия» вверху">✕ Выйти в меню</button>'}</div></div>`;
   const stEl=$('.stage',main),sceneEl=$('.st-scene',main),bgEl=$('.st-bg',main),ctrl=$('.st-ctrl',main);
   App.inStage=true;
   let sceneKey='',bd=null,mv=null,charOff=null,maps=[];
@@ -216,7 +215,7 @@ async function renderStage(main,pid,isM,p){
       <div class="lbl">Готовые фоны <button class="lnk" data-manage>управлять</button></div><div class="bglib" data-lib><div class="muted" style="grid-column:1/-1;font-size:12px">Загружаю…</div></div>
       <div class="r" style="margin:8px 0 0"><button class="btn sm" data-img>+ Загрузить или ссылка…</button>${b.image?'<button class="btn sm ghost" data-noimg>Убрать картинку</button>':''}</div>`;
     stEl.appendChild(pop);const place=()=>{const r=btn.getBoundingClientRect(),sr=stEl.getBoundingClientRect();pop.style.top=(r.bottom-sr.top+8)+'px';pop.style.left=Math.max(8,Math.min(r.left-sr.left,sr.width-pop.offsetWidth-8))+'px'};place();
-    let lib=[];BgLib.load(pid).then(l=>{lib=l;const g=pop.querySelector('[data-lib]');if(!g)return;g.innerHTML=l.length?bgThumbs(l,b.image):'<div class="muted" style="grid-column:1/-1;font-size:12px;line-height:1.4">Пока пусто — загрузите картинку ниже или подготовьте фоны заранее во вкладке «Сессии».</div>';place()});
+    let lib=[];BgLib.load(pid).then(l=>{lib=l;const g=pop.querySelector('[data-lib]');if(!g)return;g.innerHTML=l.length?bgThumbs(l,b.image):'<div class="muted" style="grid-column:1/-1;font-size:12px;line-height:1.4">Пока пусто — загрузите картинку ниже или подготовьте фоны заранее: «Карты» → «🖼 Фоны».</div>';place()});
     pop.onclick=ev=>{const x=ev.target.closest('[data-c],[data-img],[data-noimg],[data-pick],[data-manage]');if(!x)return;
       if(x.dataset.c){save({bg:{color:x.dataset.c}});pop.remove()}
       if(x.dataset.pick!==undefined){setImg(lib[+x.dataset.pick].src);pop.remove()}
@@ -226,6 +225,7 @@ async function renderStage(main,pid,isM,p){
     pop.querySelector('input[type=color]').onchange=ev=>{save({bg:{color:ev.target.value}});pop.remove()};
     setTimeout(()=>document.addEventListener('pointerdown',function h(ev){if(!pop.contains(ev.target)&&ev.target!==btn){pop.remove();document.removeEventListener('pointerdown',h)}}),0)};
   stEl.querySelector('[data-fs]').onclick=()=>FS.toggle();stEl.querySelector('[data-fs]').innerHTML=FS.icon();stEl.querySelector('[data-fs]').title=FS.on()?'Выйти из полного экрана':'Полный экран';
+  stEl.querySelector('[data-leave]')?.addEventListener('click',()=>go('project',pid,'sessions'));
   stEl.querySelector('[data-menu]')?.addEventListener('click',e=>{$('.st-menu')?.remove();const m=document.createElement('div');m.className='st-menu';m.innerHTML=`<button data-x="sess">Расписание сессий</button><button data-x="chars">Мой персонаж</button><button data-x="rules">Правила</button>`;stEl.appendChild(m);
     m.onclick=ev=>{const x=ev.target.closest('[data-x]');if(x)go('project',pid,x.dataset.x==='sess'?'sessions':x.dataset.x)};
     setTimeout(()=>document.addEventListener('pointerdown',function h(ev){if(!m.contains(ev.target)){m.remove();document.removeEventListener('pointerdown',h)}}),0)});
