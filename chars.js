@@ -92,7 +92,16 @@ function openRollDialog(c,pre={}){
   const attrOpts=VTM.ATTRS.flatMap(g=>g[2]).map(([k,n])=>`<option value="${k}">${n} (${VTM.val(d,k)})</option>`).join('');
   const discs=Object.keys(VTM.DISC).filter(k=>VTM.val(d,k)>0);
   const bOpts=`<option value="">— без второй черты —</option><optgroup label="Навыки">${VTM.SKILLS.flatMap(g=>g[2]).map(([k,n])=>`<option value="${k}">${n} (${VTM.val(d,k)})</option>`).join('')}</optgroup>${discs.length?`<optgroup label="Дисциплины">${discs.map(k=>`<option value="${k}">${VTM.DISC[k]} (${VTM.val(d,k)})</option>`).join('')}</optgroup>`:''}<optgroup label="Атрибуты">${attrOpts}</optgroup>`;
+  const FREE=[4,6,8,10,12,20,100];let fr={};try{fr=JSON.parse(LS.get('rpa_freedice')||'{}')}catch(_){}
   const {el,close}=openModal(`<div class="rolldlg"><h3>🎲 ${esc(pre.label||'Бросок')} <small>${esc(c.name)}</small></h3>
+    ${pre.label?'':`<div class="rd-tabs"><button type="button" data-mode="v5" class="on">По листу (V5)</button><button type="button" data-mode="free">Просто кубы</button></div>`}
+    <div class="rd-free" hidden><p class="muted" style="font-size:12.5px;margin:0 0 10px">Обычный бросок кубов любой грани — без атрибутов, Голода и правил V5. Результат увидят все в журнале бросков.</p>
+      <div class="fd-grid">${FREE.map(f=>`<div class="fd ${fr[f]?'on':''}" data-f="${f}"><b>d${f}</b><span><button type="button" data-fd="-1">−</button><input type="number" min="0" max="50" value="${fr[f]||0}" data-fn><button type="button" data-fd="1">+</button></span></div>`).join('')}</div>
+      <div class="rd-row rd-opts"><label class="rd-num">Модификатор<span><button type="button" data-fm="-1">−</button><input data-fmod type="number" value="${+fr.mod||0}"><button type="button" data-fm="1">+</button></span></label></div>
+      <label class="ck"><input type="checkbox" data-fsecret> Скрытый бросок (видят только мастера)</label>
+      <div class="fd-sum"></div>
+      <div class="modal-actions"><button class="btn" data-close>Отмена</button><button class="btn primary" data-fgo>Бросить</button></div></div>
+    <div class="rd-v5">
     ${pre.vs?`<div class="rd-vs">Против: <b>${esc(pre.vs)}</b></div>`:''}${pre.desc?`<div class="rd-desc">${esc(pre.desc)}</div>`:''}
     <div class="rd-row"><label>Черта 1<select data-a>${attrOpts}</select></label><span class="rd-plus">+</span><label>Черта 2<select data-b>${bOpts}</select></label></div>
     <div class="rd-row rd-opts">
@@ -103,7 +112,22 @@ function openRollDialog(c,pre={}){
       <label class="ck"><input type="checkbox" data-surge> Прилив крови (+${VTM.bpRow(d)[0]}, бросок на голод)</label>
       <label class="ck"><input type="checkbox" data-secret> Скрытый бросок (видят только мастера)</label></div>
     <div class="rd-sum"></div>
-    <div class="modal-actions"><button class="btn" data-close>Отмена</button><button class="btn primary rd-go" data-go>Бросить</button></div></div>`);
+    <div class="modal-actions"><button class="btn" data-close>Отмена</button><button class="btn primary rd-go" data-go>Бросить</button></div></div></div>`);
+  /* вкладка «Просто кубы» */
+  const fdState=()=>{const o={};el.querySelectorAll('.fd').forEach(x=>{const n=Math.max(0,Math.min(50,+x.querySelector('[data-fn]').value||0));if(n)o[x.dataset.f]=n;x.classList.toggle('on',n>0)});o.mod=+el.querySelector('[data-fmod]').value||0;return o};
+  const fdUpd=()=>{const o=fdState();const parts=FREE.filter(f=>o[f]).map(f=>`${o[f]}d${f}`);
+    el.querySelector('.fd-sum').innerHTML=parts.length?`<b>${parts.join(' + ')}${o.mod?(o.mod>0?' + ':' − ')+Math.abs(o.mod):''}</b>`:'<span class="muted">Выберите кубы</span>';
+    el.querySelector('[data-fgo]').disabled=!parts.length};
+  el.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{const free=b.dataset.mode==='free';el.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('on',x===b));el.querySelector('.rd-free').hidden=!free;el.querySelector('.rd-v5').hidden=free;LS.set('rpa_rollmode',free?'free':'v5')});
+  el.querySelectorAll('[data-fd]').forEach(b=>b.onclick=()=>{const i=b.parentElement.querySelector('[data-fn]');i.value=Math.max(0,Math.min(50,(+i.value||0)+ +b.dataset.fd));fdUpd()});
+  el.querySelectorAll('[data-fm]').forEach(b=>b.onclick=()=>{const i=el.querySelector('[data-fmod]');i.value=(+i.value||0)+ +b.dataset.fm;fdUpd()});
+  el.querySelector('.rd-free').addEventListener('input',fdUpd);
+  el.querySelector('[data-fgo]').onclick=async()=>{const o=fdState();LS.set('rpa_freedice',JSON.stringify(o));
+    const dice=[];for(const f of FREE)for(let i=0;i<(o[f]||0);i++)dice.push({s:f,v:1+Math.floor(Math.random()*f)});if(!dice.length)return;
+    const total=dice.reduce((a,x)=>a+x.v,0)+o.mod;const label=FREE.filter(f=>o[f]).map(f=>`${o[f]}d${f}`).join(' + ')+(o.mod?(o.mod>0?' + ':' − ')+Math.abs(o.mod):'');
+    close();await S.postRoll({type:'free',label,char:charPubName(S.get(c.id)||c),dice,mod:o.mod,total},{charId:c.id,secret:el.querySelector('[data-fsecret]').checked})};
+  fdUpd();
+  if(!pre.label&&LS.get('rpa_rollmode')==='free')el.querySelector('[data-mode="free"]').click();
   const A=el.querySelector('[data-a]'),B=el.querySelector('[data-b]'),M=el.querySelector('[data-mods]'),D=el.querySelector('[data-diff]'),SP=el.querySelector('[data-spec]'),SU=el.querySelector('[data-surge]'),SE=el.querySelector('[data-secret]');
   A.value=pre.a||'dex';B.value=pre.b??'';
   if(pre.b&&!B.value)B.value='';
@@ -153,15 +177,17 @@ async function usePower(c,pid){
 function diceHTML(d){
   if(d.type==='rouse')return d.blocked?'<span class="rk-note">Голод 5 — кровь не пробуждается</span>':d.dice.map(x=>`<i class="dk h ${x.ok?'ok':'bad'}">${x.v}</i>${x.v2!==null&&x.v2!==undefined?`<i class="dk h re ${x.v2>=6?'ok':'bad'}" title="Переброс за Силу крови">${x.v2}</i>`:''}`).join('');
   if(d.type==='power')return '';
+  if(d.type==='free')return d.dice.map(x=>`<i class="dk fr ${x.v===x.s?'mx':''} ${x.v===1?'mn':''}" title="d${x.s}">${x.v}<sub>d${x.s}</sub></i>`).join('')+(d.mod?`<span class="dk-mod">${d.mod>0?'+':'−'}${Math.abs(d.mod)}</span>`:'');
   return [...d.reg.map((v,i)=>`<i class="dk ${v>=6?'ok':''} ${v===10?'ten':''} ${(d.rerolled||[]).includes(i)?'re':''}">${v}</i>`),...d.hun.map(v=>`<i class="dk h ${v>=6?'ok':''} ${v===10?'ten':''} ${v===1?'skull':''}">${v===1?'☠':v}</i>`)].join('');
 }
 function rollSummary(d){
   if(d.type==='rouse')return d.blocked?['Кровь не пробуждается','#ff4d4d']:d.hungerTo>d.hungerFrom?[`Голод ${d.hungerFrom} → ${d.hungerTo}`,'#ff4d4d']:['Голод не вырос','#7ad08a'];
   if(d.type==='power')return [`${VTM.DISC[d.disc]||''} ${d.lvl||''}`,'#c9b6ff'];
+  if(d.type==='free')return [`Сумма: ${d.total}`,'#f0cf86'];
   const [t,col]=VTM.RES[d.res]||['',''];return [`${t} · ${d.succ} ${plural(d.succ,'успех','успеха','успехов')}${d.diff?` из ${d.diff}`:''}${d.margin>0?` (+${d.margin})`:''}`,col];
 }
 // чужие броски игрок видит без своих данных о листе: только кто, что и чем кончилось — без кубов (их число выдаёт пул) и без значений Голода
-function seesRoll(r){const S=App.chars;if(!S||S.isM||r.user_id===App.user.id)return true;const c=r.character_id&&S.get(r.character_id);return !!(c&&c.owner_id===App.user.id)}
+function seesRoll(r){const S=App.chars;if(!S||S.isM||r.user_id===App.user.id||r.data?.type==='free')return true;const c=r.character_id&&S.get(r.character_id);return !!(c&&c.owner_id===App.user.id)}
 function rollCard(r,full){
   const open=seesRoll(r);const d=open?r.data:{...r.data,parts:undefined,pool:undefined,hunger:undefined,hungerFrom:undefined,hungerTo:undefined,margin:0};
   let [sum,col]=rollSummary(r.data);if(!open&&r.data.type==='rouse')sum=r.data.blocked?'Бросок на голод невозможен':r.data.hungerTo>r.data.hungerFrom?'Голод вырос':'Голод не вырос';
